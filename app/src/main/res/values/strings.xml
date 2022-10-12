@@ -1,3 +1,20 @@
 <resources>
     <string name="app_name">Store Keeper</string>
+
+    <string-array name="products_full_text">
+        <item>Υπολογιστής</item>
+        <item>Οθόνη</item>
+        <item>Πληκρολόγιο</item>
+        <item>Ποντίκι</item>
+        <item>Εκτυπωτής</item>
+        <item>Projector</item>
+        <item>Ακουστικά</item>
+        <item>Υπολογιστής</item>
+        <item>Οθόνη</item>
+        <item>Πληκρολόγιο</item>
+        <item>Ποντίκι</item>
+        <item>Εκτυπωτής</item>
+        <item>Projector</item>
+        <item>Ακουστικά</item>
+    </string-array>
 </resources>
