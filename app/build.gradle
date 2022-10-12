@@ -26,6 +26,16 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    sourceSets {
+        main {
+            java {
+                srcDirs 'src\\main\\java', 'src\\main\\java\\Adapters', 'src\\main\\java\\Models', 'src\\main\\java\\Interfaces'
+            }
+            res {
+                srcDirs 'src\\main\\res', 'src\\main\\res\\layouts', 'src\\main\\res\\layouts\\activities', 'src\\main\\res\\layouts\\RVRows', 'src\\main\\res\\layouts\\popups'
+            }
+        }
+    }
 }
 
 dependencies {

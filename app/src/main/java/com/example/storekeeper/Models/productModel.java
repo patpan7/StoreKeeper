@@ -1,4 +1,4 @@
-package com.example.storekeeper;
+package com.example.storekeeper.Models;
 
 public class productModel {
     String productName;

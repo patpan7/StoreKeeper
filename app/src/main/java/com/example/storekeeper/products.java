@@ -1,15 +1,31 @@
 package com.example.storekeeper;
 
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageView;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.os.Bundle;
+import com.example.storekeeper.Adapters.Products_RVAdapter;
+import com.example.storekeeper.Interfaces.Products_RVInterface;
+import com.example.storekeeper.Models.productModel;
 
 import java.util.ArrayList;
 
-public class products extends AppCompatActivity {
+public class products extends AppCompatActivity implements Products_RVInterface {
 
+    private AlertDialog.Builder dialogBuilder;
+    private AlertDialog dialog;
+    private EditText product_popup_code, product_popup_name, product_popup_barcode, product_popup_balance;
+    CardView product_popup_savebtn;
+    ImageView product_popup_editbtn;
     ArrayList<productModel> productModels = new ArrayList<>();
 
 
@@ -21,7 +37,7 @@ public class products extends AppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.productsRV);
         setUpProductModels();
 
-        Products_RVAdapter adapter = new Products_RVAdapter(this,productModels);
+        Products_RVAdapter adapter = new Products_RVAdapter(this,productModels,this);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
@@ -32,5 +48,51 @@ public class products extends AppCompatActivity {
         for (String productName : productNames) {
             productModels.add(new productModel(productName));
         }
+    }
+
+    @Override
+    public void onItemClick(int position) {
+        productDialog();
+        //Toast.makeText(this, "Successfully.", Toast.LENGTH_SHORT).show();
+    }
+
+    public void productDialog(){
+        dialogBuilder = new AlertDialog.Builder(this);
+        final View productPopupView = getLayoutInflater().inflate(R.layout.product_popup, null);
+        product_popup_code = productPopupView.findViewById(R.id.product_popup_code1);
+        product_popup_name = productPopupView.findViewById(R.id.product_popup_name1);
+        product_popup_barcode = productPopupView.findViewById(R.id.product_popup_barcode1);
+        product_popup_balance = productPopupView.findViewById(R.id.product_popup_balance1);
+
+        product_popup_code.setText("000001");
+        product_popup_name.setText("Υπολογιστής");
+        product_popup_barcode.setText("1234567890");
+        product_popup_balance.setText("5");
+
+        dialogBuilder.setView(productPopupView);
+        dialog = dialogBuilder.create();
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        dialog.show();
+
+        product_popup_savebtn = productPopupView.findViewById(R.id.product_popup_savebtn);
+        product_popup_savebtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+
+        product_popup_editbtn = productPopupView.findViewById(R.id.product_popup_editbtn);
+        product_popup_editbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //product_popup_code.setEnabled(true);
+                product_popup_name.setEnabled(true);
+                product_popup_barcode.setEnabled(true);
+                //product_popup_balance.setEnabled(true);
+            }
+        });
+
     }
 }

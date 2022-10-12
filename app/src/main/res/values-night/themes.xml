@@ -31,15 +31,33 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:windowFullscreen">true</item>
-
         <item name="android:background">@color/md_theme_light_onBackground</item>
-
         <item name="materialButtonStyle">@style/myButton</item>
+        <item name="textInputStyle">@style/myInputstyle</item>
+        <item name="android:textViewStyle">@style/myLabels</item>
     </style>
 
     <style name="myButton" parent="Widget.MaterialComponents.Button">
         <item name="android:textSize">18sp</item>
         <item name="cornerRadius">20dp</item>
         <item name="android:textAllCaps">false</item>
+    </style>
+    <style name="DialogAnimation">
+        <item name="android:windowEnterAnimation">@android:anim/slide_in_left</item>
+        <item name="android:windowExitAnimation">@android:anim/slide_out_right</item>
+        <item name="android:delay">0</item>
+    </style>
+
+    <style name="myLabels" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textColor">@color/md_theme_light_onPrimary</item>
+        <item name="boxBackgroundMode">outline</item>
+    </style>
+
+    <style name="myInputstyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxCornerRadiusTopStart">20dp</item>
+        <item name="boxCornerRadiusTopEnd">20dp</item>
+        <item name="boxCornerRadiusBottomStart">20dp</item>
+        <item name="boxCornerRadiusBottomEnd">20dp</item>
+        <item name="textBackground">@color/md_theme_light_onPrimary</item>
     </style>
 </resources>
