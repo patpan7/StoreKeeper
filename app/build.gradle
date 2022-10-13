@@ -32,7 +32,7 @@ android {
                 srcDirs 'src\\main\\java', 'src\\main\\java\\Adapters', 'src\\main\\java\\Models', 'src\\main\\java\\Interfaces'
             }
             res {
-                srcDirs 'src\\main\\res', 'src\\main\\res\\layouts', 'src\\main\\res\\layouts\\activities', 'src\\main\\res\\layouts\\RVRows', 'src\\main\\res\\layouts\\popups'
+                srcDirs 'src\\main\\res\\layouts\\popups', 'src\\main\\res', 'src\\main\\res\\layouts', 'src\\main\\res\\layouts\\activities', 'src\\main\\res\\layouts\\RVRows'
             }
         }
     }

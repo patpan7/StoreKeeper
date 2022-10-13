@@ -1,11 +1,15 @@
 package com.example.storekeeper;
 
+import android.content.ClipData;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.SearchView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,11 +20,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.storekeeper.Adapters.Products_RVAdapter;
 import com.example.storekeeper.Interfaces.Products_RVInterface;
 import com.example.storekeeper.Models.productModel;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.dialog.MaterialDialogs;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class products extends AppCompatActivity implements Products_RVInterface {
 
+    private SearchView searchView;
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
     private EditText product_popup_code, product_popup_name, product_popup_barcode, product_popup_balance;
@@ -34,12 +43,36 @@ public class products extends AppCompatActivity implements Products_RVInterface 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_products);
 
+        searchView = findViewById(R.id.product_searchView);
+        searchView.clearFocus();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                filterList(s);
+                return false;
+            }
+        });
         RecyclerView recyclerView = findViewById(R.id.productsRV);
         setUpProductModels();
 
         Products_RVAdapter adapter = new Products_RVAdapter(this,productModels,this);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    private void filterList(String text) {
+        List<productModel> filteredList = new ArrayList<>();
+        for (productModel product : productModels){
+            if(product.getProductName().toLowerCase().contains(text.toLowerCase())){
+                filteredList.add(product);
+            }
+        }
+
     }
 
     private void setUpProductModels() {
@@ -57,7 +90,7 @@ public class products extends AppCompatActivity implements Products_RVInterface 
     }
 
     public void productDialog(){
-        dialogBuilder = new AlertDialog.Builder(this);
+        dialogBuilder = new MaterialAlertDialogBuilder(this);
         final View productPopupView = getLayoutInflater().inflate(R.layout.product_popup, null);
         product_popup_code = productPopupView.findViewById(R.id.product_popup_code1);
         product_popup_name = productPopupView.findViewById(R.id.product_popup_name1);

@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0"?>
+
 <resources>
     <color name="seed">#326789</color>
     <color name="md_theme_light_primary">#006491</color>
@@ -59,5 +60,4 @@
     <color name="md_theme_dark_shadow">#000000</color>
     <color name="md_theme_dark_surfaceTint">#89CEFF</color>
     <color name="md_theme_dark_surfaceTintColor">#89CEFF</color>
-
 </resources>
