@@ -1,18 +1,17 @@
 package com.example.storekeeper;
 
-import android.content.ClipData;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.SearchView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,16 +19,18 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.storekeeper.Adapters.Products_RVAdapter;
 import com.example.storekeeper.Interfaces.Products_RVInterface;
 import com.example.storekeeper.Models.productModel;
+import com.example.storekeeper.newInserts.Product_CreateNew;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.dialog.MaterialDialogs;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 
 public class products extends AppCompatActivity implements Products_RVInterface {
 
     private SearchView searchView;
+    RecyclerView recyclerView;
+    FloatingActionButton floatingActionButton;
+    Products_RVAdapter adapter;
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
     private EditText product_popup_code, product_popup_name, product_popup_barcode, product_popup_balance;
@@ -42,8 +43,30 @@ public class products extends AppCompatActivity implements Products_RVInterface 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_products);
-
+        recyclerView = findViewById(R.id.productsRV);
         searchView = findViewById(R.id.product_searchView);
+        floatingActionButton = findViewById(R.id.product_fab);
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(products.this, Product_CreateNew.class);
+                startActivity(intent);
+            }
+        });
+        setUpProductModels();
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                if (dy >0){
+                   floatingActionButton.hide();
+                } else{
+                    floatingActionButton.show();
+                }
+                super.onScrolled(recyclerView, dx, dy);
+            }
+        });
+
         searchView.clearFocus();
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -53,25 +76,10 @@ public class products extends AppCompatActivity implements Products_RVInterface 
 
             @Override
             public boolean onQueryTextChange(String s) {
-                filterList(s);
-                return false;
+                adapter.getFilter().filter(s);
+                return true;
             }
         });
-        RecyclerView recyclerView = findViewById(R.id.productsRV);
-        setUpProductModels();
-
-        Products_RVAdapter adapter = new Products_RVAdapter(this,productModels,this);
-        recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-    }
-
-    private void filterList(String text) {
-        List<productModel> filteredList = new ArrayList<>();
-        for (productModel product : productModels){
-            if(product.getProductName().toLowerCase().contains(text.toLowerCase())){
-                filteredList.add(product);
-            }
-        }
 
     }
 
@@ -81,6 +89,9 @@ public class products extends AppCompatActivity implements Products_RVInterface 
         for (String productName : productNames) {
             productModels.add(new productModel(productName));
         }
+
+        adapter = new Products_RVAdapter(this,productModels,this);
+        recyclerView.setAdapter(adapter);
     }
 
     @Override

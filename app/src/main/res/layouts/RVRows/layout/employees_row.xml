@@ -6,7 +6,7 @@
     android:layout_height="wrap_content">
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/product_card"
+        android:id="@+id/employees_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -28,7 +28,7 @@
             app:layout_constraintStart_toStartOf="parent">
 
             <TextView
-                android:id="@+id/product_title"
+                android:id="@+id/employees_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Name"
@@ -40,32 +40,6 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.231" />
 
-            <TextView
-                android:id="@+id/product_barcode"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="barcode"
-                android:textSize="12dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.694"
-                app:layout_constraintStart_toEndOf="@+id/product_title"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.231" />
-
-            <TextView
-                android:id="@+id/product_code"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="code"
-                android:textSize="8dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.156"
-                app:layout_constraintStart_toEndOf="@+id/product_img"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.768" />
-
             <ImageView
                 android:id="@+id/product_img"
                 android:layout_width="wrap_content"
@@ -73,7 +47,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/products" />
+                app:srcCompat="@drawable/employees" />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/guideline2"

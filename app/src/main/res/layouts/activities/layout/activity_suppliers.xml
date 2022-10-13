@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".products">
+    tools:context=".suppliers">
 
     <androidx.appcompat.widget.SearchView
-        android:id="@+id/product_searchView"
+        android:id="@+id/suppliers_searchView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
@@ -20,7 +20,7 @@
         app:queryHint="Αναζήτηση..." />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/productsRV"
+        android:id="@+id/suppliersRV"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginStart="1dp"
@@ -29,10 +29,10 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/product_searchView" />
+        app:layout_constraintTop_toBottomOf="@+id/suppliers_searchView" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/product_fab"
+        android:id="@+id/suppliers_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"

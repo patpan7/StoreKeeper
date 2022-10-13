@@ -17,4 +17,38 @@
         <item>Projector</item>
         <item>Ακουστικά</item>
     </string-array>
+
+    <string-array name="employees_full_text">
+        <item>Γιάννης</item>
+        <item>Κώστας</item>
+        <item>Παναγιώτης</item>
+        <item>Αποστόλης</item>
+        <item>Μαρία</item>
+        <item>Ελένη</item>
+        <item>Δήμητρα</item>
+        <item>Ειρήνη</item>
+        <item>Μάκης</item>
+        <item>Τάκης</item>
+        <item>Λάσης</item>
+        <item>Σάκης</item>
+        <item>Τούλα</item>
+        <item>Σούλα</item>
+    </string-array>
+
+    <string-array name="suppliers_full_text">
+        <item>Megasoft</item>
+        <item>SoftOne</item>
+        <item>ICS</item>
+        <item>Digital Mauntains</item>
+        <item>ACI</item>
+        <item>NetConnect</item>
+        <item>ParterNET</item>
+        <item>Otabit</item>
+        <item>Γεράσης</item>
+        <item>Exopus</item>
+        <item>Πλαίσιο</item>
+        <item>Kotsovolos</item>
+        <item>Media Market</item>
+        <item>Public</item>
+    </string-array>
 </resources>
