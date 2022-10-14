@@ -176,41 +176,17 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/suppliers_insert_work"
+                android:id="@+id/suppliers_insert_afm"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:helperText="Εργασία"
+                app:helperText="ΑΦΜ"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/suppliers_insert_mail"
                 tools:ignore="DuplicateIds">
 
                 <EditText
-                    android:id="@+id/suppliers_insert_work1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:enabled="false"
-                    android:importantForAutofill="no"
-                    android:inputType="number"
-                    android:textColorHint="#ffffff"
-                    tools:ignore="SpeakableTextPresentCheck" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/suppliers_insert_id"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:helperText="Αρ. Ταυτότητας"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/suppliers_insert_work"
-                tools:ignore="DuplicateIds">
-
-                <EditText
-                    android:id="@+id/suppliers_insert_id1"
+                    android:id="@+id/suppliers_insert_afm1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
@@ -236,7 +212,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/suppliers_insert_id"
+                app:layout_constraintTop_toBottomOf="@+id/suppliers_insert_afm"
                 app:layout_constraintVertical_bias="0.067">
 
                 <LinearLayout

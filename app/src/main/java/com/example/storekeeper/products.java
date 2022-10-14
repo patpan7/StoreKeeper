@@ -1,5 +1,6 @@
 package com.example.storekeeper;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -46,12 +47,9 @@ public class products extends AppCompatActivity implements Products_RVInterface 
         recyclerView = findViewById(R.id.productsRV);
         searchView = findViewById(R.id.product_searchView);
         floatingActionButton = findViewById(R.id.product_fab);
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(products.this, Product_CreateNew.class);
-                startActivity(intent);
-            }
+        floatingActionButton.setOnClickListener(view -> {
+            Intent intent = new Intent(products.this, Product_CreateNew.class);
+            startActivity(intent);
         });
         setUpProductModels();
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -100,6 +98,7 @@ public class products extends AppCompatActivity implements Products_RVInterface 
         //Toast.makeText(this, "Successfully.", Toast.LENGTH_SHORT).show();
     }
 
+    @SuppressLint("SetTextI18n")
     public void productDialog(){
         dialogBuilder = new MaterialAlertDialogBuilder(this);
         final View productPopupView = getLayoutInflater().inflate(R.layout.product_popup, null);
@@ -120,22 +119,14 @@ public class products extends AppCompatActivity implements Products_RVInterface 
         dialog.show();
 
         product_popup_savebtn = productPopupView.findViewById(R.id.product_popup_savebtn);
-        product_popup_savebtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-            }
-        });
+        product_popup_savebtn.setOnClickListener(view -> dialog.dismiss());
 
         product_popup_editbtn = productPopupView.findViewById(R.id.product_popup_editbtn);
-        product_popup_editbtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //product_popup_code.setEnabled(true);
-                product_popup_name.setEnabled(true);
-                product_popup_barcode.setEnabled(true);
-                //product_popup_balance.setEnabled(true);
-            }
+        product_popup_editbtn.setOnClickListener(view -> {
+            //product_popup_code.setEnabled(true);
+            product_popup_name.setEnabled(true);
+            product_popup_barcode.setEnabled(true);
+            //product_popup_balance.setEnabled(true);
         });
 
     }
