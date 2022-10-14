@@ -115,17 +115,41 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
+
                 <ImageButton
                     android:id="@+id/product_insert_scanbtn"
                     android:layout_width="80dp"
                     android:layout_height="80dp"
                     android:background="@drawable/barcode"
+                    android:elevation="10dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:ignore="SpeakableTextPresentCheck" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/product_insert_warranty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:helperText="Μήνες Εγγύησης"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/product_insert_barcode2"
+                tools:ignore="DuplicateIds">
+
+                <EditText
+                    android:id="@+id/product_insert_warranty1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:importantForAutofill="no"
+                    android:inputType="text"
+                    tools:ignore="SpeakableTextPresentCheck" />
+            </com.google.android.material.textfield.TextInputLayout>
+
             <androidx.cardview.widget.CardView
                 android:id="@+id/product_insert_savebtn"
                 android:layout_width="wrap_content"
@@ -139,7 +163,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/product_insert_barcode2"
+                app:layout_constraintTop_toBottomOf="@+id/product_insert_warranty"
                 app:layout_constraintVertical_bias="0.067">
 
                 <LinearLayout
@@ -162,10 +186,9 @@
                         android:text="Αποθήκευση"
                         android:textAlignment="center"
                         android:textSize="20sp" />
-
-
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
