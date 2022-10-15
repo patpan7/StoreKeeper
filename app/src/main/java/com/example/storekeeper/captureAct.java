@@ -2,5 +2,5 @@ package com.example.storekeeper;
 
 import com.journeyapps.barcodescanner.CaptureActivity;
 
-public class CaptureAct extends CaptureActivity {
+public class captureAct extends CaptureActivity {
 }

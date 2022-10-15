@@ -1,5 +1,5 @@
 package com.example.storekeeper.Interfaces;
 
-public interface Suppliers_RVInterface {
+public interface suppliers_RVInterface {
     void onItemClick (int position);
 }

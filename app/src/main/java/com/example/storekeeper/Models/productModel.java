@@ -48,4 +48,10 @@ public class productModel {
         this.productBarcode = productBarcode;
         this.productWarranty = productWarranty;
     }
+
+    public productModel(int productId, String productName, String productBarcode) {
+        this.productId = productId;
+        this.productName = productName;
+        this.productBarcode = productBarcode;
+    }
 }

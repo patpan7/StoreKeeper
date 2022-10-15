@@ -17,21 +17,21 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.storekeeper.Adapters.Employees_RVAdapter;
-import com.example.storekeeper.Interfaces.Employees_RVInterface;
+import com.example.storekeeper.Adapters.employees_RVAdapter;
+import com.example.storekeeper.Interfaces.employees_RVInterface;
 import com.example.storekeeper.Models.employeesModel;
-import com.example.storekeeper.newInserts.Employee_CreateNew;
+import com.example.storekeeper.newInserts.employee_CreateNew;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 
-public class employees extends AppCompatActivity implements Employees_RVInterface {
+public class employees extends AppCompatActivity implements employees_RVInterface {
 
     private SearchView searchView;
     RecyclerView recyclerView;
     FloatingActionButton floatingActionButton;
-    Employees_RVAdapter adapter;
+    employees_RVAdapter adapter;
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
     private EditText employee_popup_code;
@@ -50,7 +50,7 @@ public class employees extends AppCompatActivity implements Employees_RVInterfac
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(employees.this, Employee_CreateNew.class);
+                Intent intent = new Intent(employees.this, employee_CreateNew.class);
                 startActivity(intent);
             }
         });
@@ -90,7 +90,7 @@ public class employees extends AppCompatActivity implements Employees_RVInterfac
             employeeModels.add(new employeesModel(employeeName));
         }
 
-        adapter = new Employees_RVAdapter(this,employeeModels,this);
+        adapter = new employees_RVAdapter(this,employeeModels,this);
         recyclerView.setAdapter(adapter);
     }
 

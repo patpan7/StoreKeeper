@@ -31,45 +31,43 @@
                 android:id="@+id/product_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
                 android:text="Name"
                 android:textSize="20dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.161"
-                app:layout_constraintStart_toEndOf="@+id/product_img"
+                app:layout_constraintStart_toEndOf="@+id/product_code"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.231" />
+                app:layout_constraintVertical_bias="0.232" />
 
             <TextView
                 android:id="@+id/product_barcode"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
                 android:text="barcode"
                 android:textSize="12dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.694"
-                app:layout_constraintStart_toEndOf="@+id/product_title"
+                app:layout_constraintStart_toEndOf="@+id/product_code"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.231" />
+                app:layout_constraintVertical_bias="0.814" />
 
             <TextView
                 android:id="@+id/product_code"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
                 android:text="code"
                 android:textSize="8dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.156"
                 app:layout_constraintStart_toEndOf="@+id/product_img"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.768" />
+                app:layout_constraintVertical_bias="0.338" />
 
             <ImageView
                 android:id="@+id/product_img"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_margin="10dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"

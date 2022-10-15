@@ -13,21 +13,21 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.storekeeper.Interfaces.Employees_RVInterface;
+import com.example.storekeeper.Interfaces.employees_RVInterface;
 import com.example.storekeeper.Models.employeesModel;
 import com.example.storekeeper.R;
 
 import java.util.ArrayList;
 
-public class Employees_RVAdapter extends RecyclerView.Adapter<Employees_RVAdapter.MyViewHolder> implements Filterable {
+public class employees_RVAdapter extends RecyclerView.Adapter<employees_RVAdapter.MyViewHolder> implements Filterable {
 
-    private final Employees_RVInterface employees_rvInterface;
+    private final employees_RVInterface employees_rvInterface;
 
     Context context;
     ArrayList<employeesModel> employeesModels;
     ArrayList<employeesModel> employeesModelsFull;
 
-    public Employees_RVAdapter(Context context, ArrayList<employeesModel> employeesModels, Employees_RVInterface employees_rvInterface){
+    public employees_RVAdapter(Context context, ArrayList<employeesModel> employeesModels, employees_RVInterface employees_rvInterface){
         this.context = context;
         this.employeesModelsFull = employeesModels;
         this.employees_rvInterface = employees_rvInterface;
@@ -41,15 +41,15 @@ public class Employees_RVAdapter extends RecyclerView.Adapter<Employees_RVAdapte
 
     @NonNull
     @Override
-    public Employees_RVAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public employees_RVAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.employees_row,parent,false);
 
-        return new Employees_RVAdapter.MyViewHolder(view,employees_rvInterface);
+        return new employees_RVAdapter.MyViewHolder(view,employees_rvInterface);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull Employees_RVAdapter.MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull employees_RVAdapter.MyViewHolder holder, int position) {
         holder.tvName.setText(employeesModels.get(position).getEmployeeName());
 
         holder.cardView.startAnimation(AnimationUtils.loadAnimation(holder.itemView.getContext(),R.anim.recycleervie_animation));
@@ -100,7 +100,7 @@ public class Employees_RVAdapter extends RecyclerView.Adapter<Employees_RVAdapte
         TextView tvName;
         CardView cardView;
 
-        public MyViewHolder(@NonNull View itemView, Employees_RVInterface employees_rvInterface) {
+        public MyViewHolder(@NonNull View itemView, employees_RVInterface employees_rvInterface) {
             super(itemView);
 
             tvName = itemView.findViewById(R.id.employees_name);

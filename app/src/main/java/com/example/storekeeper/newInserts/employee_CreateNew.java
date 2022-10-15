@@ -9,7 +9,7 @@ import androidx.cardview.widget.CardView;
 
 import com.example.storekeeper.R;
 
-public class Employee_CreateNew extends AppCompatActivity {
+public class employee_CreateNew extends AppCompatActivity {
 
     EditText code, name, surname, phone, mobile, mail, work, id;
     CardView savebtn;

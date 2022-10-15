@@ -1,5 +1,6 @@
 package com.example.storekeeper.Adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,48 +14,49 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.storekeeper.Interfaces.Products_RVInterface;
+import com.example.storekeeper.Interfaces.products_RVInterface;
 import com.example.storekeeper.Models.productModel;
 import com.example.storekeeper.R;
 
 import java.util.ArrayList;
 
-public class Products_RVAdapter extends RecyclerView.Adapter<Products_RVAdapter.MyViewHolder> implements Filterable {
+public class products_RVAdapter extends RecyclerView.Adapter<products_RVAdapter.MyViewHolder> implements Filterable {
 
-    private final Products_RVInterface products_rvInterface;
+    private final products_RVInterface products_rvInterface;
 
     Context context;
     ArrayList<productModel> productModels;
     ArrayList<productModel> productModelsFull;
 
-    public Products_RVAdapter(Context context, ArrayList<productModel> productModels, Products_RVInterface products_rvInterface){
+    public products_RVAdapter(Context context, ArrayList<productModel> productModels, products_RVInterface products_rvInterface) {
         this.context = context;
         this.productModelsFull = productModels;
         this.products_rvInterface = products_rvInterface;
         this.productModels = new ArrayList<>(productModelsFull);
     }
 
-    public void setFilteredList(ArrayList<productModel> filteredList){
+    @SuppressLint("NotifyDataSetChanged")
+    public void setFilteredList(ArrayList<productModel> filteredList) {
         this.productModels = filteredList;
         notifyDataSetChanged();
     }
 
     @NonNull
     @Override
-    public Products_RVAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public products_RVAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(R.layout.product_row,parent,false);
+        View view = inflater.inflate(R.layout.product_row, parent, false);
 
-        return new Products_RVAdapter.MyViewHolder(view,products_rvInterface);
+        return new products_RVAdapter.MyViewHolder(view, products_rvInterface);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull Products_RVAdapter.MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull products_RVAdapter.MyViewHolder holder, int position) {
         holder.tvName.setText(productModels.get(position).getProductName());
-        holder.tvCode.setText("00001");
-        holder.tvbarcode.setText("1234567890");
+        holder.tvCode.setText(String.valueOf(productModels.get(position).getProductId()));
+        holder.tvbarcode.setText(productModels.get(position).getProductBarcode());
 
-        holder.cardView.startAnimation(AnimationUtils.loadAnimation(holder.itemView.getContext(),R.anim.recycleervie_animation));
+        holder.cardView.startAnimation(AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.recycleervie_animation));
     }
 
     @Override
@@ -72,14 +74,14 @@ public class Products_RVAdapter extends RecyclerView.Adapter<Products_RVAdapter.
         @Override
         protected FilterResults performFiltering(CharSequence charSequence) {
             ArrayList<productModel> filteredProductList = new ArrayList<>();
-            if (charSequence == null || charSequence.length() == 0){
+            if (charSequence == null || charSequence.length() == 0) {
                 filteredProductList.addAll(productModelsFull);
 
-            }else {
+            } else {
                 String filterPatern = charSequence.toString().toLowerCase().trim();
 
-                for (productModel product : productModelsFull){
-                    if(product.getProductName().toLowerCase().contains(filterPatern))
+                for (productModel product : productModelsFull) {
+                    if (product.getProductName().toLowerCase().contains(filterPatern))
                         filteredProductList.add(product);
                 }
             }
@@ -90,33 +92,34 @@ public class Products_RVAdapter extends RecyclerView.Adapter<Products_RVAdapter.
             return results;
         }
 
+        @SuppressLint("NotifyDataSetChanged")
         @Override
         protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
             productModels.clear();
-            productModels.addAll((ArrayList)filterResults.values);
+            productModels.addAll((ArrayList) filterResults.values);
             notifyDataSetChanged();
         }
     };
 
-    public static class MyViewHolder extends RecyclerView.ViewHolder{
+    public static class MyViewHolder extends RecyclerView.ViewHolder {
 
         TextView tvName, tvCode, tvbarcode;
         CardView cardView;
 
-         public MyViewHolder(@NonNull View itemView, Products_RVInterface products_rvInterface) {
+        public MyViewHolder(@NonNull View itemView, products_RVInterface products_rvInterface) {
             super(itemView);
 
             tvName = itemView.findViewById(R.id.product_title);
             tvCode = itemView.findViewById(R.id.product_code);
             tvbarcode = itemView.findViewById(R.id.product_barcode);
-             cardView = itemView.findViewById(R.id.product_card);
+            cardView = itemView.findViewById(R.id.product_card);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (products_rvInterface != null){
+                    if (products_rvInterface != null) {
                         int pos = getAdapterPosition();
 
-                        if (pos != RecyclerView.NO_POSITION){
+                        if (pos != RecyclerView.NO_POSITION) {
                             products_rvInterface.onItemClick(pos);
                         }
                     }

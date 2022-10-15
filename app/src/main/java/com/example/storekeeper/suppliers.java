@@ -17,21 +17,21 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.storekeeper.Adapters.Suppliers_RVAdapter;
-import com.example.storekeeper.Interfaces.Suppliers_RVInterface;
+import com.example.storekeeper.Adapters.suppliers_RVAdapter;
+import com.example.storekeeper.Interfaces.suppliers_RVInterface;
 import com.example.storekeeper.Models.supplierModel;
-import com.example.storekeeper.newInserts.Supplier_CreateNew;
+import com.example.storekeeper.newInserts.supplier_CreateNew;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 
-public class suppliers extends AppCompatActivity implements Suppliers_RVInterface {
+public class suppliers extends AppCompatActivity implements suppliers_RVInterface {
 
     private SearchView searchView;
     RecyclerView recyclerView;
     FloatingActionButton floatingActionButton;
-    Suppliers_RVAdapter adapter;
+    suppliers_RVAdapter adapter;
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
     private EditText supplier_popup_code;
@@ -50,7 +50,7 @@ public class suppliers extends AppCompatActivity implements Suppliers_RVInterfac
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(suppliers.this, Supplier_CreateNew.class);
+                Intent intent = new Intent(suppliers.this, supplier_CreateNew.class);
                 startActivity(intent);
             }
         });
@@ -90,7 +90,7 @@ public class suppliers extends AppCompatActivity implements Suppliers_RVInterfac
             supplierModels.add(new supplierModel(supplierName));
         }
 
-        adapter = new Suppliers_RVAdapter(this,supplierModels,this);
+        adapter = new suppliers_RVAdapter(this,supplierModels,this);
         recyclerView.setAdapter(adapter);
     }
 

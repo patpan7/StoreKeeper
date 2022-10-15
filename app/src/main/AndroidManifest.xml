@@ -15,21 +15,21 @@
         android:theme="@style/Theme.StoreKeeper"
         tools:targetApi="31">
         <activity
-            android:name=".newInserts.Supplier_CreateNew"
+            android:name=".newInserts.supplier_CreateNew"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
-            android:name=".newInserts.Product_CreateNew"
+            android:name=".newInserts.product_CreateNew"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
-            android:name=".newInserts.Employee_CreateNew"
+            android:name=".newInserts.employee_CreateNew"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
@@ -105,7 +105,7 @@
                 android:value="" />
         </activity>
         <activity
-            android:name=".CaptureAct"
+            android:name=".captureAct"
             android:stateNotNeeded="true"
             android:theme="@style/zxing_CaptureTheme" />
     </application>

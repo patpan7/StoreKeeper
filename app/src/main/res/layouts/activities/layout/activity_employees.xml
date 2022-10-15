@@ -19,8 +19,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:queryHint="Αναζήτηση..." />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/employeesRV"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/employee_refresh"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginStart="1dp"
@@ -29,7 +29,20 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/employees_searchView" />
+        app:layout_constraintTop_toBottomOf="@+id/employees_searchView">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/employeesRV"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginStart="1dp"
+            android:layout_marginEnd="1dp"
+            android:layout_marginBottom="1dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/employees_searchView" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/employees_fab"

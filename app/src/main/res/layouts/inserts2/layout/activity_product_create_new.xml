@@ -75,7 +75,7 @@
                     android:layout_marginRight="10dp"
                     android:importantForAutofill="no"
                     android:inputType="text"
-                    tools:ignore="SpeakableTextPresentCheck" />
+                    tools:ignore="LabelFor,SpeakableTextPresentCheck" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -94,8 +94,6 @@
                     android:layout_height="0dp"
                     android:orientation="horizontal"
                     app:helperText="Barcode"
-
-
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/product_insert_scanbtn"
                     app:layout_constraintStart_toStartOf="parent"
@@ -146,7 +144,7 @@
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
                     android:importantForAutofill="no"
-                    android:inputType="text"
+                    android:inputType="number"
                     tools:ignore="SpeakableTextPresentCheck" />
             </com.google.android.material.textfield.TextInputLayout>
 
