@@ -94,7 +94,7 @@ public class products extends AppCompatActivity implements products_RVInterface 
 
     private void setUpProductModels() {
         DBHelper helper = new DBHelper(products.this);
-        ArrayList<productModel> dbProducts = helper.getAllProducts();
+        ArrayList<productModel> dbProducts = helper.productsGetAll();
         productModels.addAll(dbProducts);
         adapter = new products_RVAdapter(this, dbProducts, this);
         recyclerView.setAdapter(adapter);
@@ -116,9 +116,9 @@ public class products extends AppCompatActivity implements products_RVInterface 
         product_popup_barcode = productPopupView.findViewById(R.id.product_popup_barcode1);
         product_popup_balance = productPopupView.findViewById(R.id.product_popup_balance1);
 
-        product_popup_code.setText(String.valueOf(productModels.get(pos).getProductId()));
-        product_popup_name.setText(productModels.get(pos).getProductName());
-        product_popup_barcode.setText(productModels.get(pos).getProductBarcode());
+        product_popup_code.setText(String.valueOf(productModels.get(pos).getCode()));
+        product_popup_name.setText(productModels.get(pos).getName());
+        product_popup_barcode.setText(productModels.get(pos).getBarcode());
         product_popup_balance.setText("0");
 
         dialogBuilder.setView(productPopupView);

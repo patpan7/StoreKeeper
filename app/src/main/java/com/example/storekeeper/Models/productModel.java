@@ -1,57 +1,58 @@
 package com.example.storekeeper.Models;
 
 public class productModel {
-    int productId;
-    String productName;
-    String productBarcode;
-    int productWarranty;
+    int code;
+    String name;
+    String barcode;
+    int warranty
+            ;
 
-    public int getProductId() {
-        return productId;
+    public int getCode() {
+        return code;
     }
 
-    public void setProductId(int productId) {
-        this.productId = productId;
+    public void setCode(int code) {
+        this.code = code;
     }
 
-    public void setProductName(String productName) {
-        this.productName = productName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getProductBarcode() {
-        return productBarcode;
+    public String getBarcode() {
+        return barcode;
     }
 
-    public void setProductBarcode(String productBarcode) {
-        this.productBarcode = productBarcode;
+    public void setBarcode(String barcode) {
+        this.barcode = barcode;
     }
 
-    public int getProductWarranty() {
-        return productWarranty;
+    public int getWarranty() {
+        return warranty;
     }
 
-    public void setProductWarranty(int productWarranty) {
-        this.productWarranty = productWarranty;
+    public void setWarranty(int warranty) {
+        this.warranty = warranty;
     }
 
-    public String getProductName() {
-        return productName;
+    public String getName() {
+        return name;
     }
 
     public productModel(String productName) {
-        this.productName = productName;
+        this.name = productName;
     }
 
     public productModel(int productId, String productName, String productBarcode, int productWarranty) {
-        this.productId = productId;
-        this.productName = productName;
-        this.productBarcode = productBarcode;
-        this.productWarranty = productWarranty;
+        this.code = productId;
+        this.name = productName;
+        this.barcode = productBarcode;
+        this.warranty = productWarranty;
     }
 
     public productModel(int productId, String productName, String productBarcode) {
-        this.productId = productId;
-        this.productName = productName;
-        this.productBarcode = productBarcode;
+        this.code = productId;
+        this.name = productName;
+        this.barcode = productBarcode;
     }
 }

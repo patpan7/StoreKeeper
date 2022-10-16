@@ -1,5 +1,6 @@
 package com.example.storekeeper.Adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,14 +28,15 @@ public class employees_RVAdapter extends RecyclerView.Adapter<employees_RVAdapte
     ArrayList<employeesModel> employeesModels;
     ArrayList<employeesModel> employeesModelsFull;
 
-    public employees_RVAdapter(Context context, ArrayList<employeesModel> employeesModels, employees_RVInterface employees_rvInterface){
+    public employees_RVAdapter(Context context, ArrayList<employeesModel> employeesModels, employees_RVInterface employees_rvInterface) {
         this.context = context;
         this.employeesModelsFull = employeesModels;
         this.employees_rvInterface = employees_rvInterface;
         this.employeesModels = new ArrayList<>(employeesModelsFull);
     }
 
-    public void setFilteredList(ArrayList<employeesModel> filteredList){
+    @SuppressLint("NotifyDataSetChanged")
+    public void setFilteredList(ArrayList<employeesModel> filteredList) {
         this.employeesModels = filteredList;
         notifyDataSetChanged();
     }
@@ -43,24 +45,24 @@ public class employees_RVAdapter extends RecyclerView.Adapter<employees_RVAdapte
     @Override
     public employees_RVAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(R.layout.employees_row,parent,false);
+        View view = inflater.inflate(R.layout.employees_row, parent, false);
 
-        return new employees_RVAdapter.MyViewHolder(view,employees_rvInterface);
+        return new employees_RVAdapter.MyViewHolder(view, employees_rvInterface);
     }
 
     @Override
     public void onBindViewHolder(@NonNull employees_RVAdapter.MyViewHolder holder, int position) {
-        holder.tvName.setText(employeesModels.get(position).getEmployeeName());
-
-        holder.cardView.startAnimation(AnimationUtils.loadAnimation(holder.itemView.getContext(),R.anim.recycleervie_animation));
+        holder.tvName.setText(employeesModels.get(position).getName());
+        holder.tvSurname.setText(employeesModels.get(position).getSurname());
+        holder.cardView.startAnimation(AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.recycleervie_animation));
     }
 
     @Override
     public int getItemCount() {
 
-
         return employeesModels.size();
     }
+
     @Override
     public Filter getFilter() {
         return empFilter;
@@ -70,14 +72,14 @@ public class employees_RVAdapter extends RecyclerView.Adapter<employees_RVAdapte
         @Override
         protected FilterResults performFiltering(CharSequence charSequence) {
             ArrayList<employeesModel> filteredEmployeesList = new ArrayList<>();
-            if (charSequence == null || charSequence.length() == 0){
+            if (charSequence == null || charSequence.length() == 0) {
                 filteredEmployeesList.addAll(employeesModelsFull);
 
-            }else {
-                String filterPatern = charSequence.toString().toLowerCase().trim();
+            } else {
+                String filterPatern = charSequence.toString().toUpperCase().trim();
 
-                for (employeesModel employee : employeesModelsFull){
-                    if(employee.getEmployeeName().toLowerCase().contains(filterPatern))
+                for (employeesModel employee : employeesModelsFull) {
+                    if (employee.getName().toUpperCase().contains(filterPatern) || employee.getSurname().toUpperCase().contains(filterPatern))
                         filteredEmployeesList.add(employee);
                 }
             }
@@ -88,30 +90,34 @@ public class employees_RVAdapter extends RecyclerView.Adapter<employees_RVAdapte
             return results;
         }
 
+        @SuppressLint("NotifyDataSetChanged")
         @Override
         protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
             employeesModels.clear();
-            employeesModels.addAll((ArrayList)filterResults.values);
+            employeesModels.addAll((ArrayList) filterResults.values);
             notifyDataSetChanged();
         }
     };
+
     public static class MyViewHolder extends RecyclerView.ViewHolder {
 
         TextView tvName;
+        TextView tvSurname;
         CardView cardView;
 
         public MyViewHolder(@NonNull View itemView, employees_RVInterface employees_rvInterface) {
             super(itemView);
 
             tvName = itemView.findViewById(R.id.employees_name);
+            tvSurname = itemView.findViewById(R.id.employees_surname);
             cardView = itemView.findViewById(R.id.employees_card);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (employees_rvInterface != null){
+                    if (employees_rvInterface != null) {
                         int pos = getAdapterPosition();
 
-                        if (pos != RecyclerView.NO_POSITION){
+                        if (pos != RecyclerView.NO_POSITION) {
                             employees_rvInterface.onItemClick(pos);
                         }
                     }

@@ -52,9 +52,9 @@ public class products_RVAdapter extends RecyclerView.Adapter<products_RVAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull products_RVAdapter.MyViewHolder holder, int position) {
-        holder.tvName.setText(productModels.get(position).getProductName());
-        holder.tvCode.setText(String.valueOf(productModels.get(position).getProductId()));
-        holder.tvbarcode.setText(productModels.get(position).getProductBarcode());
+        holder.tvCode.setText(String.valueOf(productModels.get(position).getCode()));
+        holder.tvName.setText(productModels.get(position).getName());
+        holder.tvbarcode.setText(productModels.get(position).getBarcode());
 
         holder.cardView.startAnimation(AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.recycleervie_animation));
     }
@@ -78,10 +78,10 @@ public class products_RVAdapter extends RecyclerView.Adapter<products_RVAdapter.
                 filteredProductList.addAll(productModelsFull);
 
             } else {
-                String filterPatern = charSequence.toString().toLowerCase().trim();
+                String filterPatern = charSequence.toString().toUpperCase().trim();
 
                 for (productModel product : productModelsFull) {
-                    if (product.getProductName().toLowerCase().contains(filterPatern))
+                    if (product.getName().toUpperCase().contains(filterPatern) || String.valueOf(product.getCode()).contains(filterPatern) || String.valueOf(product.getBarcode()).contains(filterPatern))
                         filteredProductList.add(product);
                 }
             }

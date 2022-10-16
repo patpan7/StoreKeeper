@@ -123,7 +123,7 @@
                     android:id="@+id/suppliers_popup_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:helperText="Όνομα"
+                    app:helperText="Επωνυμία"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/suppliers_popup_code"
@@ -141,29 +141,6 @@
                         tools:ignore="SpeakableTextPresentCheck" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/suppliers_popup_surname"
-
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:helperText="Επώνυμο"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/suppliers_popup_name"
-                    tools:ignore="DuplicateIds">
-
-                    <EditText
-                        android:id="@+id/suppliers_popup_surname1"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
-                        android:enabled="false"
-                        android:importantForAutofill="no"
-                        android:inputType="number"
-                        tools:ignore="SpeakableTextPresentCheck" />
-
-                </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/suppliers_popup_phone"
@@ -172,7 +149,7 @@
                     app:helperText="Τηλέφωνο"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/suppliers_popup_surname"
+                    app:layout_constraintTop_toBottomOf="@+id/suppliers_popup_name"
                     tools:ignore="DuplicateIds">
 
                     <EditText

@@ -1,5 +1,6 @@
 package com.example.storekeeper.Adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,6 +35,7 @@ public class suppliers_RVAdapter extends RecyclerView.Adapter<suppliers_RVAdapte
         this.supplierModels = new ArrayList<>(supplierModelsFull);
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void setFilteredList(ArrayList<supplierModel> filteredList){
         this.supplierModels = filteredList;
         notifyDataSetChanged();
@@ -50,7 +52,7 @@ public class suppliers_RVAdapter extends RecyclerView.Adapter<suppliers_RVAdapte
 
     @Override
     public void onBindViewHolder(@NonNull suppliers_RVAdapter.MyViewHolder holder, int position) {
-        holder.tvName.setText(supplierModels.get(position).getSupplierName());
+        holder.tvName.setText(supplierModels.get(position).getName());
 
         holder.cardView.startAnimation(AnimationUtils.loadAnimation(holder.itemView.getContext(),R.anim.recycleervie_animation));
     }
@@ -74,11 +76,11 @@ public class suppliers_RVAdapter extends RecyclerView.Adapter<suppliers_RVAdapte
                 filteredSupplierList.addAll(supplierModelsFull);
 
             }else {
-                String filterPatern = charSequence.toString().toLowerCase().trim();
+                String filterPatern = charSequence.toString().toUpperCase().trim();
 
-                for (supplierModel employee : supplierModelsFull){
-                    if(employee.getSupplierName().toLowerCase().contains(filterPatern))
-                        filteredSupplierList.add(employee);
+                for (supplierModel supplier : supplierModelsFull){
+                    if(supplier.getName().toUpperCase().contains(filterPatern))
+                        filteredSupplierList.add(supplier);
                 }
             }
 
@@ -88,6 +90,7 @@ public class suppliers_RVAdapter extends RecyclerView.Adapter<suppliers_RVAdapte
             return results;
         }
 
+        @SuppressLint("NotifyDataSetChanged")
         @Override
         protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
             supplierModels.clear();

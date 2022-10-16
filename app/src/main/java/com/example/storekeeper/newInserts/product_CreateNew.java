@@ -47,7 +47,7 @@ public class product_CreateNew extends AppCompatActivity {
                 int isError = checkFileds();
                 if (isError == 0) {
                     product = new productModel(-1, name.getText().toString().trim(), barcode.getText().toString(), Integer.parseInt(warranty.getText().toString()));
-                    boolean success = helper.addProduct(product);
+                    boolean success = helper.productAdd(product);
                     if (success) {
                         dialog.launchSuccess(this, "");
                         clear();
