@@ -32,6 +32,7 @@
         <item name="android:windowFullscreen">true</item>
         <item name="materialButtonStyle">@style/myButton</item>
         <item name="textInputStyle">@style/myInputstyle</item>
+        <item name="materialCardViewStyle">@style/myCard</item>
     </style>
 
     <style name="myButton" parent="Widget.MaterialComponents.Button">
@@ -51,5 +52,12 @@
         <item name="boxCornerRadiusBottomStart">20dp</item>
         <item name="boxCornerRadiusBottomEnd">20dp</item>
         <item name="textBackground">@color/md_theme_light_onPrimary</item>
+    </style>
+
+    <style name="myCard" parent="Widget.MaterialComponents.CardView">
+        <item name="cardElevation">6dp</item>
+        <item name="cardCornerRadius">10dp</item>
+        <item name="cardBackgroundColor">@color/md_theme_light_onPrimary</item>
+        <item name="carousel_touchUp_dampeningFactor">@integer/material_motion_duration_short_2</item>
     </style>
 </resources>
