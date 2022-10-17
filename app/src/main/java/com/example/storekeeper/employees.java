@@ -98,7 +98,7 @@ public class employees extends AppCompatActivity implements employees_RVInterfac
         DBHelper helper = new DBHelper(employees.this);
         ArrayList<employeesModel> dbEmployees = helper.employeesGetAll();
         employeeModels.addAll(dbEmployees);
-        adapter = new employees_RVAdapter(this, employeeModels, this);
+        adapter = new employees_RVAdapter(this, dbEmployees, this);
         recyclerView.setAdapter(adapter);
     }
 
@@ -133,7 +133,7 @@ public class employees extends AppCompatActivity implements employees_RVInterfac
         dialogBuilder.setView(employeesPopupView);
         dialog = dialogBuilder.create();
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        dialog.getWindow().setWindowAnimations(R.style.DialogAnimation);
         dialog.show();
 
         employee_popup_savebtn = employeesPopupView.findViewById(R.id.employees_popup_savebtn);

@@ -53,7 +53,6 @@ public class suppliers_RVAdapter extends RecyclerView.Adapter<suppliers_RVAdapte
     @Override
     public void onBindViewHolder(@NonNull suppliers_RVAdapter.MyViewHolder holder, int position) {
         holder.tvName.setText(supplierModels.get(position).getName());
-
         holder.cardView.startAnimation(AnimationUtils.loadAnimation(holder.itemView.getContext(),R.anim.recycleervie_animation));
     }
 

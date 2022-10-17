@@ -6,6 +6,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -234,7 +235,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         String createTable = "create table if not exists " + SUPPLIERS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, phone TEXT, mobile TEXT, mail TEXT, afm TEXT unique)";
         db.execSQL(createTable);
-        long update = db.update(EMPLOYEES, cv, "code= ?", new String[]{String.valueOf(supplierModel.getCode())});
+        long update = db.update(SUPPLIERS, cv, "code= ?", new String[]{String.valueOf(supplierModel.getCode())});
         db.close();
         return update != -1;
     }

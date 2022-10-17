@@ -55,7 +55,6 @@ public class products_RVAdapter extends RecyclerView.Adapter<products_RVAdapter.
         holder.tvCode.setText(String.valueOf(productModels.get(position).getCode()));
         holder.tvName.setText(productModels.get(position).getName());
         holder.tvbarcode.setText(productModels.get(position).getBarcode());
-
         holder.cardView.startAnimation(AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.recycleervie_animation));
     }
 

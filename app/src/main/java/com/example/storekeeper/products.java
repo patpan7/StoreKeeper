@@ -124,7 +124,7 @@ public class products extends AppCompatActivity implements products_RVInterface 
         dialogBuilder.setView(productPopupView);
         dialog = dialogBuilder.create();
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        dialog.getWindow().setWindowAnimations(R.style.DialogAnimation);
         dialog.show();
 
         product_popup_savebtn = productPopupView.findViewById(R.id.product_popup_savebtn);

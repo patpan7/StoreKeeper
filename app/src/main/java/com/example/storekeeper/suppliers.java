@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -36,7 +37,7 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
     suppliers_RVAdapter adapter;
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
-    private EditText supplier_popup_code, supplier_popup_name, supplier_popup_surname, supplier_popup_phone, supplier_popup_mobile, supplier_popup_mail, supplier_popup_afm;
+    private EditText supplier_popup_code, supplier_popup_name, supplier_popup_phone, supplier_popup_mobile, supplier_popup_mail, supplier_popup_afm;
     CardView supplier_popup_savebtn;
     ImageView supplier_popup_editbtn;
     ArrayList<supplierModel> supplierModels = new ArrayList<>();
@@ -98,17 +99,17 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
         DBHelper helper = new DBHelper(suppliers.this);
         ArrayList<supplierModel> dbSuppliers = helper.suppliersGetAll();
         supplierModels.addAll(dbSuppliers);
-        adapter = new suppliers_RVAdapter(this, supplierModels, this);
+        adapter = new suppliers_RVAdapter(this, dbSuppliers, this);
         recyclerView.setAdapter(adapter);
     }
 
     @Override
     public void onItemClick(int position) {
 
-        productDialog(position);
+        supploerDialog(position);
     }
 
-    public void productDialog(int pos) {
+    public void supploerDialog(int pos) {
         dialogBuilder = new MaterialAlertDialogBuilder(this);
         final View supplierPopupView = getLayoutInflater().inflate(R.layout.suppliers_popup, null);
         supplier_popup_code = supplierPopupView.findViewById(R.id.suppliers_popup_code1);
@@ -128,7 +129,7 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
         dialogBuilder.setView(supplierPopupView);
         dialog = dialogBuilder.create();
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        dialog.getWindow().setWindowAnimations(R.style.DialogAnimation);
         dialog.show();
 
         supplier_popup_savebtn = supplierPopupView.findViewById(R.id.suppliers_popup_savebtn);
@@ -159,7 +160,6 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
                         dialogAlert.launchFail(suppliers.this, "Τα απαιτούμενα πεδία δεν είναι συμπληρωμένα");
                     }
                 } catch (Exception e) {
-                    //product = new productModel(-1,"error","error",0);
                 }
             }
         });
@@ -169,7 +169,6 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
             @Override
             public void onClick(View view) {
                 supplier_popup_name.setEnabled(true);
-                supplier_popup_surname.setEnabled(true);
                 supplier_popup_phone.setEnabled(true);
                 supplier_popup_mobile.setEnabled(true);
                 supplier_popup_mail.setEnabled(true);
@@ -182,10 +181,6 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
         int error = 0;
         if (supplier_popup_name.getText().toString().equals("")) {
             supplier_popup_name.setError("Error!!!");
-            error += 1;
-        }
-        if (supplier_popup_surname.getText().toString().equals("")) {
-            supplier_popup_surname.setError("Error!!!");
             error += 1;
         }
         if (supplier_popup_phone.getText().toString().equals("") || supplier_popup_phone.length() != 10) {
