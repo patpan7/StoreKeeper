@@ -44,95 +44,80 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/product_popup_code"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:helperText="Κωδικός"
+                    android:layout_margin="5dp"
+                    android:hint="Κωδικός"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/product_img"
-                    tools:ignore="DuplicateIds">
+                    app:layout_constraintTop_toBottomOf="@+id/product_img">
 
-                    <EditText
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/product_popup_code1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
                         android:enabled="false"
-                        android:importantForAutofill="no"
-                        android:inputType="number"
-                        tools:ignore="SpeakableTextPresentCheck" />
+                        android:inputType="number" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/product_popup_name"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:helperText="Όνομα"
+                    android:layout_margin="5dp"
+                    android:hint="Όνομα"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/product_popup_code"
-                    tools:ignore="DuplicateIds">
+                    app:layout_constraintTop_toBottomOf="@+id/product_popup_code">
 
-                    <EditText
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/product_popup_name1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
                         android:enabled="false"
-                        android:importantForAutofill="no"
-                        android:inputType="text"
-                        tools:ignore="SpeakableTextPresentCheck" />
+                        android:inputType="text" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/product_popup_barcode"
-
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:helperText="Barcode"
+                    android:layout_margin="5dp"
+                    android:hint="Barcode"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/product_popup_name"
-                    tools:ignore="DuplicateIds">
+                    app:layout_constraintTop_toBottomOf="@+id/product_popup_name">
 
-                    <EditText
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/product_popup_barcode1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
                         android:enabled="false"
-                        android:importantForAutofill="no"
-                        android:inputType="number"
-                        tools:ignore="SpeakableTextPresentCheck" />
-
+                        android:inputType="number" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/product_popup_balance"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:helperText="Υπόλοιπο"
+                    android:layout_margin="5dp"
+                    android:hint="Υπόλοιπο"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/product_popup_barcode"
-                    tools:ignore="DuplicateIds">
+                    app:layout_constraintTop_toBottomOf="@+id/product_popup_barcode">
 
-                    <EditText
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/product_popup_balance1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
                         android:enabled="false"
-                        android:importantForAutofill="no"
-                        android:inputType="number"
-                        android:textColorHint="#ffffff"
-                        tools:ignore="SpeakableTextPresentCheck" />
-
+                        android:inputType="number" />
                 </com.google.android.material.textfield.TextInputLayout>
+
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/product_popup_savebtn"

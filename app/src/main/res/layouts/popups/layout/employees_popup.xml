@@ -44,183 +44,154 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/employees_popup_code"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:helperText="Κωδικός"
+                    android:layout_margin="5dp"
+                    android:hint="Κωδικός"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/employees_img"
-                    tools:ignore="DuplicateIds">
+                    app:layout_constraintTop_toBottomOf="@+id/employees_img">
 
-
-                    <EditText
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/employees_popup_code1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
-                        android:importantForAutofill="no"
-                        android:inputType="number"
-                        tools:ignore="SpeakableTextPresentCheck" />
+                        android:enabled="false"
+                        android:inputType="number" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/employees_popup_name"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:helperText="Όνομα"
+                    android:layout_margin="5dp"
+                    android:hint="Όνομα"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/employees_popup_code"
-                    tools:ignore="DuplicateIds">
+                    app:layout_constraintTop_toBottomOf="@+id/employees_popup_code">
 
-                    <EditText
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/employees_popup_name1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
-                        android:importantForAutofill="no"
-                        android:inputType="text"
-                        tools:ignore="SpeakableTextPresentCheck" />
+                        android:enabled="false"
+                        android:inputType="text" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/employees_popup_surname"
-
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:helperText="Επώνυμο"
+                    android:layout_margin="5dp"
+                    android:hint="Επώνυμο"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/employees_popup_name"
-                    tools:ignore="DuplicateIds">
+                    app:layout_constraintTop_toBottomOf="@+id/employees_popup_name">
 
-                    <EditText
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/employees_popup_surname1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
-                        android:importantForAutofill="no"
-                        android:inputType="text"
-                        tools:ignore="SpeakableTextPresentCheck" />
-
+                        android:enabled="false"
+                        android:inputType="text" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/employees_popup_phone"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:helperText="Τηλέφωνο"
+                    android:layout_margin="5dp"
+                    android:hint="Τηλέφωνο"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/employees_popup_surname"
-                    tools:ignore="DuplicateIds">
+                    app:layout_constraintTop_toBottomOf="@+id/employees_popup_surname">
 
-                    <EditText
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/employees_popup_phone1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
-                        android:importantForAutofill="no"
-                        android:inputType="number"
-                        android:textColorHint="#ffffff"
-                        tools:ignore="SpeakableTextPresentCheck" />
-
+                        android:enabled="false"
+                        android:inputType="phone" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/employees_popup_mobile"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:helperText="Κινητό"
+                    android:layout_margin="5dp"
+                    android:hint="Κινητό"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/employees_popup_phone"
-                    tools:ignore="DuplicateIds">
+                    app:layout_constraintTop_toBottomOf="@+id/employees_popup_phone">
 
-                    <EditText
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/employees_popup_mobile1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
-                        android:importantForAutofill="no"
-                        android:inputType="number"
-                        android:textColorHint="#ffffff"
-                        tools:ignore="SpeakableTextPresentCheck" />
-
+                        android:enabled="false"
+                        android:inputType="phone" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/employees_popup_mail"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:helperText="e-mail"
+                    android:layout_margin="5dp"
+                    android:hint="e-mail"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/employees_popup_mobile"
-                    tools:ignore="DuplicateIds">
+                    app:layout_constraintTop_toBottomOf="@+id/employees_popup_mobile">
 
-                    <EditText
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/employees_popup_mail1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
-                        android:importantForAutofill="no"
-                        android:inputType="number"
-                        android:textColorHint="#ffffff"
-                        tools:ignore="SpeakableTextPresentCheck" />
-
+                        android:enabled="false"
+                        android:inputType="textEmailAddress" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/employees_popup_work"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:helperText="Εργασία"
+                    android:layout_margin="5dp"
+                    android:hint="Εργασία"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/employees_popup_mail"
-                    tools:ignore="DuplicateIds">
+                    app:layout_constraintTop_toBottomOf="@+id/employees_popup_mail">
 
-                    <EditText
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/employees_popup_work1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
-                        android:importantForAutofill="no"
-                        android:inputType="number"
-                        android:textColorHint="#ffffff"
-                        tools:ignore="SpeakableTextPresentCheck" />
-
+                        android:enabled="false"
+                        android:inputType="text" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/employees_popup_id"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:helperText="Αρ. Ταυτότητας"
+                    android:layout_margin="5dp"
+                    android:hint="Αρ. Ταυτότητας"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/employees_popup_work"
-                    tools:ignore="DuplicateIds">
+                    app:layout_constraintTop_toBottomOf="@+id/employees_popup_work">
 
-                    <EditText
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/employees_popup_id1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
-                        android:importantForAutofill="no"
-                        android:inputType="number"
-                        android:textColorHint="#ffffff"
-                        tools:ignore="SpeakableTextPresentCheck" />
-
+                        android:enabled="false"
+                        android:inputType="text" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.card.MaterialCardView

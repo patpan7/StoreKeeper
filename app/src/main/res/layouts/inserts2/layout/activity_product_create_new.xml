@@ -8,11 +8,11 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="50dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginBottom="50dp">
+        app:layout_constraintTop_toTopOf="parent">
 
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -38,115 +38,86 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/product_insert_code"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:helperText="Κωδικός"
+                android:layout_margin="5dp"
+                android:hint="Κωδικός"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/product_img"
-                tools:ignore="DuplicateIds">
+                app:layout_constraintTop_toBottomOf="@+id/product_img">
 
-                <EditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/product_insert_code1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:enabled="false"
-                    android:importantForAutofill="no"
-                    android:inputType="number"
-                    tools:ignore="SpeakableTextPresentCheck" />
+                    android:inputType="number" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/product_insert_name"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:helperText="Όνομα"
+                android:layout_margin="5dp"
+                android:hint="Όνομα"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/product_insert_code"
-                tools:ignore="DuplicateIds">
+                app:layout_constraintTop_toBottomOf="@+id/product_insert_code">
 
-                <EditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/product_insert_name1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:importantForAutofill="no"
-                    android:inputType="text"
-                    tools:ignore="LabelFor,SpeakableTextPresentCheck" />
+                    android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/product_insert_barcode2"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                app:layout_constraintEnd_toEndOf="parent"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/product_insert_barcode"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:hint="Barcode"
+                app:layout_constraintEnd_toStartOf="@+id/product_insert_scanbtn"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/product_insert_name"
-                tools:ignore="UseCompoundDrawables">
+                app:layout_constraintTop_toBottomOf="@+id/product_insert_name">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/product_insert_barcode"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:orientation="horizontal"
-                    app:helperText="Barcode"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/product_insert_scanbtn"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:ignore="DuplicateIds">
-
-                    <EditText
-                        android:id="@+id/product_insert_barcode1"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
-                        android:importantForAutofill="no"
-                        android:inputType="number"
-                        tools:ignore="SpeakableTextPresentCheck" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/product_insert_barcode1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
 
 
-                </com.google.android.material.textfield.TextInputLayout>
-
-
-                <ImageButton
-                    android:id="@+id/product_insert_scanbtn"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:background="@drawable/barcode"
-                    android:elevation="10dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:ignore="SpeakableTextPresentCheck" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
+            <ImageButton
+                android:id="@+id/product_insert_scanbtn"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_margin="5dp"
+                android:background="@drawable/barcode"
+                android:elevation="10dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/product_insert_barcode"
+                app:layout_constraintTop_toBottomOf="@+id/product_insert_name" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/product_insert_warranty"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:helperText="Μήνες Εγγύησης"
+                android:layout_margin="5dp"
+                android:hint="Μήνες Εγγύησης"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/product_insert_barcode2"
-                tools:ignore="DuplicateIds">
+                app:layout_constraintTop_toBottomOf="@+id/product_insert_barcode">
 
-                <EditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/product_insert_warranty1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:importantForAutofill="no"
-                    android:inputType="number"
-                    tools:ignore="SpeakableTextPresentCheck" />
+                    android:inputType="number" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.card.MaterialCardView

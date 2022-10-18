@@ -8,11 +8,11 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="50dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginBottom="50dp">
+        app:layout_constraintTop_toTopOf="parent">
 
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -38,183 +38,146 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/employees_insert_code"
-                android:layout_width="match_parent"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:helperText="Κωδικός"
+                android:layout_margin="5dp"
+                android:hint="Κωδικός"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/employees_img"
-                tools:ignore="DuplicateIds">
+                app:layout_constraintTop_toBottomOf="@+id/employees_img">
 
-                <EditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/employees_insert_code1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:enabled="false"
-                    android:importantForAutofill="no"
-                    android:inputType="number"
-                    tools:ignore="SpeakableTextPresentCheck" />
+                    android:inputType="number" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/employees_insert_name"
-                android:layout_width="match_parent"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:helperText="Όνομα"
+                android:layout_margin="5dp"
+                android:hint="Όνομα"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/employees_insert_code"
-                tools:ignore="DuplicateIds">
+                app:layout_constraintTop_toBottomOf="@+id/employees_insert_code">
 
-                <EditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/employees_insert_name1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:importantForAutofill="no"
-                    android:inputType="text"
-                    tools:ignore="SpeakableTextPresentCheck" />
+                    android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/employees_insert_surname"
-
-                android:layout_width="match_parent"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:helperText="Επώνυμο"
+                android:layout_margin="5dp"
+                android:hint="Επώνυμο"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/employees_insert_name"
-                tools:ignore="DuplicateIds">
+                app:layout_constraintTop_toBottomOf="@+id/employees_insert_name">
 
-                <EditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/employees_insert_surname1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:importantForAutofill="no"
-                    android:inputType="text"
-                    tools:ignore="SpeakableTextPresentCheck" />
-
+                    android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/employees_insert_phone"
-                android:layout_width="match_parent"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:helperText="Τηλέφωνο"
+                android:layout_margin="5dp"
+                android:hint="Τηλέφωνο"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/employees_insert_surname"
-                tools:ignore="DuplicateIds">
+                app:layout_constraintTop_toBottomOf="@+id/employees_insert_surname">
 
-                <EditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/employees_insert_phone1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:importantForAutofill="no"
-                    android:inputType="number"
-                    android:textColorHint="#ffffff"
-                    tools:ignore="SpeakableTextPresentCheck" />
-
+                    android:inputType="phone" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/employees_insert_mobile"
-                android:layout_width="match_parent"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:helperText="Κινητό"
+                android:layout_margin="5dp"
+                android:hint="Κινητό"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/employees_insert_phone"
-                tools:ignore="DuplicateIds">
+                app:layout_constraintTop_toBottomOf="@+id/employees_insert_phone">
 
-                <EditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/employees_insert_mobile1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:importantForAutofill="no"
-                    android:inputType="number"
-                    android:textColorHint="#ffffff"
-                    tools:ignore="SpeakableTextPresentCheck" />
-
+                    android:inputType="phone" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/employees_insert_mail"
-                android:layout_width="match_parent"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:helperText="e-mail"
+                android:layout_margin="5dp"
+                android:hint="e-mail"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/employees_insert_mobile"
-                tools:ignore="DuplicateIds">
+                app:layout_constraintTop_toBottomOf="@+id/employees_insert_mobile">
 
-                <EditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/employees_insert_mail1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:importantForAutofill="no"
-                    android:inputType="text"
-                    android:textColorHint="#ffffff"
-                    tools:ignore="SpeakableTextPresentCheck" />
-
+                    android:inputType="textEmailAddress" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/employees_insert_work"
-                android:layout_width="match_parent"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:helperText="Εργασία"
+                android:layout_margin="5dp"
+                android:hint="Εργασία"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/employees_insert_mail"
-                tools:ignore="DuplicateIds">
+                app:layout_constraintTop_toBottomOf="@+id/employees_insert_mail">
 
-                <EditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/employees_insert_work1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:importantForAutofill="no"
-                    android:inputType="text"
-                    android:textColorHint="#ffffff"
-                    tools:ignore="SpeakableTextPresentCheck" />
-
+                    android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/employees_insert_id"
-                android:layout_width="match_parent"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:helperText="Αρ. Ταυτότητας"
+                android:layout_margin="5dp"
+                android:hint="Αρ. Ταυτότητας"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/employees_insert_work"
-                tools:ignore="DuplicateIds">
+                app:layout_constraintTop_toBottomOf="@+id/employees_insert_work">
 
-                <EditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/employees_insert_id1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:importantForAutofill="no"
-                    android:inputType="text"
-                    android:textColorHint="#ffffff"
-                    tools:ignore="SpeakableTextPresentCheck" />
-
+                    android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.card.MaterialCardView
