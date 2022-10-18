@@ -51,7 +51,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
-                    android:enabled="false"
                     android:importantForAutofill="no"
                     android:inputType="number"
                     tools:ignore="SpeakableTextPresentCheck" />
@@ -73,7 +72,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
-                    android:enabled="false"
                     android:importantForAutofill="no"
                     android:inputType="text"
                     tools:ignore="SpeakableTextPresentCheck" />
@@ -95,7 +93,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
-                    android:enabled="false"
                     android:importantForAutofill="no"
                     android:inputType="number"
                     android:textColorHint="#ffffff"
@@ -119,7 +116,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
-                    android:enabled="false"
                     android:importantForAutofill="no"
                     android:inputType="number"
                     android:textColorHint="#ffffff"
@@ -143,9 +139,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
-                    android:enabled="false"
                     android:importantForAutofill="no"
-                    android:inputType="number"
+                    android:inputType="text"
                     android:textColorHint="#ffffff"
                     tools:ignore="SpeakableTextPresentCheck" />
 
@@ -167,7 +162,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
-                    android:enabled="false"
                     android:importantForAutofill="no"
                     android:inputType="number"
                     android:textColorHint="#ffffff"

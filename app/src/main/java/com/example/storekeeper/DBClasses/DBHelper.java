@@ -6,21 +6,26 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
 import com.example.storekeeper.Models.employeesModel;
+import com.example.storekeeper.Models.incomeModel;
 import com.example.storekeeper.Models.productModel;
 import com.example.storekeeper.Models.supplierModel;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class DBHelper extends SQLiteOpenHelper {
 
     public static final String PRODUCTS = "products";
     public static final String EMPLOYEES = "employees";
     public static final String SUPPLIERS = "suppliers";
+    public static final String SERIALS = "serials";
+    public static final String INCOMES = "incomes";
 
     public DBHelper(@Nullable Context context) {
         super(context, "storekeeper.db", null, 1);
@@ -33,6 +38,10 @@ public class DBHelper extends SQLiteOpenHelper {
         createTable = "create table if not exists " + EMPLOYEES + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, surname TEXT, phone TEXT, mobile TEXT, mail TEXT, work TEXT, id TEXT unique)";
         db.execSQL(createTable);
         createTable = "create table if not exists " + SUPPLIERS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, phone TEXT, mobile TEXT, mail TEXT, afm TEXT unique)";
+        db.execSQL(createTable);
+        createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date TEXT, supplier_code INTEGER, employee_code INTEGER, available INTEGER)";
+        db.execSQL(createTable);
+        createTable = "create table if not exists " + INCOMES + "(code INTEGER PRIMARY KEY AUTOINCREMENT, supplier_name TEXT, income_date DATE)";
         db.execSQL(createTable);
     }
 
@@ -253,4 +262,45 @@ public class DBHelper extends SQLiteOpenHelper {
     }
     //-------------------------------------------------------------------
 
+    //income methods
+    public ArrayList<incomeModel> incomeGetAll(String start,String end) throws ParseException {
+        ArrayList<incomeModel> returnArray = new ArrayList<>();
+
+        String sql = "select * from " + INCOMES + " where income_date BETWEEN '"+formatDate(start)+"' AND '"+formatDate(end)+"'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        String createTable = "create table if not exists " + INCOMES + "(code INTEGER PRIMARY KEY AUTOINCREMENT, supplier_name TEXT, income_date DATE)";
+        db.execSQL(createTable);
+        Cursor cursor = db.rawQuery(sql, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                String suppliername = cursor.getString(1);
+                String date = cursor.getString(2);
+
+                incomeModel newIncome = new incomeModel(date,suppliername);
+
+                returnArray.add(newIncome);
+            } while (cursor.moveToNext());
+
+        }
+        cursor.close();
+        db.close();
+        return returnArray;
+    }
+
+
+    public static String formatDate(String inDate) {
+        SimpleDateFormat inSDF = new SimpleDateFormat("dd/mm/yyyy");
+        SimpleDateFormat outSDF = new SimpleDateFormat("yyyy-mm-dd");
+        String outDate = "";
+        if (inDate != null) {
+            try {
+                Date date = inSDF.parse(inDate);
+                outDate = outSDF.format(date);
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return outDate;
+    }
 }
