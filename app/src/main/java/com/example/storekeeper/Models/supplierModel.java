@@ -17,6 +17,10 @@ public class supplierModel {
         this.afm = afm;
     }
 
+    public supplierModel(String name) {
+        this.name = name;
+    }
+
     public int getCode() {
         return code;
     }

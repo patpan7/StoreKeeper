@@ -49,7 +49,8 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int i, int i1) {
 
     }
-//products methods
+
+    //products methods
     public boolean productAdd(productModel productModel) {
         SQLiteDatabase db = this.getReadableDatabase();
         ContentValues cv = new ContentValues();
@@ -68,7 +69,8 @@ public class DBHelper extends SQLiteOpenHelper {
 
         String sql = "select * from " + PRODUCTS;
         SQLiteDatabase db = this.getReadableDatabase();
-
+        String createTable = "create table if not exists " + PRODUCTS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, barcode TEXT unique, warranty int)";
+        db.execSQL(createTable);
         Cursor cursor = db.rawQuery(sql, null);
 
         if (cursor.moveToFirst()) {
@@ -103,8 +105,7 @@ public class DBHelper extends SQLiteOpenHelper {
         String sql = "select seq from sqlite_sequence WHERE name = '" + PRODUCTS + "'";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst())
-            nextID = cursor.getInt(0);
+        if (cursor.moveToFirst()) nextID = cursor.getInt(0);
         cursor.close();
         db.close();
         return nextID + 1;
@@ -179,8 +180,7 @@ public class DBHelper extends SQLiteOpenHelper {
         String sql = "select seq from sqlite_sequence WHERE name = '" + EMPLOYEES + "'";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst())
-            nextID = cursor.getInt(0);
+        if (cursor.moveToFirst()) nextID = cursor.getInt(0);
         cursor.close();
         db.close();
         return nextID + 1;
@@ -254,8 +254,7 @@ public class DBHelper extends SQLiteOpenHelper {
         String sql = "select seq from sqlite_sequence WHERE name = '" + SUPPLIERS + "'";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst())
-            nextID = cursor.getInt(0);
+        if (cursor.moveToFirst()) nextID = cursor.getInt(0);
         cursor.close();
         db.close();
         return nextID + 1;
@@ -263,10 +262,10 @@ public class DBHelper extends SQLiteOpenHelper {
     //-------------------------------------------------------------------
 
     //income methods
-    public ArrayList<incomeModel> incomeGetAll(String start,String end) throws ParseException {
+    public ArrayList<incomeModel> incomeGetAll(String start, String end) throws ParseException {
         ArrayList<incomeModel> returnArray = new ArrayList<>();
 
-        String sql = "select * from " + INCOMES + " where income_date BETWEEN '"+formatDate(start)+"' AND '"+formatDate(end)+"'";
+        String sql = "select * from " + INCOMES + " where income_date BETWEEN '" + formatDate(start) + "' AND '" + formatDate(end) + "'";
         SQLiteDatabase db = this.getReadableDatabase();
         String createTable = "create table if not exists " + INCOMES + "(code INTEGER PRIMARY KEY AUTOINCREMENT, supplier_name TEXT, income_date DATE)";
         db.execSQL(createTable);
@@ -277,7 +276,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 String suppliername = cursor.getString(1);
                 String date = cursor.getString(2);
 
-                incomeModel newIncome = new incomeModel(date,suppliername);
+                incomeModel newIncome = new incomeModel(date, suppliername);
 
                 returnArray.add(newIncome);
             } while (cursor.moveToNext());
@@ -286,6 +285,58 @@ public class DBHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return returnArray;
+    }
+
+    public ArrayList<String> suppliersGetAllNames() {
+        ArrayList<String> returnArray = new ArrayList<>();
+
+        String sql = "select name from " + SUPPLIERS;
+        SQLiteDatabase db = this.getReadableDatabase();
+        String createTable = "create table if not exists " + SUPPLIERS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, phone TEXT, mobile TEXT, mail TEXT, afm TEXT unique)";
+        db.execSQL(createTable);
+        Cursor cursor = db.rawQuery(sql, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                returnArray.add(cursor.getString(0));
+            } while (cursor.moveToNext());
+
+        }
+        cursor.close();
+        db.close();
+        return returnArray;
+
+    }
+
+    public ArrayList<String> productsGetAllNames() {
+        ArrayList<String> returnArray = new ArrayList<>();
+
+        String sql = "select name from " + PRODUCTS;
+        SQLiteDatabase db = this.getReadableDatabase();
+        String createTable = "create table if not exists " + PRODUCTS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, barcode TEXT unique, warranty int)";
+        db.execSQL(createTable);
+        Cursor cursor = db.rawQuery(sql, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                returnArray.add(cursor.getString(0));
+            } while (cursor.moveToNext());
+
+        }
+        cursor.close();
+        db.close();
+        return returnArray;
+    }
+
+    public String productGetName(String barcode){
+        String name = null;
+        String sql = "select name from "+PRODUCTS+" WHERE barcode = '" + barcode + "'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst()) name = cursor.getString(0);
+        cursor.close();
+        db.close();
+        return name;
     }
 
 

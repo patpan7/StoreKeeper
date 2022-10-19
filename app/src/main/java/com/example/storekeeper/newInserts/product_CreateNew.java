@@ -51,17 +51,13 @@ public class product_CreateNew extends AppCompatActivity {
                     if (success) {
                         dialog.launchSuccess(this, "");
                         clear();
-                    }else
-                        dialog.launchFail(this,"");
-                }
-                else{
-                    dialog.launchFail(this,"Τα απαιτούμενα πεδία δεν είναι συμπληρωμένα");
+                    } else dialog.launchFail(this, "");
+                } else {
+                    dialog.launchFail(this, "Τα απαιτούμενα πεδία δεν είναι συμπληρωμένα");
                 }
             } catch (Exception e) {
                 //product = new productModel(-1,"error","error",0);
             }
-
-
 
 
         });
@@ -89,8 +85,7 @@ public class product_CreateNew extends AppCompatActivity {
     }
 
     ActivityResultLauncher<ScanOptions> barLauncher = registerForActivityResult(new ScanContract(), result -> {
-        if (result.getContents() != null)
-            barcode.setText(result.getContents());
+        if (result.getContents() != null) barcode.setText(result.getContents());
     });
 
     int checkFileds() {
