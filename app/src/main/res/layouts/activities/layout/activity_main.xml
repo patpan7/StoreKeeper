@@ -39,8 +39,7 @@
                 android:layout_rowWeight="1"
                 android:layout_columnWeight="1"
                 android:layout_gravity="fill"
-                android:layout_margin="10dp"
-                app:cardCornerRadius="10dp">
+                android:layout_margin="10dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -74,9 +73,7 @@
                 android:layout_rowWeight="1"
                 android:layout_columnWeight="1"
                 android:layout_gravity="fill"
-                android:layout_margin="10dp"
-                app:cardCornerRadius="10dp"
-                app:cardElevation="6dp">
+                android:layout_margin="10dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -110,9 +107,7 @@
                 android:layout_rowWeight="1"
                 android:layout_columnWeight="1"
                 android:layout_gravity="fill"
-                android:layout_margin="10dp"
-                app:cardCornerRadius="10dp"
-                app:cardElevation="6dp">
+                android:layout_margin="10dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -146,9 +141,7 @@
                 android:layout_rowWeight="1"
                 android:layout_columnWeight="1"
                 android:layout_gravity="fill"
-                android:layout_margin="10dp"
-                app:cardCornerRadius="10dp"
-                app:cardElevation="6dp">
+                android:layout_margin="10dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -182,9 +175,7 @@
                 android:layout_rowWeight="1"
                 android:layout_columnWeight="1"
                 android:layout_gravity="fill"
-                android:layout_margin="10dp"
-                app:cardCornerRadius="10dp"
-                app:cardElevation="6dp">
+                android:layout_margin="10dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -218,9 +209,7 @@
                 android:layout_rowWeight="1"
                 android:layout_columnWeight="1"
                 android:layout_gravity="fill"
-                android:layout_margin="10dp"
-                app:cardCornerRadius="10dp"
-                app:cardElevation="6dp">
+                android:layout_margin="10dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -254,9 +243,7 @@
                 android:layout_rowWeight="1"
                 android:layout_columnWeight="1"
                 android:layout_gravity="fill"
-                android:layout_margin="10dp"
-                app:cardCornerRadius="10dp"
-                app:cardElevation="6dp">
+                android:layout_margin="10dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -290,9 +277,7 @@
                 android:layout_rowWeight="1"
                 android:layout_columnWeight="1"
                 android:layout_gravity="fill"
-                android:layout_margin="10dp"
-                app:cardCornerRadius="10dp"
-                app:cardElevation="6dp">
+                android:layout_margin="10dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"

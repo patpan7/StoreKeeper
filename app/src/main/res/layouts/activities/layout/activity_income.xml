@@ -36,14 +36,14 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="Από"
             android:layout_margin="5dp"
+            android:hint="Από"
+            app:endIconDrawable="@drawable/ic_calendar"
+            app:endIconMode="custom"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/date_end"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:endIconDrawable="@drawable/ic_calendar"
-            app:endIconMode="custom">
+            app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/date_start1"

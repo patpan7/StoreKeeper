@@ -2,6 +2,7 @@ package com.example.storekeeper;
 
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.DatePicker;
@@ -18,6 +19,7 @@ import com.example.storekeeper.Adapters.income_RVAdapter;
 import com.example.storekeeper.DBClasses.DBHelper;
 import com.example.storekeeper.Interfaces.income_RVInterface;
 import com.example.storekeeper.Models.incomeModel;
+import com.example.storekeeper.newInserts.income_CreateNew;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -74,8 +76,8 @@ public class income extends AppCompatActivity implements income_RVInterface {
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Intent intent = new Intent(employees.this, employee_CreateNew.class);
-                //startActivity(intent);
+                Intent intent = new Intent(income.this, income_CreateNew.class);
+                startActivity(intent);
             }
         });
         try {

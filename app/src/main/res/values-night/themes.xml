@@ -30,7 +30,6 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:windowFullscreen">true</item>
-        <item name="android:background">@color/md_theme_light_onBackground</item>
         <item name="materialButtonStyle">@style/myButton</item>
         <item name="textInputStyle">@style/myInputstyle</item>
         <item name="materialCardViewStyle">@style/myCard</item>
@@ -62,5 +61,4 @@
         <item name="carousel_touchUp_dampeningFactor">@integer/material_motion_duration_short_2</item>
 
     </style>
-
 </resources>
