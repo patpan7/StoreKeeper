@@ -6,8 +6,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Build;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import com.example.storekeeper.Models.employeesModel;
 import com.example.storekeeper.Models.incomeModel;
@@ -17,6 +19,7 @@ import com.example.storekeeper.Models.supplierModel;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 public class DBHelper extends SQLiteOpenHelper {
@@ -350,14 +353,22 @@ public class DBHelper extends SQLiteOpenHelper {
         return insert != -1;
     }
 
-    public boolean serialAdd(String serialnumber, int prod_code, String income_date, int supplier_code) {
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public boolean serialAdd(String serialnumber, int prod_code, String income_date, int supplier_code, int warranty) throws ParseException {
         SQLiteDatabase db = this.getReadableDatabase();
         ContentValues cv = new ContentValues();
         String income_date_format = formatDateForSQL(income_date);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar c = Calendar.getInstance();
+        c.setTime(sdf.parse(income_date_format));
+        c.add(Calendar.MONTH, warranty);  // number of days to add
+        String warrantyString = sdf.format(c.getTime());
+
         cv.put("serialnumber", serialnumber);
         cv.put("prod_code", prod_code);
         cv.put("income_date", income_date_format);
-        cv.put("warranty_date", income_date_format);
+        cv.put("warranty_date", warrantyString);
         cv.put("supplier_code", supplier_code);
         cv.put("employee_code", 0);
         cv.put("available", 1);
@@ -389,6 +400,32 @@ public class DBHelper extends SQLiteOpenHelper {
         return code;
     }
 
+    public boolean checkSerialNumber(String sn) {
+        boolean isOld = false;
+        String sql = "select serialnumber from " + SERIALS + " WHERE serialnumber = '" + sn + "'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date TEXT, supplier_code INTEGER, employee_code INTEGER, available INTEGER)";
+        db.execSQL(createTable);
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst())
+            isOld = true;
+
+        cursor.close();
+        db.close();
+        return isOld;
+    }
+
+    public int productGetWarranty(int prod_code) {
+        int warranty = 0;
+        String sql = "select warranty from " + PRODUCTS + " WHERE code = " + prod_code + "";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst()) warranty = cursor.getInt(0);
+        cursor.close();
+        db.close();
+        return warranty;
+
+    }
 
     public static String formatDateForSQL(String inDate) {
         SimpleDateFormat inSDF = new SimpleDateFormat("dd/mm/yyyy");
@@ -419,5 +456,4 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         return outDate;
     }
-
 }

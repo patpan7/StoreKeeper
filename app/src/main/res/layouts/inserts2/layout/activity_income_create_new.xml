@@ -40,11 +40,11 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/income_insert_supplier"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:hint="Προμηθευτής"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/income_insert_lock"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/income_img">
@@ -56,6 +56,18 @@
                     android:clickable="true"
                     tools:ignore="KeyboardInaccessibleWidget" />
             </com.google.android.material.textfield.TextInputLayout>
+            <ImageButton
+                android:id="@+id/income_insert_lock"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_margin="5dp"
+                android:background="@android:color/transparent"
+                android:elevation="10dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/unlock"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/income_insert_supplier"
+                app:layout_constraintTop_toBottomOf="@+id/income_img" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/income_insert_date"
