@@ -265,7 +265,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public ArrayList<incomeModel> incomeGetAll(String start, String end) throws ParseException {
         ArrayList<incomeModel> returnArray = new ArrayList<>();
 
-        String sql = "select * from " + INCOMES + " where income_date BETWEEN '" + formatDate(start) + "' AND '" + formatDate(end) + "'";
+        String sql = "select * from " + INCOMES + " where income_date BETWEEN '" + formatDateForSQL(start) + "' AND '" + formatDateForSQL(end) + "'";
         SQLiteDatabase db = this.getReadableDatabase();
         String createTable = "create table if not exists " + INCOMES + "(code INTEGER PRIMARY KEY AUTOINCREMENT, supplier_name TEXT, income_date DATE)";
         db.execSQL(createTable);
@@ -276,7 +276,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 String suppliername = cursor.getString(1);
                 String date = cursor.getString(2);
 
-                incomeModel newIncome = new incomeModel(date, suppliername);
+                incomeModel newIncome = new incomeModel(formatDateForAndroid(date), suppliername);
 
                 returnArray.add(newIncome);
             } while (cursor.moveToNext());
@@ -328,9 +328,9 @@ public class DBHelper extends SQLiteOpenHelper {
         return returnArray;
     }
 
-    public String productGetName(String barcode){
+    public String productGetName(String barcode) {
         String name = null;
-        String sql = "select name from "+PRODUCTS+" WHERE barcode = '" + barcode + "'";
+        String sql = "select name from " + PRODUCTS + " WHERE barcode = '" + barcode + "'";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(sql, null);
         if (cursor.moveToFirst()) name = cursor.getString(0);
@@ -339,8 +339,58 @@ public class DBHelper extends SQLiteOpenHelper {
         return name;
     }
 
+    public boolean incomeAdd(String supplier, String date) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("supplier_name", supplier);
+        cv.put("income_date", formatDateForSQL(date));
+        String createTable = "create table if not exists " + INCOMES + "(code INTEGER PRIMARY KEY AUTOINCREMENT, supplier_name TEXT, income_date DATE)";
+        db.execSQL(createTable);
+        long insert = db.insert(INCOMES, null, cv);
+        return insert != -1;
+    }
 
-    public static String formatDate(String inDate) {
+    public boolean serialAdd(String serialnumber, int prod_code, String income_date, int supplier_code) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ContentValues cv = new ContentValues();
+        String income_date_format = formatDateForSQL(income_date);
+        cv.put("serialnumber", serialnumber);
+        cv.put("prod_code", prod_code);
+        cv.put("income_date", income_date_format);
+        cv.put("warranty_date", income_date_format);
+        cv.put("supplier_code", supplier_code);
+        cv.put("employee_code", 0);
+        cv.put("available", 1);
+        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date TEXT, supplier_code INTEGER, employee_code INTEGER, available INTEGER)";
+        db.execSQL(createTable);
+        long insert = db.insert(SERIALS, null, cv);
+        return insert != -1;
+    }
+
+    public int productGetCode(String name) {
+        int code = 0;
+        String sql = "select code from " + PRODUCTS + " WHERE name = '" + name + "'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst()) code = cursor.getInt(0);
+        cursor.close();
+        db.close();
+        return code;
+    }
+
+    public int supplierGetCode(String name) {
+        int code = 0;
+        String sql = "select code from " + SUPPLIERS + " WHERE name = '" + name + "'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst()) code = cursor.getInt(0);
+        cursor.close();
+        db.close();
+        return code;
+    }
+
+
+    public static String formatDateForSQL(String inDate) {
         SimpleDateFormat inSDF = new SimpleDateFormat("dd/mm/yyyy");
         SimpleDateFormat outSDF = new SimpleDateFormat("yyyy-mm-dd");
         String outDate = "";
@@ -354,4 +404,20 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         return outDate;
     }
+
+    public static String formatDateForAndroid(String inDate) {
+        SimpleDateFormat inSDF = new SimpleDateFormat("yyyy-mm-dd");
+        SimpleDateFormat outSDF = new SimpleDateFormat("dd/mm/yyyy");
+        String outDate = "";
+        if (inDate != null) {
+            try {
+                Date date = inSDF.parse(inDate);
+                outDate = outSDF.format(date);
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return outDate;
+    }
+
 }

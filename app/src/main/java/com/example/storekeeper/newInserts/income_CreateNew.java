@@ -17,9 +17,12 @@ import android.widget.TextView;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
 import com.example.storekeeper.DBClasses.DBHelper;
+import com.example.storekeeper.Models.productModel;
 import com.example.storekeeper.R;
+import com.example.storekeeper.alertDialogs;
 import com.example.storekeeper.captureAct;
 import com.google.android.material.textfield.TextInputEditText;
 import com.journeyapps.barcodescanner.ScanContract;
@@ -31,11 +34,14 @@ import java.util.Locale;
 
 public class income_CreateNew extends AppCompatActivity {
 
-    TextInputEditText income_date, income_bacode;
+    TextInputEditText income_date, income_serialnumber;
     ImageButton barcode_btn, serial_btn;
     AutoCompleteTextView income_suppliers, income_products;
     LinearLayout container;
+    CardView savebtn;
     DBHelper helper = new DBHelper(income_CreateNew.this);
+    ArrayList<String> serial_numbers;
+    alertDialogs dialog;
 
 
     @SuppressLint({"SetTextI18n", "MissingInflatedId"})
@@ -44,7 +50,7 @@ public class income_CreateNew extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_income_create_new);
         container = findViewById(R.id.container);
-
+        serial_numbers = new ArrayList<>();
         income_suppliers = findViewById(R.id.income_insert_supplier1);
         ArrayList<String> supplierList = helper.suppliersGetAllNames();
         income_suppliers.setAdapter(new ArrayAdapter<>(income_CreateNew.this, R.layout.dropdown_row, supplierList));
@@ -74,22 +80,78 @@ public class income_CreateNew extends AppCompatActivity {
         barcode_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (income_products.getText().toString().equals("")) {
-                    scanCode();
-                }
+                if (income_serialnumber.getText().toString().equals("")) scanCode();
             }
         });
-        income_bacode = findViewById(R.id.income_insert_sn1);
+
+        income_serialnumber = findViewById(R.id.income_insert_sn1);
         serial_btn = findViewById(R.id.income_insert_snsearch_btn);
         serial_btn.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View view) {
-                scanSerial();
+                if (income_serialnumber.getText().toString().equals("")) scanSerial();
+                else dinamicSerials(income_serialnumber.getText().toString());
             }
         });
 
+        savebtn = findViewById(R.id.income_insert_savebtn);
+        savebtn.setOnClickListener(view -> {
+            dialog = new alertDialogs();
+            try {
+                int isError = checkFileds();
+                if (isError == 0) {
+                    int prod_code = helper.productGetCode(income_products.getText().toString());
+                    int supp_code = helper.supplierGetCode(income_suppliers.getText().toString());
+                    boolean success2 = false;
+                    for (int i = 0; i <= serial_numbers.size(); i++) {
+                        success2 = helper.serialAdd(serial_numbers.get(i), prod_code, income_date.getText().toString(), supp_code);
+                    }
 
+                    if (success2) {
+                        dialog.launchSuccess(this, "");
+                        helper.incomeAdd(income_suppliers.getText().toString(), income_date.getText().toString());
+                        clear();
+                    } else dialog.launchFail(this, "");
+                } else {
+                    dialog.launchFail(this, "Τα απαιτούμενα πεδία δεν είναι συμπληρωμένα");
+                }
+            } catch (Exception e) {
+                //product = new productModel(-1,"error","error",0);
+            }
+
+
+        });
+    }
+
+    private int checkFileds() {
+        int error = 0;
+        if (income_suppliers.getText().toString().equals("")) {
+            income_suppliers.setError("Error!!!");
+            error += 1;
+        }
+
+        if (income_date.getText().toString().equals("")) {
+            income_date.setError("Error!!!");
+            error += 1;
+        }
+        if (income_products.getText().toString().equals("")) {
+            income_products.setError("Error!!!");
+            error += 1;
+        }
+        if (serial_numbers.size() <= 0) {
+            income_serialnumber.setError("Error!!!");
+            error += 1;
+        }
+        return error;
+    }
+
+    private void clear() {
+        income_suppliers.setSelection(-1);
+        income_date.setText("");
+        income_products.setSelection(-1);
+        income_serialnumber.setText("");
+        container.removeAllViews();
     }
 
     private void scanCode() {
@@ -116,22 +178,26 @@ public class income_CreateNew extends AppCompatActivity {
     }
 
     ActivityResultLauncher<ScanOptions> barLauncher2 = registerForActivityResult(new ScanContract(), result -> {
-        if (result.getContents() != null) {
-            LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            final View addView = layoutInflater.inflate(R.layout.income_insert_row, null);
-            TextView textOut = addView.findViewById(R.id.textout);
-            textOut.setText(result.getContents());
-            ImageButton buttonRemove = addView.findViewById(R.id.remove);
-            buttonRemove.setOnClickListener(new View.OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
-                    ((LinearLayout) addView.getParent()).removeView(addView);
-                }
-            });
-            container.addView(addView);
-        }
+        if (result.getContents() != null) dinamicSerials(result.getContents());
     });
+
+    void dinamicSerials(String sn) {
+        LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        final View addView = layoutInflater.inflate(R.layout.income_insert_row, null);
+        TextView textOut = addView.findViewById(R.id.textout);
+        textOut.setText(sn);
+        serial_numbers.add(sn);
+        ImageButton buttonRemove = addView.findViewById(R.id.remove);
+        buttonRemove.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                serial_numbers.remove(textOut.getText());
+                ((LinearLayout) addView.getParent()).removeView(addView);
+            }
+        });
+        container.addView(addView);
+    }
 
     void datePicker(TextInputEditText field) {
         Calendar calendar = Calendar.getInstance(Locale.ROOT);
