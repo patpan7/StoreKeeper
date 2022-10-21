@@ -45,7 +45,7 @@ android {
                         'src\\main\\res\\layouts',
                         'src\\main\\res\\layouts\\inserts2',
                         'src\\main\\res\\layouts\\activities',
-                        'src\\main\\res\\layouts\\RVRows',
+                        'src\\main\\res\\layouts\\rows',
                         'src\\main\\res\\layouts\\popups'
             }
         }
