@@ -1,10 +1,5 @@
 package com.example.storekeeper;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
-
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,7 +9,11 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
 import com.example.storekeeper.DBClasses.DBHelper;
 import com.google.android.material.textfield.TextInputEditText;
@@ -78,7 +77,7 @@ public class warranty extends AppCompatActivity {
     void dinamicSerials(String sn) throws ParseException {
 
         boolean isOld = helper.checkSerialNumber(sn);
-        if (isOld || warranty_serial.getText().equals(sn)){
+        if (isOld || warranty_serial.getText().equals(sn)) {
             //Toast.makeText(getApplicationContext(),"Το serial number: "+sn+" υπάρχει!!!",Toast.LENGTH_LONG).show();
             String product = helper.productGetNameFromSerial(sn);
             String income_date = helper.warrantyGetIncomeDate(sn);
@@ -95,24 +94,31 @@ public class warranty extends AppCompatActivity {
             TextView warrantyEnd = addView.findViewById(R.id.warranty_end_date);
             ImageView warrantyIcon = addView.findViewById(R.id.warranty_icon);
             productName.setText(product);
-            incomeDate.setText(income_date);
-            supplierName.setText(supplier);
-            warrantyMonths.setText(warranty_months+"");
-            warrantyEnd.setText(warranty_end_date);
+            incomeDate.append(income_date);
+            supplierName.append(supplier);
+            warrantyMonths.append(warranty_months + "");
+            warrantyEnd.append(warranty_end_date);
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             Date enddate = sdf.parse(warranty_end_date);
             Calendar today = Calendar.getInstance();
             Calendar enddateCal = Calendar.getInstance();
-            enddate.setTime(enddate.getTime());
+            enddateCal.setTime(enddate);
+            Calendar warning = Calendar.getInstance();
+            warning.setTime(enddate);
+            warning.add(Calendar.MONTH, -1);
 
             if (today.before(enddateCal))
-                warrantyIcon.setImageResource(R.drawable.approval);
+                if (today.before(warning))
+                    warrantyIcon.setImageResource(R.drawable.approval);
+                else
+                    warrantyIcon.setImageResource(R.drawable.warring);
             else
                 warrantyIcon.setImageResource(R.drawable.reject);
             container.addView(addView);
+            warranty_serial.setText("");
         } else {
             dialog = new alertDialogs();
-            dialog.launchFail(this, "Το serial number "+sn+" δεν υπάρχει!");
+            dialog.launchFail(this, "Το serial number " + sn + " δεν υπάρχει!");
         }
     }
 }
