@@ -362,7 +362,7 @@ public class DBHelper extends SQLiteOpenHelper {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Calendar c = Calendar.getInstance();
         c.setTime(sdf.parse(income_date_format));
-        c.add(Calendar.MONTH, warranty);  // number of days to add
+        c.add(Calendar.MONTH, warranty);
         String warrantyString = sdf.format(c.getTime());
 
         cv.put("serialnumber", serialnumber);
@@ -404,7 +404,7 @@ public class DBHelper extends SQLiteOpenHelper {
         boolean isOld = false;
         String sql = "select serialnumber from " + SERIALS + " WHERE serialnumber = '" + sn + "'";
         SQLiteDatabase db = this.getReadableDatabase();
-        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date TEXT, supplier_code INTEGER, employee_code INTEGER, available INTEGER)";
+        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, available INTEGER)";
         db.execSQL(createTable);
         Cursor cursor = db.rawQuery(sql, null);
         if (cursor.moveToFirst())
@@ -426,7 +426,65 @@ public class DBHelper extends SQLiteOpenHelper {
         return warranty;
 
     }
+    //-------------------------------------------------------------------
 
+    //warranty methods
+    public String productGetNameFromSerial(String sn) {
+        String productName = null;
+        String sql = "select " + PRODUCTS + ".name from " + SERIALS + "," + PRODUCTS + " WHERE serialnumber = '" + sn + "' AND " + PRODUCTS + ".code = " + SERIALS + ".prod_code";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst()) productName = cursor.getString(0);
+        cursor.close();
+        db.close();
+        return productName;
+    }
+
+    public String warrantyGetIncomeDate(String sn) {
+        String incomeDate = null;
+        String sql = "select income_date from " + SERIALS + " WHERE serialnumber = '" + sn + "'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst()) incomeDate = formatDateForAndroid(cursor.getString(0));
+        cursor.close();
+        db.close();
+        return incomeDate;
+    }
+
+    public String supplierGetName(String sn) {
+        String supplierName = null;
+        String sql = "select " + SUPPLIERS + ".name from " + SERIALS + "," + SUPPLIERS + " WHERE serialnumber = '" + sn + "' AND " + SUPPLIERS + ".code = " + SERIALS + ".supplier_code";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst()) supplierName = cursor.getString(0);
+        cursor.close();
+        db.close();
+        return supplierName;
+    }
+
+    public int warrantyGetMonths(String sn) {
+        int warrantyMonths = 0;
+        String sql = "select " + PRODUCTS + ".warranty from " + SERIALS + "," + PRODUCTS + " WHERE serialnumber = '" + sn + "' AND " + PRODUCTS + ".code = " + SERIALS + ".prod_code";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst()) warrantyMonths = cursor.getInt(0);
+        cursor.close();
+        db.close();
+        return warrantyMonths;
+    }
+
+    public String warrantyGetEndDate(String sn) {
+        String warrantyDate = null;
+        String sql = "select warranty_date from " + SERIALS + " WHERE serialnumber = '" + sn + "'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst()) warrantyDate = formatDateForAndroid(cursor.getString(0));
+        cursor.close();
+        db.close();
+        return warrantyDate;
+    }
+
+    //-------------------------------------------------------------------
     public static String formatDateForSQL(String inDate) {
         SimpleDateFormat inSDF = new SimpleDateFormat("dd/mm/yyyy");
         SimpleDateFormat outSDF = new SimpleDateFormat("yyyy-mm-dd");

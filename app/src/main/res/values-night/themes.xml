@@ -59,6 +59,5 @@
         <item name="cardElevation">6dp</item>
         <item name="cardCornerRadius">10dp</item>
         <item name="carousel_touchUp_dampeningFactor">@integer/material_motion_duration_short_2</item>
-
     </style>
 </resources>

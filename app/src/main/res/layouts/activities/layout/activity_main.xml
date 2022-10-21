@@ -60,7 +60,7 @@
                         android:fontFamily="monospace"
                         android:text="Προϊόντα"
                         android:textAlignment="center"
-                        android:textSize="20sp" />
+                        android:textSize="20dp" />
 
 
                 </LinearLayout>
@@ -94,7 +94,7 @@
                         android:fontFamily="monospace"
                         android:text="Προσωπικό"
                         android:textAlignment="center"
-                        android:textSize="20sp" />
+                        android:textSize="20dp" />
 
 
                 </LinearLayout>
@@ -128,7 +128,7 @@
                         android:fontFamily="monospace"
                         android:text="Προμηθευτές"
                         android:textAlignment="center"
-                        android:textSize="20sp" />
+                        android:textSize="20dp" />
 
 
                 </LinearLayout>
@@ -162,7 +162,7 @@
                         android:fontFamily="monospace"
                         android:text="Παραλαβή"
                         android:textAlignment="center"
-                        android:textSize="20sp" />
+                        android:textSize="20dp"/>
 
 
                 </LinearLayout>
@@ -196,7 +196,7 @@
                         android:fontFamily="monospace"
                         android:text="Χρέωση"
                         android:textAlignment="center"
-                        android:textSize="20sp" />
+                        android:textSize="20dp" />
 
 
                 </LinearLayout>
@@ -230,7 +230,7 @@
                         android:fontFamily="monospace"
                         android:text="Επιστροφή"
                         android:textAlignment="center"
-                        android:textSize="20sp" />
+                        android:textSize="20dp"/>
 
 
                 </LinearLayout>
@@ -264,7 +264,7 @@
                         android:fontFamily="monospace"
                         android:text="Εγγύηση"
                         android:textAlignment="center"
-                        android:textSize="20sp" />
+                        android:textSize="20dp"/>
 
 
                 </LinearLayout>
@@ -298,7 +298,7 @@
                         android:fontFamily="monospace"
                         android:text="Ρυθμήσεις"
                         android:textAlignment="center"
-                        android:textSize="20sp" />
+                        android:textSize="20dp" />
 
 
                 </LinearLayout>
