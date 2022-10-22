@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -191,7 +193,7 @@ public class income extends AppCompatActivity implements income_RVInterface {
 
         dialogBuilder.setView(incomePopupView);
         dialog = dialogBuilder.create();
-        //dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.getWindow().setWindowAnimations(R.style.DialogAnimation);
         dialog.show();
     }
