@@ -45,7 +45,6 @@ public class income extends AppCompatActivity implements income_RVInterface {
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
     ArrayList<incomeModel> incomeModel = new ArrayList<>();
-    alertDialogs dialogAlert;
     DBHelper helper = new DBHelper(income.this);
 
     @SuppressLint({"MissingInflatedId", "SetTextI18n"})

@@ -75,7 +75,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
-                android:hint="Από"
+                android:hint="Ημερομηνία"
                 app:endIconDrawable="@drawable/ic_calendar"
                 app:endIconMode="custom"
                 app:layout_constraintEnd_toStartOf="@+id/income_insert_prodsearch_btn"

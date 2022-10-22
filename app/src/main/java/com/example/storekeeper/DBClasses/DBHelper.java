@@ -11,6 +11,7 @@ import android.os.Build;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import com.example.storekeeper.Models.chargeModel;
 import com.example.storekeeper.Models.employeesModel;
 import com.example.storekeeper.Models.incomeModel;
 import com.example.storekeeper.Models.productModel;
@@ -517,6 +518,33 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
         return warrantyDate;
     }
+    //-------------------------------------------------------------------
+
+    //charge methods
+    public ArrayList<chargeModel> chargeGetAll(String start, String end) {
+        ArrayList<incomeModel> returnArray = new ArrayList<>();
+
+        String sql = "select * from " + INCOMES + " where income_date BETWEEN '" + formatDateForSQL(start) + "' AND '" + formatDateForSQL(end) + "'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        String createTable = "create table if not exists " + INCOMES + "(code INTEGER PRIMARY KEY AUTOINCREMENT, supplier_name TEXT, income_date DATE)";
+        db.execSQL(createTable);
+        Cursor cursor = db.rawQuery(sql, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                String suppliername = cursor.getString(1);
+                String date = cursor.getString(2);
+
+                incomeModel newIncome = new incomeModel(formatDateForAndroid(date), suppliername);
+
+                returnArray.add(newIncome);
+            } while (cursor.moveToNext());
+
+        }
+        cursor.close();
+        db.close();
+        return returnArray;
+    }
 
     //-------------------------------------------------------------------
     public static String formatDateForSQL(String inDate) {
@@ -548,4 +576,6 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         return outDate;
     }
+
+
 }
