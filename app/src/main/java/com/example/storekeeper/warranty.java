@@ -88,12 +88,14 @@ public class warranty extends AppCompatActivity {
             LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             final View addView = layoutInflater.inflate(R.layout.warranty_row, null);
             TextView productName = addView.findViewById(R.id.warranty_product);
+            TextView serialNumber = addView.findViewById(R.id.warranty_serial_number);
             TextView incomeDate = addView.findViewById(R.id.warranty_income_date);
             TextView supplierName = addView.findViewById(R.id.warranty_supplier);
             TextView warrantyMonths = addView.findViewById(R.id.warranty_months);
             TextView warrantyEnd = addView.findViewById(R.id.warranty_end_date);
             ImageView warrantyIcon = addView.findViewById(R.id.warranty_icon);
             productName.setText(product);
+            serialNumber.append(sn);
             incomeDate.append(income_date);
             supplierName.append(supplier);
             warrantyMonths.append(warranty_months + "");

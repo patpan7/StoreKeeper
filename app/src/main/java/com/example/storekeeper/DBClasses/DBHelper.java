@@ -426,6 +426,40 @@ public class DBHelper extends SQLiteOpenHelper {
         return warranty;
 
     }
+
+    public ArrayList<String> productsGetAllNamesIncome(int supplierCode, String date) {
+        ArrayList<String> returnList = new ArrayList<>();
+        String income_date = formatDateForSQL(date);
+        String sql = "select " + PRODUCTS + ".name from " + PRODUCTS + "," + SERIALS + " where " + PRODUCTS + ".code=" + SERIALS + ".prod_code AND income_date = '" + income_date + "' and supplier_code=" + supplierCode +" GROUP BY prod_code";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst()) {
+            do {
+                returnList.add(cursor.getString(0));
+            } while (cursor.moveToNext());
+
+        }
+        cursor.close();
+        db.close();
+        return returnList;
+    }
+
+    public ArrayList<String> serialGetAllIncome(int prod_code, String date) {
+        ArrayList<String> returnList = new ArrayList<>();
+        String income_date = formatDateForSQL(date);
+        String sql = "select serialnumber from " + SERIALS + " where prod_code = " + prod_code + " AND income_date = '" + income_date + "'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst()) {
+            do {
+                returnList.add(cursor.getString(0));
+            } while (cursor.moveToNext());
+
+        }
+        cursor.close();
+        db.close();
+        return returnList;
+    }
     //-------------------------------------------------------------------
 
     //warranty methods

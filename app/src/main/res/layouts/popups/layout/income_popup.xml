@@ -50,10 +50,9 @@
                 app:layout_constraintTop_toBottomOf="@id/income_img">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    id="@+id/income_insert_supplier1"
+                    android:id="@+id/income_popup_supplier1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:clickable="true"
                     tools:ignore="KeyboardInaccessibleWidget" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -69,7 +68,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/income_popup_supplier">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/income_insert_date1"
+                    android:id="@+id/income_popup_date1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="date" />

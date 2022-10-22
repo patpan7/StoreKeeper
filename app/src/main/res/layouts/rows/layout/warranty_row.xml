@@ -1,6 +1,5 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -46,6 +45,18 @@
                 app:layout_constraintVertical_bias="0.5" />
 
             <TextView
+                android:id="@+id/warranty_serial_number"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:paddingStart="20dp"
+                android:text="Serial Number: "
+                android:textSize="18dp"
+                app:layout_constraintEnd_toStartOf="@+id/warranty_icon"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/warranty_product" />
+
+            <TextView
                 android:id="@+id/warranty_income_date"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -55,7 +66,7 @@
                 android:textSize="18dp"
                 app:layout_constraintEnd_toStartOf="@+id/warranty_icon"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/warranty_product" />
+                app:layout_constraintTop_toBottomOf="@+id/warranty_serial_number" />
 
             <TextView
                 android:id="@+id/warranty_supplier"
