@@ -53,7 +53,6 @@ public class employees_RVAdapter extends RecyclerView.Adapter<employees_RVAdapte
     @Override
     public void onBindViewHolder(@NonNull employees_RVAdapter.MyViewHolder holder, int position) {
         holder.tvName.setText(employeesModels.get(position).getName());
-        holder.tvSurname.setText(employeesModels.get(position).getSurname());
         holder.cardView.startAnimation(AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.recycleervie_animation));
     }
 
@@ -79,7 +78,7 @@ public class employees_RVAdapter extends RecyclerView.Adapter<employees_RVAdapte
                 String filterPatern = charSequence.toString().toUpperCase().trim();
 
                 for (employeesModel employee : employeesModelsFull) {
-                    if (employee.getName().toUpperCase().contains(filterPatern) || employee.getSurname().toUpperCase().contains(filterPatern))
+                    if (employee.getName().toUpperCase().contains(filterPatern))
                         filteredEmployeesList.add(employee);
                 }
             }
@@ -102,14 +101,12 @@ public class employees_RVAdapter extends RecyclerView.Adapter<employees_RVAdapte
     public static class MyViewHolder extends RecyclerView.ViewHolder {
 
         TextView tvName;
-        TextView tvSurname;
         CardView cardView;
 
         public MyViewHolder(@NonNull View itemView, employees_RVInterface employees_rvInterface) {
             super(itemView);
 
             tvName = itemView.findViewById(R.id.employees_name);
-            tvSurname = itemView.findViewById(R.id.employees_surname);
             cardView = itemView.findViewById(R.id.employees_card);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -30,6 +30,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String SUPPLIERS = "suppliers";
     public static final String SERIALS = "serials";
     public static final String INCOMES = "incomes";
+    public static final String CHARGE = "charges";
 
     public DBHelper(@Nullable Context context) {
         super(context, "storekeeper.db", null, 1);
@@ -39,14 +40,17 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String createTable = "create table if not exists " + PRODUCTS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, barcode TEXT unique, warranty int)";
         db.execSQL(createTable);
-        createTable = "create table if not exists " + EMPLOYEES + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, surname TEXT, phone TEXT, mobile TEXT, mail TEXT, work TEXT, id TEXT unique)";
+        createTable = "create table if not exists " + EMPLOYEES + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, phone TEXT, mobile TEXT, mail TEXT, work TEXT, id TEXT unique)";
         db.execSQL(createTable);
         createTable = "create table if not exists " + SUPPLIERS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, phone TEXT, mobile TEXT, mail TEXT, afm TEXT unique)";
         db.execSQL(createTable);
-        createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date TEXT, supplier_code INTEGER, employee_code INTEGER, available INTEGER)";
+        createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
         db.execSQL(createTable);
         createTable = "create table if not exists " + INCOMES + "(code INTEGER PRIMARY KEY AUTOINCREMENT, supplier_name TEXT, income_date DATE)";
         db.execSQL(createTable);
+        createTable = "create table if not exists " + CHARGE + "(code INTEGER PRIMARY KEY AUTOINCREMENT, employee_name TEXT, charge_date DATE)";
+        db.execSQL(createTable);
+
     }
 
     @Override
@@ -122,7 +126,6 @@ public class DBHelper extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
 
         cv.put("name", employeesModel.getName());
-        cv.put("surname", employeesModel.getSurname());
         cv.put("phone", employeesModel.getPhone());
         cv.put("mobile", employeesModel.getMobile());
         cv.put("mail", employeesModel.getMail());
@@ -146,14 +149,13 @@ public class DBHelper extends SQLiteOpenHelper {
             do {
                 int code = cursor.getInt(0);
                 String name = cursor.getString(1);
-                String surname = cursor.getString(2);
-                String phone = cursor.getString(3);
-                String mobile = cursor.getString(4);
-                String mail = cursor.getString(5);
-                String work = cursor.getString(6);
-                String id = cursor.getString(7);
+                String phone = cursor.getString(2);
+                String mobile = cursor.getString(3);
+                String mail = cursor.getString(4);
+                String work = cursor.getString(5);
+                String id = cursor.getString(6);
 
-                employeesModel newEmployee = new employeesModel(code, name, surname, phone, mobile, mail, work, id);
+                employeesModel newEmployee = new employeesModel(code, name, phone, mobile, mail, work, id);
 
                 returnArray.add(newEmployee);
             } while (cursor.moveToNext());
@@ -168,7 +170,6 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put("name", employeesModel.getName());
-        cv.put("surname", employeesModel.getSurname());
         cv.put("phone", employeesModel.getPhone());
         cv.put("mobile", employeesModel.getMobile());
         cv.put("mail", employeesModel.getMail());
@@ -343,7 +344,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return name;
     }
 
-    public boolean incomeAdd(String supplier, String date) {
+    public void incomeAdd(String supplier, String date) {
         SQLiteDatabase db = this.getReadableDatabase();
         ContentValues cv = new ContentValues();
         cv.put("supplier_name", supplier);
@@ -351,7 +352,6 @@ public class DBHelper extends SQLiteOpenHelper {
         String createTable = "create table if not exists " + INCOMES + "(code INTEGER PRIMARY KEY AUTOINCREMENT, supplier_name TEXT, income_date DATE)";
         db.execSQL(createTable);
         long insert = db.insert(INCOMES, null, cv);
-        return insert != -1;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -372,8 +372,9 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("warranty_date", warrantyString);
         cv.put("supplier_code", supplier_code);
         cv.put("employee_code", 0);
+        cv.put("charge_date", 0);
         cv.put("available", 1);
-        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date TEXT, supplier_code INTEGER, employee_code INTEGER, available INTEGER)";
+        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
         db.execSQL(createTable);
         long insert = db.insert(SERIALS, null, cv);
         return insert != -1;
@@ -405,7 +406,7 @@ public class DBHelper extends SQLiteOpenHelper {
         boolean isOld = false;
         String sql = "select serialnumber from " + SERIALS + " WHERE serialnumber = '" + sn + "'";
         SQLiteDatabase db = this.getReadableDatabase();
-        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, available INTEGER)";
+        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
         db.execSQL(createTable);
         Cursor cursor = db.rawQuery(sql, null);
         if (cursor.moveToFirst())
@@ -431,7 +432,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public ArrayList<String> productsGetAllNamesIncome(int supplierCode, String date) {
         ArrayList<String> returnList = new ArrayList<>();
         String income_date = formatDateForSQL(date);
-        String sql = "select " + PRODUCTS + ".name from " + PRODUCTS + "," + SERIALS + " where " + PRODUCTS + ".code=" + SERIALS + ".prod_code AND income_date = '" + income_date + "' and supplier_code=" + supplierCode +" GROUP BY prod_code";
+        String sql = "select " + PRODUCTS + ".name from " + PRODUCTS + "," + SERIALS + " where " + PRODUCTS + ".code=" + SERIALS + ".prod_code AND income_date = '" + income_date + "' and supplier_code=" + supplierCode + " GROUP BY prod_code";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(sql, null);
         if (cursor.moveToFirst()) {
@@ -465,7 +466,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     //warranty methods
     public String productGetNameFromSerial(String sn) {
-        String productName = null;
+        String productName = "";
         String sql = "select " + PRODUCTS + ".name from " + SERIALS + "," + PRODUCTS + " WHERE serialnumber = '" + sn + "' AND " + PRODUCTS + ".code = " + SERIALS + ".prod_code";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(sql, null);
@@ -476,7 +477,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public String warrantyGetIncomeDate(String sn) {
-        String incomeDate = null;
+        String incomeDate = "";
         String sql = "select income_date from " + SERIALS + " WHERE serialnumber = '" + sn + "'";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(sql, null);
@@ -487,7 +488,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public String supplierGetName(String sn) {
-        String supplierName = null;
+        String supplierName = "";
         String sql = "select " + SUPPLIERS + ".name from " + SERIALS + "," + SUPPLIERS + " WHERE serialnumber = '" + sn + "' AND " + SUPPLIERS + ".code = " + SERIALS + ".supplier_code";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(sql, null);
@@ -509,7 +510,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public String warrantyGetEndDate(String sn) {
-        String warrantyDate = null;
+        String warrantyDate = "";
         String sql = "select warranty_date from " + SERIALS + " WHERE serialnumber = '" + sn + "'";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(sql, null);
@@ -518,32 +519,124 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
         return warrantyDate;
     }
+
+    public String employeeGetName(String sn) {
+        String employeeName = "";
+        String sql = "select " + EMPLOYEES + ".name from " + SERIALS + "," + EMPLOYEES + " WHERE serialnumber = '" + sn + "' AND " + EMPLOYEES + ".code = " + SERIALS + ".employee_code";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst()) employeeName = cursor.getString(0);
+        cursor.close();
+        db.close();
+        if (employeeName.equals("0"))
+            employeeName = "";
+        return employeeName;
+    }
+
+    public String chargeDateGet(String sn) {
+        String charge_date = "";
+        String sql = "select charge_date from " + SERIALS + " WHERE serialnumber = '" + sn + "'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst())
+            if (!cursor.getString(0).equals("0"))
+                charge_date = formatDateForAndroid(cursor.getString(0));
+        cursor.close();
+        db.close();
+        return charge_date;
+    }
     //-------------------------------------------------------------------
 
     //charge methods
     public ArrayList<chargeModel> chargeGetAll(String start, String end) {
-        ArrayList<incomeModel> returnArray = new ArrayList<>();
+        ArrayList<chargeModel> returnArray = new ArrayList<>();
 
-        String sql = "select * from " + INCOMES + " where income_date BETWEEN '" + formatDateForSQL(start) + "' AND '" + formatDateForSQL(end) + "'";
+        String sql = "select * from " + CHARGE + " where charge_date BETWEEN '" + formatDateForSQL(start) + "' AND '" + formatDateForSQL(end) + "'";
         SQLiteDatabase db = this.getReadableDatabase();
-        String createTable = "create table if not exists " + INCOMES + "(code INTEGER PRIMARY KEY AUTOINCREMENT, supplier_name TEXT, income_date DATE)";
+        String createTable = "create table if not exists " + CHARGE + "(code INTEGER PRIMARY KEY AUTOINCREMENT, employee_name TEXT, charge_date DATE)";
         db.execSQL(createTable);
         Cursor cursor = db.rawQuery(sql, null);
 
         if (cursor.moveToFirst()) {
             do {
-                String suppliername = cursor.getString(1);
+                String employeeName = cursor.getString(1);
                 String date = cursor.getString(2);
 
-                incomeModel newIncome = new incomeModel(formatDateForAndroid(date), suppliername);
+                chargeModel newCharge = new chargeModel(formatDateForAndroid(date), employeeName);
 
-                returnArray.add(newIncome);
+                returnArray.add(newCharge);
             } while (cursor.moveToNext());
 
         }
         cursor.close();
         db.close();
         return returnArray;
+    }
+
+    public ArrayList<String> employeesGetAllNames() {
+        ArrayList<String> returnArray = new ArrayList<>();
+
+        String sql = "select name from " + EMPLOYEES;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                returnArray.add(cursor.getString(0));
+            } while (cursor.moveToNext());
+
+        }
+        cursor.close();
+        db.close();
+        return returnArray;
+    }
+
+    public int employeeGetCode(String name) {
+        int code = 0;
+        String sql = "select code from " + EMPLOYEES + " WHERE name = '" + name + "'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst()) code = cursor.getInt(0);
+        cursor.close();
+        db.close();
+        return code;
+    }
+
+    public boolean checkSerialNumberAvailable(String sn) {
+        boolean available = false;
+        String sql = "select available from " + SERIALS + " WHERE serialnumber = '" + sn + "'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
+        db.execSQL(createTable);
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst())
+            if (cursor.getInt(0) == 1)
+                available = true;
+
+        cursor.close();
+        db.close();
+        return available;
+    }
+
+    public boolean serialUpdateEmployee(String sn, String date, int emp_code) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("charge_date", formatDateForSQL(date));
+        cv.put("employee_code", emp_code);
+        cv.put("available", 0);
+        long update = db.update(SERIALS, cv, "serialnumber= ?", new String[]{sn});
+        db.close();
+        return update != -1;
+    }
+
+    public void chargeAdd(String emp, String date) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("employee_name", emp);
+        cv.put("charge_date", formatDateForSQL(date));
+        String createTable = "create table if not exists " + CHARGE + "(code INTEGER PRIMARY KEY AUTOINCREMENT, employee_name TEXT, charge_date DATE)";
+        db.execSQL(createTable);
+        long insert = db.insert(CHARGE, null, cv);
     }
 
     //-------------------------------------------------------------------
@@ -577,5 +670,37 @@ public class DBHelper extends SQLiteOpenHelper {
         return outDate;
     }
 
+    public ArrayList<String> productsGetAllNamesCharge(int employeeCode, String date) {
+        ArrayList<String> returnList = new ArrayList<>();
+        String charge_date = formatDateForSQL(date);
+        String sql = "select " + PRODUCTS + ".name from " + PRODUCTS + "," + SERIALS + " where " + PRODUCTS + ".code=" + SERIALS + ".prod_code AND charge_date = '" + charge_date + "' and employee_code=" + employeeCode + " GROUP BY prod_code";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst()) {
+            do {
+                returnList.add(cursor.getString(0));
+            } while (cursor.moveToNext());
 
+        }
+        cursor.close();
+        db.close();
+        return returnList;
+    }
+
+    public ArrayList<String> serialGetAllCharge(int prod_code, String date) {
+        ArrayList<String> returnList = new ArrayList<>();
+        String charge_date = formatDateForSQL(date);
+        String sql = "select serialnumber from " + SERIALS + " where prod_code = " + prod_code + " AND charge_date = '" + charge_date + "'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst()) {
+            do {
+                returnList.add(cursor.getString(0));
+            } while (cursor.moveToNext());
+
+        }
+        cursor.close();
+        db.close();
+        return returnList;
+    }
 }

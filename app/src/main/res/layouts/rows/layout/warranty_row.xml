@@ -103,6 +103,29 @@
                 app:layout_constraintEnd_toStartOf="@+id/warranty_icon"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/warranty_months" />
+
+            <TextView
+                android:id="@+id/warranty_employee"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:paddingStart="20dp"
+                android:text="Χρεωμένο σε: "
+                android:textSize="18dp"
+                app:layout_constraintEnd_toStartOf="@+id/warranty_icon"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/warranty_end_date" />
+            <TextView
+                android:id="@+id/warranty_employee_charge"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:paddingStart="20dp"
+                android:text="Χρεώθηκε: "
+                android:textSize="18dp"
+                app:layout_constraintEnd_toStartOf="@+id/warranty_icon"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/warranty_employee" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

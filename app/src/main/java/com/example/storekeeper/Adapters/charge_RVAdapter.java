@@ -53,7 +53,6 @@ public class charge_RVAdapter extends RecyclerView.Adapter<charge_RVAdapter.MyVi
     public void onBindViewHolder(@NonNull charge_RVAdapter.MyViewHolder holder, int position) {
         holder.tvDate.setText(chargeModels.get(position).getDate());
         holder.tvEmployeeName.setText(chargeModels.get(position).getName());
-        holder.tvEmployeeSurname.setText(chargeModels.get(position).getSurname());
     }
 
     @Override
@@ -78,7 +77,7 @@ public class charge_RVAdapter extends RecyclerView.Adapter<charge_RVAdapter.MyVi
                 String filterPatern = charSequence.toString().toUpperCase().trim();
 
                 for (chargeModel charge : chargeModelsFull) {
-                    if (charge.getDate().toUpperCase().contains(filterPatern) || charge.getName().toUpperCase().contains(filterPatern) || charge.getSurname().toUpperCase().contains(filterPatern))
+                    if (charge.getDate().toUpperCase().contains(filterPatern) || charge.getName().toUpperCase().contains(filterPatern))
                         filteredIncomesList.add(charge);
                 }
             }
@@ -101,7 +100,6 @@ public class charge_RVAdapter extends RecyclerView.Adapter<charge_RVAdapter.MyVi
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         TextView tvDate;
         TextView tvEmployeeName;
-        TextView tvEmployeeSurname;
         CardView cardView;
 
         public MyViewHolder(@NonNull View itemView, charge_RVInterface charge_rvInterface) {
@@ -109,7 +107,6 @@ public class charge_RVAdapter extends RecyclerView.Adapter<charge_RVAdapter.MyVi
 
             tvDate = itemView.findViewById(R.id.charge_date);
             tvEmployeeName = itemView.findViewById(R.id.charge_employee_name);
-            tvEmployeeSurname = itemView.findViewById(R.id.charge_employee_surname);
             cardView = itemView.findViewById(R.id.charge_card);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

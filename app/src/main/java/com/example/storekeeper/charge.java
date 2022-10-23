@@ -2,10 +2,16 @@ package com.example.storekeeper;
 
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.DatePicker;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -20,6 +26,7 @@ import com.example.storekeeper.DBClasses.DBHelper;
 import com.example.storekeeper.Interfaces.charge_RVInterface;
 import com.example.storekeeper.Models.chargeModel;
 import com.example.storekeeper.newInserts.charge_CreateNew;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -128,9 +135,9 @@ public class charge extends AppCompatActivity implements charge_RVInterface {
     }
 
     private void setUpCharges(String start, String end) throws ParseException {
-        ArrayList<chargeModel> dbIncomes = helper.chargeGetAll(start, end);
-        chargeModel.addAll(dbIncomes);
-        adapter = new charge_RVAdapter(this, dbIncomes, this);
+        ArrayList<chargeModel> dbCharges = helper.chargeGetAll(start, end);
+        chargeModel.addAll(dbCharges);
+        adapter = new charge_RVAdapter(this, dbCharges, this);
         recyclerView.setAdapter(adapter);
     }
 
@@ -151,7 +158,45 @@ public class charge extends AppCompatActivity implements charge_RVInterface {
 
     @Override
     public void onItemClick(int position) {
-        //chargeDialog(position);
+        chargeDialog(position);
 
+    }
+    @SuppressLint("MissingInflatedId")
+    public void chargeDialog(int pos) {
+        dialogBuilder = new MaterialAlertDialogBuilder(this);
+        final View chargePopupView = getLayoutInflater().inflate(R.layout.charge_popup, null);
+        TextInputEditText charge_popup_employee = chargePopupView.findViewById(R.id.charge_popup_employee1);
+        TextInputEditText charge_popup_date = chargePopupView.findViewById(R.id.charge_popup_date1);
+        LinearLayout container = chargePopupView.findViewById(R.id.container);
+        charge_popup_employee.setText(chargeModel.get(pos).getName());
+        charge_popup_date.setText(chargeModel.get(pos).getDate());
+
+        int employeeCode = helper.employeeGetCode(chargeModel.get(pos).getName());
+        ArrayList<String> products = helper.productsGetAllNamesCharge(employeeCode, chargeModel.get(pos).getDate());
+
+        for (int i = 0; i < products.size(); i++) {
+            LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            final View addView = layoutInflater.inflate(R.layout.income_popup_row, null);
+            TextView productName = addView.findViewById(R.id.income_popup_row_product);
+            LinearLayout containerSN = addView.findViewById(R.id.containerSerials);
+            productName.setText(products.get(i).toString());
+            int prod_code = helper.productGetCode(products.get(i));
+            ArrayList<String> serials = helper.serialGetAllCharge(prod_code,chargeModel.get(pos).getDate());
+            for (int j = 0; j<serials.size();j++){
+                LayoutInflater layoutInflaterSN = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                final View addViewSN = layoutInflaterSN.inflate(R.layout.income_popup_row_sn, null);
+                TextView serialnumber = addViewSN.findViewById(R.id.income_popup_row_sn_serial);
+                serialnumber.setText(serials.get(j));
+                containerSN.addView(addViewSN);
+            }
+            container.addView(addView);
+        }
+
+
+        dialogBuilder.setView(chargePopupView);
+        dialog = dialogBuilder.create();
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().setWindowAnimations(R.style.DialogAnimation);
+        dialog.show();
     }
 }

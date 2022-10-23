@@ -36,7 +36,7 @@ public class employees extends AppCompatActivity implements employees_RVInterfac
     employees_RVAdapter adapter;
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
-    private EditText employee_popup_code, employee_popup_name, employee_popup_surname, employee_popup_phone, employee_popup_mobile, employee_popup_mail, employee_popup_work, employee_popup_id;
+    private EditText employee_popup_code, employee_popup_name, employee_popup_phone, employee_popup_mobile, employee_popup_mail, employee_popup_work, employee_popup_id;
     CardView employee_popup_savebtn;
     ImageView employee_popup_editbtn;
     ArrayList<employeesModel> employeeModels = new ArrayList<>();
@@ -113,7 +113,6 @@ public class employees extends AppCompatActivity implements employees_RVInterfac
         final View employeesPopupView = getLayoutInflater().inflate(R.layout.employees_popup, null);
         employee_popup_code = employeesPopupView.findViewById(R.id.employees_popup_code1);
         employee_popup_name = employeesPopupView.findViewById(R.id.employees_popup_name1);
-        employee_popup_surname = employeesPopupView.findViewById(R.id.employees_popup_surname1);
         employee_popup_phone = employeesPopupView.findViewById(R.id.employees_popup_phone1);
         employee_popup_mobile = employeesPopupView.findViewById(R.id.employees_popup_mobile1);
         employee_popup_mail = employeesPopupView.findViewById(R.id.employees_popup_mail1);
@@ -122,7 +121,6 @@ public class employees extends AppCompatActivity implements employees_RVInterfac
 
         employee_popup_code.setText(String.valueOf(employeeModels.get(pos).getCode()));
         employee_popup_name.setText(employeeModels.get(pos).getName());
-        employee_popup_surname.setText(employeeModels.get(pos).getSurname());
         employee_popup_phone.setText(employeeModels.get(pos).getPhone());
         employee_popup_mobile.setText(employeeModels.get(pos).getMobile());
         employee_popup_mail.setText(employeeModels.get(pos).getMail());
@@ -146,13 +144,12 @@ public class employees extends AppCompatActivity implements employees_RVInterfac
                     if (isError == 0) {
                         int code = Integer.parseInt(employee_popup_code.getText().toString());
                         String name = employee_popup_name.getText().toString().trim();
-                        String surname = employee_popup_surname.getText().toString().trim();
                         String phone = employee_popup_phone.getText().toString().trim();
                         String mobile = employee_popup_mobile.getText().toString().trim();
                         String mail = employee_popup_mail.getText().toString().trim();
                         String work = employee_popup_work.getText().toString().trim();
                         String id = employee_popup_id.getText().toString().trim();
-                        employeesModel employee = new employeesModel(code, name, surname, phone, mobile, mail, work, id);
+                        employeesModel employee = new employeesModel(code, name, phone, mobile, mail, work, id);
 
                         DBHelper helper = new DBHelper(employees.this);
                         boolean success = helper.employeeUpdate(employee);
@@ -176,7 +173,6 @@ public class employees extends AppCompatActivity implements employees_RVInterfac
             @Override
             public void onClick(View view) {
                 employee_popup_name.setEnabled(true);
-                employee_popup_surname.setEnabled(true);
                 employee_popup_phone.setEnabled(true);
                 employee_popup_mobile.setEnabled(true);
                 employee_popup_mail.setEnabled(true);
@@ -191,10 +187,6 @@ public class employees extends AppCompatActivity implements employees_RVInterfac
         int error = 0;
         if (employee_popup_name.getText().toString().equals("")) {
             employee_popup_name.setError("Error!!!");
-            error += 1;
-        }
-        if (employee_popup_surname.getText().toString().equals("")) {
-            employee_popup_surname.setError("Error!!!");
             error += 1;
         }
         if (employee_popup_phone.getText().toString().equals("") || employee_popup_phone.length() != 10) {

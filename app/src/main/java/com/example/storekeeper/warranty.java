@@ -84,6 +84,8 @@ public class warranty extends AppCompatActivity {
             String supplier = helper.supplierGetName(sn);
             int warranty_months = helper.warrantyGetMonths(sn);
             String warranty_end_date = helper.warrantyGetEndDate(sn);
+            String employee = helper.employeeGetName(sn);
+            String charge_date = helper.chargeDateGet(sn);
 
             LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             final View addView = layoutInflater.inflate(R.layout.warranty_row, null);
@@ -93,6 +95,8 @@ public class warranty extends AppCompatActivity {
             TextView supplierName = addView.findViewById(R.id.warranty_supplier);
             TextView warrantyMonths = addView.findViewById(R.id.warranty_months);
             TextView warrantyEnd = addView.findViewById(R.id.warranty_end_date);
+            TextView employeeName = addView.findViewById(R.id.warranty_employee);
+            TextView chargeDate = addView.findViewById(R.id.warranty_employee_charge);
             ImageView warrantyIcon = addView.findViewById(R.id.warranty_icon);
             productName.setText(product);
             serialNumber.append(sn);
@@ -100,6 +104,8 @@ public class warranty extends AppCompatActivity {
             supplierName.append(supplier);
             warrantyMonths.append(warranty_months + "");
             warrantyEnd.append(warranty_end_date);
+            employeeName.append(employee);
+            chargeDate.append(charge_date);
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             Date enddate = sdf.parse(warranty_end_date);
             Calendar today = Calendar.getInstance();

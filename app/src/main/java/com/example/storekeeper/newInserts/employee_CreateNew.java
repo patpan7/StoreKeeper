@@ -14,7 +14,7 @@ import com.example.storekeeper.alertDialogs;
 
 public class employee_CreateNew extends AppCompatActivity {
 
-    EditText code, name, surname, phone, mobile, mail, work, id;
+    EditText code, name, phone, mobile, mail, work, id;
     CardView savebtn;
     employeesModel employee;
     alertDialogs dialog;
@@ -27,7 +27,6 @@ public class employee_CreateNew extends AppCompatActivity {
 
         code = findViewById(R.id.employees_insert_code1);
         name = findViewById(R.id.employees_insert_name1);
-        surname = findViewById(R.id.employees_insert_surname1);
         phone = findViewById(R.id.employees_insert_phone1);
         mobile = findViewById(R.id.employees_insert_mobile1);
         mail = findViewById(R.id.employees_insert_mail1);
@@ -44,7 +43,6 @@ public class employee_CreateNew extends AppCompatActivity {
                 if (isError == 0) {
                     employee = new employeesModel(-1,
                             name.getText().toString().trim(),
-                            surname.getText().toString().trim(),
                             phone.getText().toString().trim(),
                             mobile.getText().toString().trim(),
                             mail.getText().toString().trim(),
@@ -72,8 +70,6 @@ public class employee_CreateNew extends AppCompatActivity {
         code.setText(String.valueOf(helper.employeeNextID()));
         name.setText("");
         name.clearFocus();
-        surname.setText("");
-        surname.clearFocus();
         phone.setText("");
         phone.clearFocus();
         mobile.setText("");
@@ -91,10 +87,6 @@ public class employee_CreateNew extends AppCompatActivity {
         int error = 0;
         if (name.getText().toString().equals("")) {
             name.setError("Error!!!");
-            error += 1;
-        }
-        if (surname.getText().toString().equals("")) {
-            surname.setError("Error!!!");
             error += 1;
         }
         if (phone.getText().toString().equals("") || phone.length() != 10) {

@@ -3,17 +3,15 @@ package com.example.storekeeper.Models;
 public class employeesModel {
     int code;
     String name;
-    String surname;
     String phone;
     String mobile;
     String mail;
     String work;
     String id;
 
-    public employeesModel(int code, String name, String surname, String phone, String mobile, String mail, String work, String id) {
+    public employeesModel(int code, String name, String phone, String mobile, String mail, String work, String id) {
         this.code = code;
         this.name = name;
-        this.surname = surname;
         this.phone = phone;
         this.mobile = mobile;
         this.mail = mail;
@@ -35,14 +33,6 @@ public class employeesModel {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getSurname() {
-        return surname;
-    }
-
-    public void setSurname(String surname) {
-        this.surname = surname;
     }
 
     public String getPhone() {

@@ -4,12 +4,10 @@ public class chargeModel
 {
     String date;
     String name;
-    String surname;
 
-    public chargeModel(String date, String name, String surname) {
+    public chargeModel(String date, String name) {
         this.date = date;
         this.name = name;
-        this.surname = surname;
     }
 
     public String getDate() {
@@ -28,11 +26,4 @@ public class chargeModel
         this.name = name;
     }
 
-    public String getSurname() {
-        return surname;
-    }
-
-    public void setSurname(String surname) {
-        this.surname = surname;
-    }
 }
