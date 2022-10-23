@@ -13,6 +13,7 @@ import androidx.annotation.RequiresApi;
 
 import com.example.storekeeper.Models.chargeModel;
 import com.example.storekeeper.Models.employeesModel;
+import com.example.storekeeper.Models.fromEmpReturnModel;
 import com.example.storekeeper.Models.incomeModel;
 import com.example.storekeeper.Models.productModel;
 import com.example.storekeeper.Models.supplierModel;
@@ -31,6 +32,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String SERIALS = "serials";
     public static final String INCOMES = "incomes";
     public static final String CHARGE = "charges";
+    private static final String EMPRETURNS = "emp_returns";
 
     public DBHelper(@Nullable Context context) {
         super(context, "storekeeper.db", null, 1);
@@ -49,6 +51,8 @@ public class DBHelper extends SQLiteOpenHelper {
         createTable = "create table if not exists " + INCOMES + "(code INTEGER PRIMARY KEY AUTOINCREMENT, supplier_name TEXT, income_date DATE)";
         db.execSQL(createTable);
         createTable = "create table if not exists " + CHARGE + "(code INTEGER PRIMARY KEY AUTOINCREMENT, employee_name TEXT, charge_date DATE)";
+        db.execSQL(createTable);
+        createTable = "create table if not exists " + EMPRETURNS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, employee_name TEXT, return_date DATE, msg TEXT)";
         db.execSQL(createTable);
 
     }
@@ -702,5 +706,31 @@ public class DBHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return returnList;
+    }
+
+    public ArrayList<fromEmpReturnModel> returnsFromEmpGetAll(String start, String end) {
+        ArrayList<fromEmpReturnModel> returnArray = new ArrayList<>();
+
+        String sql = "select * from " + EMPRETURNS + " where return_date BETWEEN '" + formatDateForSQL(start) + "' AND '" + formatDateForSQL(end) + "'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        String createTable = "create table if not exists " + EMPRETURNS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, employee_name TEXT, return_date DATE, msg TEXT)";
+        db.execSQL(createTable);
+        Cursor cursor = db.rawQuery(sql, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                String employeeName = cursor.getString(1);
+                String date = cursor.getString(2);
+                String msg = cursor.getString(3);
+                fromEmpReturnModel newEmpReturn = new fromEmpReturnModel(employeeName,formatDateForAndroid(date), msg);
+
+                returnArray.add(newEmpReturn);
+            } while (cursor.moveToNext());
+
+        }
+        cursor.close();
+        db.close();
+        return returnArray;
+
     }
 }

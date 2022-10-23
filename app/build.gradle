@@ -46,7 +46,8 @@ android {
                         'src\\main\\res\\layouts\\inserts2',
                         'src\\main\\res\\layouts\\activities',
                         'src\\main\\res\\layouts\\rows',
-                        'src\\main\\res\\layouts\\popups'
+                        'src\\main\\res\\layouts\\popups',
+                        'src\\main\\res\\layouts\\fragmentsReturns'
             }
         }
     }

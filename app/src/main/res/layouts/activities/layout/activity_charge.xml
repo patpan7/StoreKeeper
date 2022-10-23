@@ -57,14 +57,14 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="Έως"
             android:layout_margin="5dp"
+            android:hint="Έως"
+            app:endIconDrawable="@drawable/ic_calendar"
+            app:endIconMode="custom"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/date_start"
-            app:layout_constraintTop_toTopOf="parent"
-            app:endIconDrawable="@drawable/ic_calendar"
-            app:endIconMode="custom">
+            app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/date_end1"
@@ -98,7 +98,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/income_refresh" />
+            app:layout_constraintTop_toBottomOf="@+id/income_refresh"
+            tools:listitem="@layout/charge_row" />
 
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
