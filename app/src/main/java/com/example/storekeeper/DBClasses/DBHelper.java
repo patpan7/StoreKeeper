@@ -17,6 +17,7 @@ import com.example.storekeeper.Models.fromEmpReturnModel;
 import com.example.storekeeper.Models.incomeModel;
 import com.example.storekeeper.Models.productModel;
 import com.example.storekeeper.Models.supplierModel;
+import com.example.storekeeper.Models.toSupReturnModel;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -33,6 +34,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String INCOMES = "incomes";
     public static final String CHARGE = "charges";
     private static final String EMPRETURNS = "emp_returns";
+    private static final String SUPRETURNS = "sup_returns";
 
     public DBHelper(@Nullable Context context) {
         super(context, "storekeeper.db", null, 1);
@@ -52,9 +54,10 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(createTable);
         createTable = "create table if not exists " + CHARGE + "(code INTEGER PRIMARY KEY AUTOINCREMENT, employee_name TEXT, charge_date DATE)";
         db.execSQL(createTable);
-        createTable = "create table if not exists " + EMPRETURNS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, employee_name TEXT, return_date DATE, msg TEXT)";
+        createTable = "create table if not exists " + EMPRETURNS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, employee_name TEXT, return_date DATE, serial_number TEXT, msg TEXT)";
         db.execSQL(createTable);
-
+        createTable = "create table if not exists " + SUPRETURNS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, supplier_name TEXT, return_date DATE, serial_number TEXT, msg TEXT)";
+        db.execSQL(createTable);
     }
 
     @Override
@@ -643,37 +646,6 @@ public class DBHelper extends SQLiteOpenHelper {
         long insert = db.insert(CHARGE, null, cv);
     }
 
-    //-------------------------------------------------------------------
-    public static String formatDateForSQL(String inDate) {
-        SimpleDateFormat inSDF = new SimpleDateFormat("dd/mm/yyyy");
-        SimpleDateFormat outSDF = new SimpleDateFormat("yyyy-mm-dd");
-        String outDate = "";
-        if (inDate != null) {
-            try {
-                Date date = inSDF.parse(inDate);
-                outDate = outSDF.format(date);
-            } catch (ParseException ex) {
-                ex.printStackTrace();
-            }
-        }
-        return outDate;
-    }
-
-    public static String formatDateForAndroid(String inDate) {
-        SimpleDateFormat inSDF = new SimpleDateFormat("yyyy-mm-dd");
-        SimpleDateFormat outSDF = new SimpleDateFormat("dd/mm/yyyy");
-        String outDate = "";
-        if (inDate != null) {
-            try {
-                Date date = inSDF.parse(inDate);
-                outDate = outSDF.format(date);
-            } catch (ParseException ex) {
-                ex.printStackTrace();
-            }
-        }
-        return outDate;
-    }
-
     public ArrayList<String> productsGetAllNamesCharge(int employeeCode, String date) {
         ArrayList<String> returnList = new ArrayList<>();
         String charge_date = formatDateForSQL(date);
@@ -707,13 +679,43 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
         return returnList;
     }
+    //-------------------------------------------------------------------
+    public static String formatDateForSQL(String inDate) {
+        SimpleDateFormat inSDF = new SimpleDateFormat("dd/mm/yyyy");
+        SimpleDateFormat outSDF = new SimpleDateFormat("yyyy-mm-dd");
+        String outDate = "";
+        if (inDate != null) {
+            try {
+                Date date = inSDF.parse(inDate);
+                outDate = outSDF.format(date);
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return outDate;
+    }
+
+    public static String formatDateForAndroid(String inDate) {
+        SimpleDateFormat inSDF = new SimpleDateFormat("yyyy-mm-dd");
+        SimpleDateFormat outSDF = new SimpleDateFormat("dd/mm/yyyy");
+        String outDate = "";
+        if (inDate != null) {
+            try {
+                Date date = inSDF.parse(inDate);
+                outDate = outSDF.format(date);
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return outDate;
+    }
 
     public ArrayList<fromEmpReturnModel> returnsFromEmpGetAll(String start, String end) {
         ArrayList<fromEmpReturnModel> returnArray = new ArrayList<>();
 
         String sql = "select * from " + EMPRETURNS + " where return_date BETWEEN '" + formatDateForSQL(start) + "' AND '" + formatDateForSQL(end) + "'";
         SQLiteDatabase db = this.getReadableDatabase();
-        String createTable = "create table if not exists " + EMPRETURNS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, employee_name TEXT, return_date DATE, msg TEXT)";
+        String createTable = "create table if not exists " + EMPRETURNS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, employee_name TEXT, return_date DATE, serial_number TEXT, msg TEXT)";
         db.execSQL(createTable);
         Cursor cursor = db.rawQuery(sql, null);
 
@@ -721,8 +723,9 @@ public class DBHelper extends SQLiteOpenHelper {
             do {
                 String employeeName = cursor.getString(1);
                 String date = cursor.getString(2);
-                String msg = cursor.getString(3);
-                fromEmpReturnModel newEmpReturn = new fromEmpReturnModel(employeeName,formatDateForAndroid(date), msg);
+                String serial = cursor.getString(3);
+                String msg = cursor.getString(4);
+                fromEmpReturnModel newEmpReturn = new fromEmpReturnModel(employeeName, formatDateForAndroid(date), serial, msg);
 
                 returnArray.add(newEmpReturn);
             } while (cursor.moveToNext());
@@ -731,6 +734,32 @@ public class DBHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return returnArray;
+    }
 
+
+    public ArrayList<toSupReturnModel> returnsToSupGetAll(String start, String end) {
+        ArrayList<toSupReturnModel> returnArray = new ArrayList<>();
+
+        String sql = "select * from " + SUPRETURNS + " where return_date BETWEEN '" + formatDateForSQL(start) + "' AND '" + formatDateForSQL(end) + "'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        String createTable = "create table if not exists " + SUPRETURNS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, supplier_name TEXT, return_date DATE, serial_number TEXT, msg TEXT)";
+        db.execSQL(createTable);
+        Cursor cursor = db.rawQuery(sql, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                String supplierName = cursor.getString(1);
+                String date = cursor.getString(2);
+                String serial = cursor.getString(3);
+                String msg = cursor.getString(4);
+                toSupReturnModel newSupReturn = new toSupReturnModel(supplierName, formatDateForAndroid(date), serial, msg);
+
+                returnArray.add(newSupReturn);
+            } while (cursor.moveToNext());
+
+        }
+        cursor.close();
+        db.close();
+        return returnArray;
     }
 }

@@ -22,7 +22,7 @@ import com.example.storekeeper.DBClasses.DBHelper;
 import com.example.storekeeper.Interfaces.return_fromEmpInterface;
 import com.example.storekeeper.Models.fromEmpReturnModel;
 import com.example.storekeeper.R;
-import com.example.storekeeper.newInserts.charge_CreateNew;
+import com.example.storekeeper.newInserts.fromEmpReturn_CreateNew;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -86,7 +86,7 @@ public class fromEmployee extends Fragment implements return_fromEmpInterface {
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(fromEmployee.this.getContext(), charge_CreateNew.class);
+                Intent intent = new Intent(fromEmployee.this.getContext(), fromEmpReturn_CreateNew.class);
                 startActivity(intent);
             }
         });

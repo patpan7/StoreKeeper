@@ -3,12 +3,14 @@ package com.example.storekeeper.Models;
 public class toSupReturnModel {
     String name;
     String date;
-    String msn;
+    String msg;
+    String serial;
 
-    public toSupReturnModel(String name, String date, String msn) {
+    public toSupReturnModel(String name, String date, String msg, String serial) {
         this.name = name;
         this.date = date;
-        this.msn = msn;
+        this.msg = msg;
+        this.serial = serial;
     }
 
     public String getName() {
@@ -27,11 +29,19 @@ public class toSupReturnModel {
         this.date = date;
     }
 
-    public String getMsn() {
-        return msn;
+    public String getMsg() {
+        return msg;
     }
 
-    public void setMsn(String msn) {
-        this.msn = msn;
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
+
+    public String getSerial() {
+        return serial;
+    }
+
+    public void setSerial(String serial) {
+        this.serial = serial;
     }
 }

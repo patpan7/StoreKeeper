@@ -13,18 +13,16 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.viewmodel.CreationExtras;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.example.storekeeper.Adapters.return_fromEmpAdapter;
 import com.example.storekeeper.Adapters.return_toSupAdapter;
 import com.example.storekeeper.DBClasses.DBHelper;
 import com.example.storekeeper.Interfaces.return_toSupInterface;
 import com.example.storekeeper.Models.toSupReturnModel;
 import com.example.storekeeper.R;
-import com.example.storekeeper.newInserts.charge_CreateNew;
+import com.example.storekeeper.newInserts.toSupReturn_CreateNew;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -38,7 +36,7 @@ public class toSupplier extends Fragment implements return_toSupInterface {
     SwipeRefreshLayout refreshLayout;
     FloatingActionButton floatingActionButton;
     TextInputEditText date_start, date_end;
-    return_fromEmpAdapter adapter;
+    return_toSupAdapter adapter;
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
     ArrayList<toSupReturnModel> toSupReturnModels = new ArrayList<>();
@@ -88,7 +86,7 @@ public class toSupplier extends Fragment implements return_toSupInterface {
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(toSupplier.this.getContext(), charge_CreateNew.class);
+                Intent intent = new Intent(toSupplier.this.getContext(), toSupReturn_CreateNew.class);
                 startActivity(intent);
             }
         });
@@ -140,7 +138,7 @@ public class toSupplier extends Fragment implements return_toSupInterface {
 
     private void setUpReturnFromEmp(String start, String end) throws ParseException {
         DBHelper helper = new DBHelper(getActivity());
-        ArrayList<toSupReturnModel> dbToSupReturns = null; //helper.returnsFromEmpGetAll(start, end);
+        ArrayList<toSupReturnModel> dbToSupReturns = helper.returnsToSupGetAll(start, end);
         toSupReturnModels.addAll(dbToSupReturns);
         adapter = new return_toSupAdapter(this.getContext(), dbToSupReturns, this);
         recyclerView.setAdapter(adapter);
@@ -163,11 +161,5 @@ public class toSupplier extends Fragment implements return_toSupInterface {
     @Override
     public void onItemClick(int position) {
 
-    }
-
-    @NonNull
-    @Override
-    public CreationExtras getDefaultViewModelCreationExtras() {
-        return super.getDefaultViewModelCreationExtras();
     }
 }

@@ -15,6 +15,20 @@
         android:theme="@style/Theme.StoreKeeper"
         tools:targetApi="31">
         <activity
+            android:name=".toSupReturn_CreateNew"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".fromEmpReturn_CreateNew"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".newInserts.charge_CreateNew"
             android:exported="false">
             <meta-data
