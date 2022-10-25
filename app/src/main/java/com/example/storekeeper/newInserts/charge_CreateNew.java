@@ -100,7 +100,7 @@ public class charge_CreateNew extends AppCompatActivity {
                     int successes = 0;
                     for (int i = 0; i <= serial_numbers.size()-1; i++) {
                         //Toast.makeText(getApplicationContext()," ok ",Toast.LENGTH_LONG).show();
-                        success2 = helper.serialUpdateEmployee(serial_numbers.get(i), Objects.requireNonNull(charge_date.getText()).toString(), emp_code);
+                        success2 = helper.serialUpdateEmployee(serial_numbers.get(i), Objects.requireNonNull(charge_date.getText()).toString(), emp_code,0);
                         if (success2)
                             successes +=1;
                     }

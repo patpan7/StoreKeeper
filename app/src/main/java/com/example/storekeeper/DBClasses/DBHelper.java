@@ -625,12 +625,12 @@ public class DBHelper extends SQLiteOpenHelper {
         return available;
     }
 
-    public boolean serialUpdateEmployee(String sn, String date, int emp_code) {
+    public boolean serialUpdateEmployee(String sn, String date, int emp_code, int available) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put("charge_date", formatDateForSQL(date));
         cv.put("employee_code", emp_code);
-        cv.put("available", 0);
+        cv.put("available", available);
         long update = db.update(SERIALS, cv, "serialnumber= ?", new String[]{sn});
         db.close();
         return update != -1;
@@ -679,6 +679,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
         return returnList;
     }
+
     //-------------------------------------------------------------------
     public static String formatDateForSQL(String inDate) {
         SimpleDateFormat inSDF = new SimpleDateFormat("dd/mm/yyyy");
@@ -713,7 +714,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public ArrayList<fromEmpReturnModel> returnsFromEmpGetAll(String start, String end) {
         ArrayList<fromEmpReturnModel> returnArray = new ArrayList<>();
 
-        String sql = "select * from " + EMPRETURNS + " where return_date BETWEEN '" + formatDateForSQL(start) + "' AND '" + formatDateForSQL(end) + "'";
+        String sql = "select * from " + EMPRETURNS + " where return_date BETWEEN '" + formatDateForSQL(start) + "' AND '" + formatDateForSQL(end) + "' group by employee_name,return_date";
         SQLiteDatabase db = this.getReadableDatabase();
         String createTable = "create table if not exists " + EMPRETURNS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, employee_name TEXT, return_date DATE, serial_number TEXT, msg TEXT)";
         db.execSQL(createTable);
@@ -723,9 +724,8 @@ public class DBHelper extends SQLiteOpenHelper {
             do {
                 String employeeName = cursor.getString(1);
                 String date = cursor.getString(2);
-                String serial = cursor.getString(3);
                 String msg = cursor.getString(4);
-                fromEmpReturnModel newEmpReturn = new fromEmpReturnModel(employeeName, formatDateForAndroid(date), serial, msg);
+                fromEmpReturnModel newEmpReturn = new fromEmpReturnModel(employeeName, formatDateForAndroid(date), msg);
 
                 returnArray.add(newEmpReturn);
             } while (cursor.moveToNext());
@@ -761,5 +761,125 @@ public class DBHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return returnArray;
+    }
+
+    public boolean checkSerialNumberisCharged(String sn, int emp_code) {
+        boolean isCharged = false;
+        String sql = "select employee_code from " + SERIALS + " WHERE serialnumber = '" + sn + "'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
+        db.execSQL(createTable);
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst())
+            if (cursor.getInt(0) == emp_code)
+                isCharged = true;
+
+        cursor.close();
+        db.close();
+        return isCharged;
+
+    }
+
+    public void returnFromEmpAdd(String emp_name, String date, String sn, String msg) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("employee_name", emp_name);
+        cv.put("return_date", formatDateForSQL(date));
+        cv.put("serial_number", sn);
+        cv.put("msg", msg);
+        String createTable = "create table if not exists " + EMPRETURNS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, employee_name TEXT, return_date DATE, serial_number TEXT, msg TEXT)";
+        db.execSQL(createTable);
+        long insert = db.insert(EMPRETURNS, null, cv);
+    }
+
+    public boolean checkSerialNumberisCharged(String sn) {
+        boolean isCharged = false;
+        String sql = "select employee_code from " + SERIALS + " WHERE serialnumber = '" + sn + "'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
+        db.execSQL(createTable);
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst())
+            if (cursor.getInt(0) != 0)
+                isCharged = true;
+
+        cursor.close();
+        db.close();
+        return isCharged;
+
+    }
+
+    public Boolean checkSerialNumberisfromSup(int sup_code, String sn) {
+        boolean isFromSup = false;
+        String sql = "select supplier_code from " + SERIALS + " WHERE serialnumber = '" + sn + "'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
+        db.execSQL(createTable);
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst())
+            if (cursor.getInt(0) == sup_code)
+                isFromSup = true;
+
+        cursor.close();
+        db.close();
+        return isFromSup;
+
+    }
+
+    public boolean returnToSupAdd(String sup_name, String date, String sn, String msg) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("supplier_name", sup_name);
+        cv.put("return_date", formatDateForSQL(date));
+        cv.put("serial_number", sn);
+        cv.put("msg", msg);
+        String createTable = "create table if not exists " + SUPRETURNS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, supplier_name TEXT, return_date DATE, serial_number TEXT, msg TEXT)";
+        db.execSQL(createTable);
+        long insert = db.insert(SUPRETURNS, null, cv);
+        return insert != -1;
+    }
+
+    public boolean serialDelete(String sn) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("available", -1);
+        long update = db.update(SERIALS, cv, "serialnumber= ?", new String[]{sn});
+        db.close();
+        return update != -1;
+    }
+
+    public ArrayList<String> productsGetAllNamesRerunEmp(String employeename, String date) {
+        ArrayList<String> returnList = new ArrayList<>();
+        String return_date = formatDateForSQL(date);
+        String sql = "select " + PRODUCTS + ".name from " + PRODUCTS + ", " + SERIALS + ", " + EMPRETURNS + " where " + PRODUCTS + ".code=" + SERIALS + ".prod_code AND " + EMPRETURNS + ".return_date = '" + return_date + "' and " + EMPRETURNS + ".employee_name='" + employeename + "' GROUP BY prod_code";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst()) {
+            do {
+                returnList.add(cursor.getString(0));
+            } while (cursor.moveToNext());
+
+        }
+        cursor.close();
+        db.close();
+        return returnList;
+
+    }
+
+    public ArrayList<String> serialGetAllReturnEmp(String name, String date, int prod_code) {
+        ArrayList<String> returnList = new ArrayList<>();
+        String return_date = formatDateForSQL(date);
+        String sql = "select " + EMPRETURNS + ".serial_number from " + EMPRETURNS + ", " + SERIALS + " where return_date = '" + return_date + "' AND "+SERIALS+ ".prod_code = "+prod_code;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst()) {
+            do {
+                returnList.add(cursor.getString(0));
+            } while (cursor.moveToNext());
+
+        }
+        cursor.close();
+        db.close();
+        return returnList;
     }
 }

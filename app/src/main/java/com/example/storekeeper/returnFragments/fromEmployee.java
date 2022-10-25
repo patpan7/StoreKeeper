@@ -1,12 +1,19 @@
 package com.example.storekeeper.returnFragments;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
+import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,7 +29,9 @@ import com.example.storekeeper.DBClasses.DBHelper;
 import com.example.storekeeper.Interfaces.return_fromEmpInterface;
 import com.example.storekeeper.Models.fromEmpReturnModel;
 import com.example.storekeeper.R;
+import com.example.storekeeper.charge;
 import com.example.storekeeper.newInserts.fromEmpReturn_CreateNew;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -38,7 +47,7 @@ public class fromEmployee extends Fragment implements return_fromEmpInterface {
     TextInputEditText date_start, date_end;
     return_fromEmpAdapter adapter;
     private AlertDialog.Builder dialogBuilder;
-    private AlertDialog dialog;
+    private Dialog dialog;
     ArrayList<fromEmpReturnModel> fromEmpReturnModels = new ArrayList<>();
 
     @Override
@@ -160,6 +169,48 @@ public class fromEmployee extends Fragment implements return_fromEmpInterface {
 
     @Override
     public void onItemClick(int position) {
+        returnDialog(position);
 
+    }
+
+    @SuppressLint("MissingInflatedId")
+    public void returnDialog(int pos) {
+        DBHelper helper = new DBHelper(this.getContext());
+        dialogBuilder = new MaterialAlertDialogBuilder(this.getContext());
+        final View empReturnPopupView = getLayoutInflater().inflate(R.layout.return_from_emp_popup, null);
+        TextInputEditText returnFromEmp_popup_employee = empReturnPopupView.findViewById(R.id.returnFromEmp_popup_employee1);
+        TextInputEditText returnFromEmp_popup_date = empReturnPopupView.findViewById(R.id.returnFromEmp_popup_date1);
+        TextInputEditText return_msg = empReturnPopupView.findViewById(R.id.returnFromEmp_popup_msg1);
+        LinearLayout container = empReturnPopupView.findViewById(R.id.container);
+        returnFromEmp_popup_employee.setText(fromEmpReturnModels.get(pos).getName());
+        returnFromEmp_popup_date.setText(fromEmpReturnModels.get(pos).getDate());
+        return_msg.setText(fromEmpReturnModels.get(pos).getMsg());
+
+
+        //int employeeCode = helper.employeeGetCode(fromEmpReturnModels.get(pos).getName());
+        ArrayList<String> products = helper.productsGetAllNamesRerunEmp(fromEmpReturnModels.get(pos).getName(), fromEmpReturnModels.get(pos).getDate());
+
+        for (int i = 0; i < products.size(); i++) {
+            LayoutInflater layoutInflater = (LayoutInflater) this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            final View addView = layoutInflater.inflate(R.layout.income_popup_row, null);
+            TextView productName = addView.findViewById(R.id.income_popup_row_product);
+            LinearLayout containerSN = addView.findViewById(R.id.containerSerials);
+            productName.setText(products.get(i).toString());
+            int prod_code = helper.productGetCode(products.get(i));
+            ArrayList<String> serials = helper.serialGetAllReturnEmp(fromEmpReturnModels.get(pos).getName(), fromEmpReturnModels.get(pos).getDate(),prod_code);
+            for (int j = 0; j < serials.size(); j++) {
+                LayoutInflater layoutInflaterSN = (LayoutInflater) this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                final View addViewSN = layoutInflaterSN.inflate(R.layout.income_popup_row_sn, null);
+                TextView serialnumber = addViewSN.findViewById(R.id.income_popup_row_sn_serial);
+                serialnumber.setText(serials.get(j));
+                containerSN.addView(addViewSN);
+            }
+            container.addView(addView);
+        }
+        dialogBuilder.setView(empReturnPopupView);
+        dialog = dialogBuilder.create();
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().setWindowAnimations(R.style.DialogAnimation);
+        dialog.show();
     }
 }

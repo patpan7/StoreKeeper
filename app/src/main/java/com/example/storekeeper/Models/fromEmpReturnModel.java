@@ -13,6 +13,16 @@ public class fromEmpReturnModel {
         this.serial = serial;
     }
 
+    public fromEmpReturnModel(String name, String date, String msg) {
+        this.name = name;
+        this.date = date;
+        this.msg = msg;
+    }
+
+    public fromEmpReturnModel(String serial) {
+        this.serial = serial;
+    }
+
     public String getName() {
         return name;
     }
