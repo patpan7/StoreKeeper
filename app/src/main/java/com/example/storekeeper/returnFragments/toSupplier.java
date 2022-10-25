@@ -1,12 +1,18 @@
 package com.example.storekeeper.returnFragments;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,6 +29,7 @@ import com.example.storekeeper.Interfaces.return_toSupInterface;
 import com.example.storekeeper.Models.toSupReturnModel;
 import com.example.storekeeper.R;
 import com.example.storekeeper.newInserts.toSupReturn_CreateNew;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -91,7 +98,7 @@ public class toSupplier extends Fragment implements return_toSupInterface {
             }
         });
         try {
-            setUpReturnFromEmp(date_start.getText().toString(), date_end.getText().toString());
+            setUpReturnToSup(date_start.getText().toString(), date_end.getText().toString());
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -101,7 +108,7 @@ public class toSupplier extends Fragment implements return_toSupInterface {
             public void onRefresh() {
                 refreshLayout.setRefreshing(false);
                 try {
-                    setUpReturnFromEmp(date_start.getText().toString(), date_end.getText().toString());
+                    setUpReturnToSup(date_start.getText().toString(), date_end.getText().toString());
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
@@ -136,9 +143,10 @@ public class toSupplier extends Fragment implements return_toSupInterface {
         });
     }
 
-    private void setUpReturnFromEmp(String start, String end) throws ParseException {
+    private void setUpReturnToSup(String start, String end) throws ParseException {
         DBHelper helper = new DBHelper(getActivity());
         ArrayList<toSupReturnModel> dbToSupReturns = helper.returnsToSupGetAll(start, end);
+        toSupReturnModels.clear();
         toSupReturnModels.addAll(dbToSupReturns);
         adapter = new return_toSupAdapter(this.getContext(), dbToSupReturns, this);
         recyclerView.setAdapter(adapter);
@@ -160,6 +168,47 @@ public class toSupplier extends Fragment implements return_toSupInterface {
 
     @Override
     public void onItemClick(int position) {
+        returnDialog(position);
+    }
 
+    @SuppressLint("MissingInflatedId")
+    private void returnDialog(int pos) {
+        DBHelper helper = new DBHelper(this.getContext());
+        dialogBuilder = new MaterialAlertDialogBuilder(this.getContext());
+        final View supReturnPopupView = getLayoutInflater().inflate(R.layout.return_to_sup_popup, null);
+        TextInputEditText returnToSup_popup_employee = supReturnPopupView.findViewById(R.id.returnToSup_popup_employee1);
+        TextInputEditText returnToSup_popup_date = supReturnPopupView.findViewById(R.id.returnToSup_popup_date1);
+        TextInputEditText return_msg = supReturnPopupView.findViewById(R.id.returnToSup_popup_msg1);
+        LinearLayout container = supReturnPopupView.findViewById(R.id.container);
+        returnToSup_popup_employee.setText(toSupReturnModels.get(pos).getName());
+        returnToSup_popup_date.setText(toSupReturnModels.get(pos).getDate());
+        return_msg.setText(toSupReturnModels.get(pos).getMsg());
+
+
+        //int employeeCode = helper.employeeGetCode(fromEmpReturnModels.get(pos).getName());
+        ArrayList<String> products = helper.productsGetAllNamesRerunSup(toSupReturnModels.get(pos).getName(), toSupReturnModels.get(pos).getDate());
+
+        for (int i = 0; i < products.size(); i++) {
+            LayoutInflater layoutInflater = (LayoutInflater) this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            final View addView = layoutInflater.inflate(R.layout.income_popup_row, null);
+            TextView productName = addView.findViewById(R.id.income_popup_row_product);
+            LinearLayout containerSN = addView.findViewById(R.id.containerSerials);
+            productName.setText(products.get(i).toString());
+            int prod_code = helper.productGetCode(products.get(i));
+            ArrayList<String> serials = helper.serialGetAllReturnSup(toSupReturnModels.get(pos).getName(), toSupReturnModels.get(pos).getDate(),prod_code);
+            for (int j = 0; j < serials.size(); j++) {
+                LayoutInflater layoutInflaterSN = (LayoutInflater) this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                final View addViewSN = layoutInflaterSN.inflate(R.layout.income_popup_row_sn, null);
+                TextView serialnumber = addViewSN.findViewById(R.id.income_popup_row_sn_serial);
+                serialnumber.setText(serials.get(j));
+                containerSN.addView(addViewSN);
+            }
+            container.addView(addView);
+        }
+        dialogBuilder.setView(supReturnPopupView);
+        dialog = dialogBuilder.create();
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().setWindowAnimations(R.style.DialogAnimation);
+        dialog.show();
     }
 }

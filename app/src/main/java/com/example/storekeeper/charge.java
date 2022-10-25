@@ -136,6 +136,7 @@ public class charge extends AppCompatActivity implements charge_RVInterface {
 
     private void setUpCharges(String start, String end) throws ParseException {
         ArrayList<chargeModel> dbCharges = helper.chargeGetAll(start, end);
+        chargeModel.clear();
         chargeModel.addAll(dbCharges);
         adapter = new charge_RVAdapter(this, dbCharges, this);
         recyclerView.setAdapter(adapter);
@@ -172,7 +173,7 @@ public class charge extends AppCompatActivity implements charge_RVInterface {
         charge_popup_date.setText(chargeModel.get(pos).getDate());
 
         int employeeCode = helper.employeeGetCode(chargeModel.get(pos).getName());
-        ArrayList<String> products = helper.productsGetAllNamesCharge(employeeCode, chargeModel.get(pos).getDate());
+        ArrayList<String> products = helper.productsGetAllNamesCharge(chargeModel.get(pos).getName(), chargeModel.get(pos).getDate());
 
         for (int i = 0; i < products.size(); i++) {
             LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -181,7 +182,7 @@ public class charge extends AppCompatActivity implements charge_RVInterface {
             LinearLayout containerSN = addView.findViewById(R.id.containerSerials);
             productName.setText(products.get(i).toString());
             int prod_code = helper.productGetCode(products.get(i));
-            ArrayList<String> serials = helper.serialGetAllCharge(prod_code,chargeModel.get(pos).getDate());
+            ArrayList<String> serials = helper.serialGetAllCharge(chargeModel.get(pos).getName(), chargeModel.get(pos).getDate(),prod_code);
             for (int j = 0; j<serials.size();j++){
                 LayoutInflater layoutInflaterSN = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 final View addViewSN = layoutInflaterSN.inflate(R.layout.income_popup_row_sn, null);

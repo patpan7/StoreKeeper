@@ -97,6 +97,7 @@ public class employees extends AppCompatActivity implements employees_RVInterfac
     private void setUpEmployeesModels() {
         DBHelper helper = new DBHelper(employees.this);
         ArrayList<employeesModel> dbEmployees = helper.employeesGetAll();
+        employeeModels.clear();
         employeeModels.addAll(dbEmployees);
         adapter = new employees_RVAdapter(this, dbEmployees, this);
         recyclerView.setAdapter(adapter);

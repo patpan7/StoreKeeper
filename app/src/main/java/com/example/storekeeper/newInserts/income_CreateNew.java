@@ -41,13 +41,14 @@ import java.util.Objects;
 public class income_CreateNew extends AppCompatActivity {
 
     TextInputEditText income_date, income_serialnumber;
-    TextInputLayout income_products1,income_suppliers1;
-    ImageButton barcode_btn, serial_btn,lock;
+    TextInputLayout income_products1, income_suppliers1;
+    ImageButton barcode_btn, serial_btn, lock;
     AutoCompleteTextView income_suppliers, income_products;
     LinearLayout container;
     CardView savebtn;
     DBHelper helper = new DBHelper(income_CreateNew.this);
     ArrayList<String> serial_numbers;
+    ArrayList<String> serial_numbers_return;
     alertDialogs dialog;
 
 
@@ -72,6 +73,7 @@ public class income_CreateNew extends AppCompatActivity {
             }
         });
         serial_numbers = new ArrayList<>();
+        serial_numbers_return = new ArrayList<>();
         income_suppliers1 = findViewById(R.id.income_insert_supplier);
         income_suppliers = findViewById(R.id.income_insert_supplier1);
         ArrayList<String> supplierList = helper.suppliersGetAllNames();
@@ -107,7 +109,6 @@ public class income_CreateNew extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 if (income_products.isPerformingCompletion()) {
-                    // An item has been selected from the list. Ignore.
                     income_products.setEnabled(false);
                     income_products1.setEnabled(false);
                     barcode_btn.setEnabled(false);
@@ -115,7 +116,6 @@ public class income_CreateNew extends AppCompatActivity {
                     income_suppliers1.setEnabled(false);
                     lock.setImageResource(R.drawable.lock2);
                 } else {
-                    // Perform your task here... Like calling web service, Reading data from SQLite database, etc...
                     income_products.setEnabled(true);
                 }
             }
@@ -143,7 +143,7 @@ public class income_CreateNew extends AppCompatActivity {
             public void onClick(View view) {
                 if (income_serialnumber.getText().toString().equals("")) scanSerial();
                 else {
-                    dinamicSerials(income_serialnumber.getText().toString());
+                    dynamicSerials(income_serialnumber.getText().toString());
                     income_serialnumber.setText("");
                 }
             }
@@ -159,14 +159,23 @@ public class income_CreateNew extends AppCompatActivity {
                     int supp_code = helper.supplierGetCode(income_suppliers.getText().toString());
                     int warranty = helper.productGetWarranty(prod_code);
                     boolean success2 = false;
+                    boolean success3 = false;
                     int successes = 0;
-                    for (int i = 0; i <= serial_numbers.size()-1; i++) {
+                    for (int i = 0; i <= serial_numbers.size() - 1; i++) {
                         //Toast.makeText(getApplicationContext()," ok ",Toast.LENGTH_LONG).show();
-                        success2 = helper.serialAdd(serial_numbers.get(i), prod_code, Objects.requireNonNull(income_date.getText()).toString(), supp_code,warranty);
+                        success2 = helper.serialAdd(serial_numbers.get(i), prod_code, Objects.requireNonNull(income_date.getText()).toString(), supp_code, warranty);
+                        helper.incomeAdd(income_suppliers.getText().toString(), income_date.getText().toString(), serial_numbers.get(i));
                         if (success2)
-                            successes +=1;
+                            successes += 1;
                     }
-                    if (successes == serial_numbers.size()) {
+                    for (int i = 0; i <= serial_numbers_return.size() - 1; i++) {
+                        //Toast.makeText(getApplicationContext()," ok ",Toast.LENGTH_LONG).show();
+                        success3 = helper.serialUpdateAvailable(serial_numbers_return.get(i), 1);
+                        helper.incomeAdd(income_suppliers.getText().toString(), income_date.getText().toString(), serial_numbers_return.get(i));
+                        if (success3)
+                            successes += 1;
+                    }
+                    if (successes == (serial_numbers.size() + serial_numbers_return.size())) {
                         dialog.launchSuccess(this, "");
                         AlertDialog.Builder aler = new AlertDialog.Builder(this);
                         aler.setMessage("Συνέχεια παραλαβής?");
@@ -181,12 +190,12 @@ public class income_CreateNew extends AppCompatActivity {
                                 income_serialnumber.setText("");
                                 container.removeAllViews();
                                 serial_numbers.clear();
+                                serial_numbers_return.clear();
                             }
                         });
                         aler.setNegativeButton("Νέα παραλαβή", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                helper.incomeAdd(income_suppliers.getText().toString(), income_date.getText().toString());
                                 clear();
                             }
                         });
@@ -218,7 +227,7 @@ public class income_CreateNew extends AppCompatActivity {
             income_products.setError("Error!!!");
             error += 1;
         }
-        if (serial_numbers.size() <= 0) {
+        if (serial_numbers.size() <= 0 && serial_numbers_return.size() <= 0) {
             income_serialnumber.setError("Error!!!");
             error += 1;
         }
@@ -240,6 +249,7 @@ public class income_CreateNew extends AppCompatActivity {
         income_serialnumber.clearFocus();
         container.removeAllViews();
         serial_numbers.clear();
+        serial_numbers_return.clear();
         lock.setImageResource(R.drawable.unlock);
     }
 
@@ -267,30 +277,48 @@ public class income_CreateNew extends AppCompatActivity {
     }
 
     ActivityResultLauncher<ScanOptions> barLauncher2 = registerForActivityResult(new ScanContract(), result -> {
-        if (result.getContents() != null) dinamicSerials(result.getContents());
+        if (result.getContents() != null) dynamicSerials(result.getContents());
     });
 
-    void dinamicSerials(String sn) {
+    void dynamicSerials(String sn) {
+        int prod_code = helper.productGetCode(income_products.getText().toString());
+        boolean isThisProd = helper.checkSerialNumberProd(sn, prod_code);
+        boolean isStock = helper.checkSerialNumberStock(sn);
 
-        boolean isOld = helper.checkSerialNumber(sn);
-        if (isOld || serial_numbers.contains(sn)){
-            Toast.makeText(getApplicationContext(),"Το serial number: "+sn+" υπάρχει!!!",Toast.LENGTH_LONG).show();
+        if (isStock || serial_numbers.contains(sn) && !isThisProd) {
+            Toast.makeText(getApplicationContext(), "Το serial number: " + sn + " υπάρχει ή δεν ανήκει σε αυτό το προϊόν!!!", Toast.LENGTH_LONG).show();
         } else {
-            LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
+            boolean isReturn = helper.checkSerialNumberOnReturn(sn);
+            LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             final View addView = layoutInflater.inflate(R.layout.income_insert_row, null);
             TextView textOut = addView.findViewById(R.id.textout);
             textOut.setText(sn);
-            serial_numbers.add(sn);
-            ImageButton buttonRemove = addView.findViewById(R.id.remove);
-            buttonRemove.setOnClickListener(new View.OnClickListener() {
+            if (isReturn) {
 
-                @Override
-                public void onClick(View v) {
-                    serial_numbers.remove(textOut.getText());
-                    ((LinearLayout) addView.getParent()).removeView(addView);
-                }
-            });
+                serial_numbers_return.add(sn);
+                ImageButton buttonRemove = addView.findViewById(R.id.remove);
+                buttonRemove.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        serial_numbers_return.remove(textOut.getText());
+                        ((LinearLayout) addView.getParent()).removeView(addView);
+                    }
+                });
+            } else {
+
+                serial_numbers.add(sn);
+                ImageButton buttonRemove = addView.findViewById(R.id.remove);
+                buttonRemove.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        serial_numbers.remove(textOut.getText());
+                        ((LinearLayout) addView.getParent()).removeView(addView);
+                    }
+                });
+            }
             container.addView(addView);
         }
     }

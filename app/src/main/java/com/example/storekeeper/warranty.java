@@ -76,7 +76,7 @@ public class warranty extends AppCompatActivity {
 
     void dinamicSerials(String sn) throws ParseException {
 
-        boolean isOld = helper.checkSerialNumber(sn);
+        boolean isOld = helper.checkSerialNumberStock(sn);
         if (isOld || warranty_serial.getText().equals(sn)) {
             //Toast.makeText(getApplicationContext(),"Το serial number: "+sn+" υπάρχει!!!",Toast.LENGTH_LONG).show();
             String product = helper.productGetNameFromSerial(sn);

@@ -1,10 +1,5 @@
 package com.example.storekeeper.newInserts;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
-
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.content.Context;
@@ -19,6 +14,11 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
 import com.example.storekeeper.DBClasses.DBHelper;
 import com.example.storekeeper.R;
@@ -97,7 +97,7 @@ public class toSupReturn_CreateNew extends AppCompatActivity {
                     int successes = 0;
                     for (int i = 0; i <= serial_numbers.size() - 1; i++) {
                         //Toast.makeText(getApplicationContext()," ok ",Toast.LENGTH_LONG).show();
-                        success2 =helper.serialDelete(serial_numbers.get(i));
+                        success2 =helper.serialUpdateAvailable(serial_numbers.get(i),-1);
                         success3 = helper.returnToSupAdd(return_supplier.getText().toString(), return_date.getText().toString(), serial_numbers.get(i), return_msg.getText().toString());
                         if (success2 && success3)
                             successes += 1;

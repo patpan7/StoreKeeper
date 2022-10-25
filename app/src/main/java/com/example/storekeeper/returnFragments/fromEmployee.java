@@ -29,7 +29,6 @@ import com.example.storekeeper.DBClasses.DBHelper;
 import com.example.storekeeper.Interfaces.return_fromEmpInterface;
 import com.example.storekeeper.Models.fromEmpReturnModel;
 import com.example.storekeeper.R;
-import com.example.storekeeper.charge;
 import com.example.storekeeper.newInserts.fromEmpReturn_CreateNew;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -148,6 +147,7 @@ public class fromEmployee extends Fragment implements return_fromEmpInterface {
     private void setUpReturnFromEmp(String start, String end) throws ParseException {
         DBHelper helper = new DBHelper(getActivity());
         ArrayList<fromEmpReturnModel> dbFromEmpReturns = helper.returnsFromEmpGetAll(start, end);
+        fromEmpReturnModels.clear();
         fromEmpReturnModels.addAll(dbFromEmpReturns);
         adapter = new return_fromEmpAdapter(this.getContext(), dbFromEmpReturns, this);
         recyclerView.setAdapter(adapter);

@@ -95,6 +95,7 @@ public class products extends AppCompatActivity implements products_RVInterface 
     private void setUpProductModels() {
         DBHelper helper = new DBHelper(products.this);
         ArrayList<productModel> dbProducts = helper.productsGetAll();
+        productModels.clear();
         productModels.addAll(dbProducts);
         adapter = new products_RVAdapter(this, dbProducts, this);
         recyclerView.setAdapter(adapter);

@@ -97,6 +97,7 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
     private void setUpSuppliersModels() {
         DBHelper helper = new DBHelper(suppliers.this);
         ArrayList<supplierModel> dbSuppliers = helper.suppliersGetAll();
+        supplierModels.clear();
         supplierModels.addAll(dbSuppliers);
         adapter = new suppliers_RVAdapter(this, dbSuppliers, this);
         recyclerView.setAdapter(adapter);

@@ -134,6 +134,7 @@ public class income extends AppCompatActivity implements income_RVInterface {
 
     private void setUpIncomes(String start, String end) throws ParseException {
         ArrayList<incomeModel> dbIncomes = helper.incomeGetAll(start, end);
+        incomeModel.clear();
         incomeModel.addAll(dbIncomes);
         adapter = new income_RVAdapter(this, dbIncomes, this);
         recyclerView.setAdapter(adapter);
@@ -169,7 +170,7 @@ public class income extends AppCompatActivity implements income_RVInterface {
         income_popup_date.setText(incomeModel.get(pos).getDate());
 
         int supplierCode = helper.supplierGetCode(incomeModel.get(pos).getSupplier());
-        ArrayList<String> products = helper.productsGetAllNamesIncome(supplierCode, incomeModel.get(pos).getDate());
+        ArrayList<String> products = helper.productsGetAllNamesIncome(incomeModel.get(pos).getSupplier(), incomeModel.get(pos).getDate());
 
         for (int i = 0; i < products.size(); i++) {
             LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -178,7 +179,7 @@ public class income extends AppCompatActivity implements income_RVInterface {
             LinearLayout containerSN = addView.findViewById(R.id.containerSerials);
             productName.setText(products.get(i).toString());
             int prod_code = helper.productGetCode(products.get(i));
-            ArrayList<String> serials = helper.serialGetAllIncome(prod_code,incomeModel.get(pos).getDate());
+            ArrayList<String> serials = helper.serialGetAllIncome(incomeModel.get(pos).getSupplier(), incomeModel.get(pos).getDate(),prod_code);
             for (int j = 0; j<serials.size();j++){
                 LayoutInflater layoutInflaterSN = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 final View addViewSN = layoutInflaterSN.inflate(R.layout.income_popup_row_sn, null);

@@ -164,7 +164,7 @@ public class charge_CreateNew extends AppCompatActivity {
 
     void dinamicSerials(String sn) {
 
-        boolean isOld = helper.checkSerialNumber(sn);
+        boolean isOld = helper.checkSerialNumberStock(sn);
         boolean isAvailable = helper.checkSerialNumberAvailable(sn);
         if (isOld || serial_numbers.contains(sn)) {
             if (isAvailable) {
