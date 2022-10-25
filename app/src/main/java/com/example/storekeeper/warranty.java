@@ -1,7 +1,7 @@
 package com.example.storekeeper;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +11,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
@@ -41,18 +40,14 @@ public class warranty extends AppCompatActivity {
         container = findViewById(R.id.container);
         warranty_serial = findViewById(R.id.warranty_sn1);
         serial_btn = findViewById(R.id.warranty_snsearch_btn);
-        serial_btn.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.M)
-            @Override
-            public void onClick(View view) {
-                if (warranty_serial.getText().toString().equals("")) scanSerial();
-            }
+        serial_btn.setOnClickListener(view -> {
+            if (warranty_serial.getText().toString().equals("")) scanSerial();
         });
 
         warranty_check = findViewById(R.id.warranty_checkbtn);
         warranty_check.setOnClickListener(view -> {
             try {
-                dinamicSerials(warranty_serial.getText().toString());
+                dynamicSerials(warranty_serial.getText().toString());
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -74,10 +69,11 @@ public class warranty extends AppCompatActivity {
             warranty_serial.setText(result.getContents());
     });
 
-    void dinamicSerials(String sn) throws ParseException {
+    @SuppressLint({"InflateParams", "SimpleDateFormat"})
+    void dynamicSerials(String sn) throws ParseException {
 
         boolean isOld = helper.checkSerialNumberStock(sn);
-        if (isOld || warranty_serial.getText().equals(sn)) {
+        if (isOld || warranty_serial.getText().toString().equals(sn)) {
             //Toast.makeText(getApplicationContext(),"Το serial number: "+sn+" υπάρχει!!!",Toast.LENGTH_LONG).show();
             String product = helper.productGetNameFromSerial(sn);
             String income_date = helper.warrantyGetIncomeDate(sn);

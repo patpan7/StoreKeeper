@@ -25,7 +25,6 @@ import com.example.storekeeper.R;
 import com.example.storekeeper.alertDialogs;
 import com.example.storekeeper.captureAct;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
@@ -37,7 +36,6 @@ import java.util.Objects;
 public class charge_CreateNew extends AppCompatActivity {
 
     TextInputEditText charge_date, charge_serialnumber;
-    TextInputLayout charge_products1, charge_suppliers1;
     ImageButton serial_btn;
     AutoCompleteTextView charge_employee;
     LinearLayout container;

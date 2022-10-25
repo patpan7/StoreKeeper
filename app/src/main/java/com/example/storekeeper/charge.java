@@ -172,7 +172,6 @@ public class charge extends AppCompatActivity implements charge_RVInterface {
         charge_popup_employee.setText(chargeModel.get(pos).getName());
         charge_popup_date.setText(chargeModel.get(pos).getDate());
 
-        int employeeCode = helper.employeeGetCode(chargeModel.get(pos).getName());
         ArrayList<String> products = helper.productsGetAllNamesCharge(chargeModel.get(pos).getName(), chargeModel.get(pos).getDate());
 
         for (int i = 0; i < products.size(); i++) {

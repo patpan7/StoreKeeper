@@ -159,7 +159,7 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
                     } else {
                         dialogAlert.launchFail(suppliers.this, "Τα απαιτούμενα πεδία δεν είναι συμπληρωμένα");
                     }
-                } catch (Exception e) {
+                } catch (Exception ignored) {
                 }
             }
         });
