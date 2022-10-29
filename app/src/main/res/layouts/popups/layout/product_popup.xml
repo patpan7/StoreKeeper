@@ -100,24 +100,95 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/product_popup_balance"
+                    android:id="@+id/product_popup_incomesum"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
-                    android:hint="Υπόλοιπο"
+                    android:hint="Σύνολο εισαγωγών"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/product_popup_barcode">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/product_popup_balance1"
+                        android:id="@+id/product_popup_incomesum1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:enabled="false"
                         android:inputType="number" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/product_popup_available"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:hint="Διαθέσιμα"
+                    app:layout_constraintEnd_toStartOf="@+id/available_plus"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/product_popup_incomesum">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/product_popup_available1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:enabled="false"
+                        android:inputType="number" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/product_popup_charged"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:hint="Δεσμευμένα"
+                    app:layout_constraintEnd_toStartOf="@+id/charged_plus"
+                    app:layout_constraintStart_toEndOf="@id/available_plus"
+                    app:layout_constraintTop_toBottomOf="@+id/product_popup_incomesum">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/product_popup_charged1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:enabled="false"
+                        android:inputType="number" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <ImageButton
+                    android:id="@+id/available_plus"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="15dp"
+                    android:background="@android:color/transparent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/plus"
+                    app:layout_constraintEnd_toStartOf="@+id/product_popup_charged"
+                    app:layout_constraintStart_toEndOf="@+id/product_popup_available"
+                    app:layout_constraintTop_toBottomOf="@+id/product_popup_incomesum" />
+
+                <ImageButton
+                    android:id="@+id/charged_plus"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="15dp"
+                    android:background="@android:color/transparent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/plus"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/product_popup_charged"
+                    app:layout_constraintTop_toBottomOf="@+id/product_popup_incomesum" />
+                <LinearLayout
+                    android:id="@+id/container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:orientation="vertical"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/product_popup_available" />
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/product_popup_savebtn"
@@ -132,7 +203,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/product_popup_balance"
+                    app:layout_constraintTop_toBottomOf="@+id/container"
                     app:layout_constraintVertical_bias="0.067">
 
                     <LinearLayout
