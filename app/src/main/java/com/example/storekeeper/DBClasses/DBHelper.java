@@ -1161,4 +1161,21 @@ public class DBHelper extends SQLiteOpenHelper {
         return returnList;
 
     }
+
+    public ArrayList<String> serialGetAllFromEmp(int emp_code) {
+        ArrayList<String> returnList = new ArrayList<>();
+        String sql = "select serialnumber from " + SERIALS + " where employee_code = " + emp_code + " and available = 0";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst()) {
+            do {
+                returnList.add(cursor.getString(0));
+            } while (cursor.moveToNext());
+
+        }
+        cursor.close();
+        db.close();
+        return returnList;
+
+    }
 }
