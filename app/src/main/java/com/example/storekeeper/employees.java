@@ -1,13 +1,18 @@
 package com.example.storekeeper;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -36,11 +41,14 @@ public class employees extends AppCompatActivity implements employees_RVInterfac
     employees_RVAdapter adapter;
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
-    private EditText employee_popup_code, employee_popup_name, employee_popup_phone, employee_popup_mobile, employee_popup_mail, employee_popup_work, employee_popup_id;
+    private EditText employee_popup_code, employee_popup_name, employee_popup_phone, employee_popup_mobile, employee_popup_mail, employee_popup_work, employee_popup_id, employee_popup_chargedProd;
     CardView employee_popup_savebtn;
     ImageView employee_popup_editbtn;
+    ImageButton charged_plus;
+    LinearLayout container;
     ArrayList<employeesModel> employeeModels = new ArrayList<>();
     alertDialogs dialogAlert;
+    DBHelper helper = new DBHelper(employees.this);
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -95,7 +103,6 @@ public class employees extends AppCompatActivity implements employees_RVInterfac
     }
 
     private void setUpEmployeesModels() {
-        DBHelper helper = new DBHelper(employees.this);
         ArrayList<employeesModel> dbEmployees = helper.employeesGetAll();
         employeeModels.clear();
         employeeModels.addAll(dbEmployees);
@@ -109,6 +116,7 @@ public class employees extends AppCompatActivity implements employees_RVInterfac
         productDialog(position);
     }
 
+    @SuppressLint({"MissingInflatedId", "SetTextI18n"})
     public void productDialog(int pos) {
         dialogBuilder = new MaterialAlertDialogBuilder(this);
         final View employeesPopupView = getLayoutInflater().inflate(R.layout.employees_popup, null);
@@ -119,6 +127,9 @@ public class employees extends AppCompatActivity implements employees_RVInterfac
         employee_popup_mail = employeesPopupView.findViewById(R.id.employees_popup_mail1);
         employee_popup_work = employeesPopupView.findViewById(R.id.employees_popup_work1);
         employee_popup_id = employeesPopupView.findViewById(R.id.employees_popup_id1);
+        employee_popup_chargedProd = employeesPopupView.findViewById(R.id.employees_popup_chargedProd1);
+        charged_plus = employeesPopupView.findViewById(R.id.charged_plus);
+        container = employeesPopupView.findViewById(R.id.container);
 
         employee_popup_code.setText(String.valueOf(employeeModels.get(pos).getCode()));
         employee_popup_name.setText(employeeModels.get(pos).getName());
@@ -127,7 +138,43 @@ public class employees extends AppCompatActivity implements employees_RVInterfac
         employee_popup_mail.setText(employeeModels.get(pos).getMail());
         employee_popup_work.setText(employeeModels.get(pos).getWork());
         employee_popup_id.setText(employeeModels.get(pos).getId());
+        employee_popup_chargedProd.setText(helper.employeeGetChargedProd(employeeModels.get(pos).getCode())+"");
 
+        final boolean[] chargedClicked = {false};
+        charged_plus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (chargedClicked[0]) {
+                    chargedClicked[0] = false;
+                    charged_plus.setImageResource(R.drawable.plus);
+                    container.removeAllViews();
+
+                } else {
+                    chargedClicked[0] = true;
+                    charged_plus.setImageResource(R.drawable.reject);
+                    container.removeAllViews();
+                    ArrayList<String> products = helper.productsGetAllNamesCharge(employeeModels.get(pos).getCode());
+
+                    for (int i = 0; i < products.size(); i++) {
+                        LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                        final View addView = layoutInflater.inflate(R.layout.income_popup_row, null);
+                        TextView productName = addView.findViewById(R.id.income_popup_row_product);
+                        LinearLayout containerSN = addView.findViewById(R.id.containerSerials);
+                        productName.setText(products.get(i).toString());
+                        int prod_code = helper.productGetCode(products.get(i));
+                        ArrayList<String> serials = helper.serialGetAllCharge(prod_code,employeeModels.get(pos).getCode());
+                        for (int j = 0; j<serials.size();j++){
+                            LayoutInflater layoutInflaterSN = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                            final View addViewSN = layoutInflaterSN.inflate(R.layout.income_popup_row_sn, null);
+                            TextView serialnumber = addViewSN.findViewById(R.id.income_popup_row_sn_serial);
+                            serialnumber.setText(serials.get(j));
+                            containerSN.addView(addViewSN);
+                        }
+                        container.addView(addView);
+                    }
+                }
+            }
+        });
 
         dialogBuilder.setView(employeesPopupView);
         dialog = dialogBuilder.create();

@@ -9,6 +9,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AppCompatActivity;
@@ -73,7 +74,7 @@ public class warranty extends AppCompatActivity {
     void dynamicSerials(String sn) throws ParseException {
 
         boolean isOld = helper.checkSerialNumberStock(sn);
-        if (isOld || warranty_serial.getText().toString().equals(sn)) {
+        if (isOld) {
             //Toast.makeText(getApplicationContext(),"Το serial number: "+sn+" υπάρχει!!!",Toast.LENGTH_LONG).show();
             String product = helper.productGetNameFromSerial(sn);
             String income_date = helper.warrantyGetIncomeDate(sn);

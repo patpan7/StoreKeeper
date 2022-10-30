@@ -1,13 +1,18 @@
 package com.example.storekeeper;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -36,11 +41,14 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
     suppliers_RVAdapter adapter;
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
-    private EditText supplier_popup_code, supplier_popup_name, supplier_popup_phone, supplier_popup_mobile, supplier_popup_mail, supplier_popup_afm;
+    private EditText supplier_popup_code, supplier_popup_name, supplier_popup_phone, supplier_popup_mobile, supplier_popup_mail, supplier_popup_afm, supplier_popup_incomeProd;
     CardView supplier_popup_savebtn;
     ImageView supplier_popup_editbtn;
+    ImageButton income_plus;
+    LinearLayout container;
     ArrayList<supplierModel> supplierModels = new ArrayList<>();
     alertDialogs dialogAlert;
+    DBHelper helper = new DBHelper(suppliers.this);
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -95,7 +103,6 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
     }
 
     private void setUpSuppliersModels() {
-        DBHelper helper = new DBHelper(suppliers.this);
         ArrayList<supplierModel> dbSuppliers = helper.suppliersGetAll();
         supplierModels.clear();
         supplierModels.addAll(dbSuppliers);
@@ -109,6 +116,7 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
         supploerDialog(position);
     }
 
+    @SuppressLint("SetTextI18n")
     public void supploerDialog(int pos) {
         dialogBuilder = new MaterialAlertDialogBuilder(this);
         final View supplierPopupView = getLayoutInflater().inflate(R.layout.suppliers_popup, null);
@@ -118,6 +126,9 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
         supplier_popup_mobile = supplierPopupView.findViewById(R.id.suppliers_popup_mobile1);
         supplier_popup_mail = supplierPopupView.findViewById(R.id.suppliers_popup_mail1);
         supplier_popup_afm = supplierPopupView.findViewById(R.id.suppliers_popup_afm1);
+        supplier_popup_incomeProd = supplierPopupView.findViewById(R.id.suppliers_popup_incomeProd1);
+        income_plus = supplierPopupView.findViewById(R.id.income_plus);
+        container = supplierPopupView.findViewById(R.id.container);
 
         supplier_popup_code.setText(String.valueOf(supplierModels.get(pos).getCode()));
         supplier_popup_name.setText(supplierModels.get(pos).getName());
@@ -125,6 +136,43 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
         supplier_popup_mobile.setText(supplierModels.get(pos).getMobile());
         supplier_popup_mail.setText(supplierModels.get(pos).getMail());
         supplier_popup_afm.setText(supplierModels.get(pos).getAfm());
+        supplier_popup_incomeProd.setText(helper.supplierGetAllIncomeProd(supplierModels.get(pos).getCode())+"");
+
+        final boolean[] incomeClicked = {false};
+        income_plus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (incomeClicked[0]) {
+                    incomeClicked[0] = false;
+                    income_plus.setImageResource(R.drawable.plus);
+                    container.removeAllViews();
+
+                } else {
+                    incomeClicked[0] = true;
+                    income_plus.setImageResource(R.drawable.reject);
+                    container.removeAllViews();
+                    ArrayList<String> products = helper.productsGetAllNamesIncome(supplierModels.get(pos).getCode());
+
+                    for (int i = 0; i < products.size(); i++) {
+                        LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                        final View addView = layoutInflater.inflate(R.layout.income_popup_row, null);
+                        TextView productName = addView.findViewById(R.id.income_popup_row_product);
+                        LinearLayout containerSN = addView.findViewById(R.id.containerSerials);
+                        productName.setText(products.get(i).toString());
+                        int prod_code = helper.productGetCode(products.get(i));
+                        ArrayList<String> serials = helper.serialGetAllIncome(prod_code,supplierModels.get(pos).getCode());
+                        for (int j = 0; j<serials.size();j++){
+                            LayoutInflater layoutInflaterSN = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                            final View addViewSN = layoutInflaterSN.inflate(R.layout.income_popup_row_sn, null);
+                            TextView serialnumber = addViewSN.findViewById(R.id.income_popup_row_sn_serial);
+                            serialnumber.setText(serials.get(j));
+                            containerSN.addView(addViewSN);
+                        }
+                        container.addView(addView);
+                    }
+                }
+            }
+        });
 
         dialogBuilder.setView(supplierPopupView);
         dialog = dialogBuilder.create();

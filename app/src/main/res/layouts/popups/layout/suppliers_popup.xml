@@ -168,9 +168,48 @@
                         android:id="@+id/suppliers_popup_afm1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:enabled="false"
                         android:inputType="number" />
                 </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/suppliers_popup_incomeProd"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:hint="Εισαγμένα προϊόντα"
+                    app:layout_constraintEnd_toStartOf="@+id/income_plus"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/suppliers_popup_afm">
 
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/suppliers_popup_incomeProd1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:enabled="false"
+                        android:inputType="number" />
+                </com.google.android.material.textfield.TextInputLayout>
+                <ImageButton
+                    android:id="@+id/income_plus"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="15dp"
+                    android:background="@android:color/transparent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/plus"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/suppliers_popup_incomeProd"
+                    app:layout_constraintTop_toBottomOf="@+id/suppliers_popup_afm" />
+                <LinearLayout
+                    android:id="@+id/container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:orientation="vertical"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/suppliers_popup_incomeProd" />
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/suppliers_popup_savebtn"
                     android:layout_width="wrap_content"
@@ -184,7 +223,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/suppliers_popup_afm">
+                    app:layout_constraintTop_toBottomOf="@+id/container">
 
                     <LinearLayout
                         android:layout_width="match_parent"

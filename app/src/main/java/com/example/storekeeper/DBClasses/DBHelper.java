@@ -1065,4 +1065,100 @@ public class DBHelper extends SQLiteOpenHelper {
 
         return returnList;
     }
+
+    public int employeeGetChargedProd(int code) {
+        int sum = 0;
+        String sql = "select count(serialnumber) from " + SERIALS + " WHERE employee_code = " + code + " and available = 0";
+        SQLiteDatabase db = this.getReadableDatabase();
+        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
+        db.execSQL(createTable);
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst())
+            sum = cursor.getInt(0);
+        cursor.close();
+        db.close();
+        return sum;
+
+    }
+
+    public ArrayList<String> productsGetAllNamesCharge(int code) {
+        ArrayList<String> returnList = new ArrayList<>();
+        String sql = "select " + PRODUCTS + ".name from " + PRODUCTS + ", " + SERIALS + " where " + PRODUCTS + ".code=" + SERIALS + ".prod_code  and employee_code=" + code + "  GROUP BY prod_code";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst()) {
+            do {
+                returnList.add(cursor.getString(0));
+            } while (cursor.moveToNext());
+
+        }
+        cursor.close();
+        db.close();
+        return returnList;
+    }
+
+    public ArrayList<String> serialGetAllCharge(int prod_code, int code) {
+        ArrayList<String> returnList = new ArrayList<>();
+        String sql = "select serialnumber from " + SERIALS + " where prod_code = " + prod_code + "  and employee_code=" + code;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst()) {
+            do {
+                returnList.add(cursor.getString(0));
+            } while (cursor.moveToNext());
+
+        }
+        cursor.close();
+        db.close();
+        return returnList;
+
+    }
+
+    public int supplierGetAllIncomeProd(int code) {
+        int sum = 0;
+        String sql = "select count(serialnumber) from " + SERIALS + " WHERE supplier_code = " + code + " and (available = 0 or available = 1)";
+        SQLiteDatabase db = this.getReadableDatabase();
+        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
+        db.execSQL(createTable);
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst())
+            sum = cursor.getInt(0);
+        cursor.close();
+        db.close();
+        return sum;
+    }
+
+    public ArrayList<String> productsGetAllNamesIncome(int code) {
+        ArrayList<String> returnList = new ArrayList<>();
+        String sql = "select " + PRODUCTS + ".name from " + PRODUCTS + ", " + SERIALS + " where " + PRODUCTS + ".code=" + SERIALS + ".prod_code  and supplier_code = " + code + "  and (available = 0 or available = 1) GROUP BY prod_code";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst()) {
+            do {
+                returnList.add(cursor.getString(0));
+            } while (cursor.moveToNext());
+
+        }
+        cursor.close();
+        db.close();
+        return returnList;
+
+    }
+
+    public ArrayList<String> serialGetAllIncome(int prod_code, int code) {
+        ArrayList<String> returnList = new ArrayList<>();
+        String sql = "select serialnumber from " + SERIALS + " where prod_code = " + prod_code + "  and supplier_code = " + code + " and (available = 0 or available = 1)";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst()) {
+            do {
+                returnList.add(cursor.getString(0));
+            } while (cursor.moveToNext());
+
+        }
+        cursor.close();
+        db.close();
+        return returnList;
+
+    }
 }
