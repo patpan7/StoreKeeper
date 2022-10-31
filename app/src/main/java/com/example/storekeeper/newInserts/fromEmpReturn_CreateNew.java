@@ -1,11 +1,5 @@
 package com.example.storekeeper.newInserts;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.ActionBarPolicy;
-import androidx.cardview.widget.CardView;
-
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -25,6 +19,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+
 import com.example.storekeeper.DBClasses.DBHelper;
 import com.example.storekeeper.R;
 import com.example.storekeeper.alertDialogs;
@@ -35,11 +34,8 @@ import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
 public class fromEmpReturn_CreateNew extends AppCompatActivity {
 
@@ -54,7 +50,6 @@ public class fromEmpReturn_CreateNew extends AppCompatActivity {
     alertDialogs dialog;
     String[] allserials;
     boolean[] checkedItems;
-    ArrayList<Integer> employeeSerials;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @SuppressLint({"SetTextI18n", "MissingInflatedId"})
@@ -85,7 +80,6 @@ public class fromEmpReturn_CreateNew extends AppCompatActivity {
                     int emp_code = helper.employeeGetCode(return_employee.getText().toString());
                     allserials = helper.serialGetAllFromEmp(emp_code).toArray(new String[0]);
                     checkedItems = new boolean[allserials.length];
-                    employeeSerials = new ArrayList<>();
                 } else {
                     return_employee.setEnabled(true);
                 }
@@ -130,7 +124,6 @@ public class fromEmpReturn_CreateNew extends AppCompatActivity {
         serial_btn = findViewById(R.id.return_fromEmp_insert_snsearch_btn);
         serial_btn.setEnabled(false);
         serial_btn.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View view) {
                 if (return_serialnumber.getText().toString().equals("")) scanSerial();
@@ -148,7 +141,6 @@ public class fromEmpReturn_CreateNew extends AppCompatActivity {
                 AlertDialog.Builder builder = new AlertDialog.Builder(fromEmpReturn_CreateNew.this);
                 // set the title for the alert dialog
                 builder.setTitle("Επιλογή Serial Number");
-
                 // set the icon for the alert dialog
                 builder.setIcon(R.drawable.check);
 
@@ -156,22 +148,21 @@ public class fromEmpReturn_CreateNew extends AppCompatActivity {
                 builder.setMultiChoiceItems(allserials,
                         checkedItems,
                         (DialogInterface.OnMultiChoiceClickListener) (dialogInterface, pos, isChecked) -> {
-                            if (isChecked) {
-                                if (!employeeSerials.contains(pos))
-                                    employeeSerials.add(pos);
-                                else
-                                    employeeSerials.remove(pos);
-                            }
                         });
 
                 // alert dialog shouldn't be cancellable
                 builder.setCancelable(false);
 
                 // handle the positive button of the dialog
-                builder.setPositiveButton("Επιλογή", (dialog, which) -> {
-                    for (int i = 0; i < employeeSerials.size(); i++)
-                        if (!serial_numbers.contains(allserials[employeeSerials.get(i)]))
-                            dinamicSerials(allserials[employeeSerials.get(i)], return_employee.getText().toString());
+                builder.setPositiveButton("Επιλογή", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        for (int j = 0; j < checkedItems.length; j++) {
+                            if (checkedItems[j])
+                                if (!serial_numbers.contains(allserials[j]))
+                                    dinamicSerials(allserials[j], return_employee.getText().toString());
+                        }
+                    }
                 });
                 builder.setNegativeButton("Άκυρο", (dialog, which) -> {
                 });
@@ -180,6 +171,7 @@ public class fromEmpReturn_CreateNew extends AppCompatActivity {
 
                 // handle the neutral button of the dialog to clear the selected items boolean checkedItem
                 builder.setNeutralButton("Καθαρισμός", (dialog, which) -> {
+
                 });
 
                 // create the builder
@@ -280,18 +272,17 @@ public class fromEmpReturn_CreateNew extends AppCompatActivity {
                 if (isChargedtoEmp) {
                     LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-                    final View addView = layoutInflater.inflate(R.layout.income_insert_row, null);
+                    final View addView = layoutInflater.inflate(R.layout.income_insert_row,null);
                     TextView textOut = addView.findViewById(R.id.textout);
                     textOut.setText(sn);
                     serial_numbers.add(sn);
                     int pos = -1;
-                    for (int i=0;i<allserials.length;i++) {
+                    for (int i = 0; i < allserials.length; i++) {
                         if (allserials[i].equals(sn)) {
                             pos = i;
                             break;
                         }
                     }
-                    employeeSerials.add(pos);
                     checkedItems[pos] = true;
                     ImageButton buttonRemove = addView.findViewById(R.id.remove);
                     buttonRemove.setOnClickListener(new View.OnClickListener() {
@@ -300,13 +291,12 @@ public class fromEmpReturn_CreateNew extends AppCompatActivity {
                         public void onClick(View v) {
                             serial_numbers.remove(textOut.getText());
                             int pos = -1;
-                            for (int i=0;i<allserials.length;i++) {
+                            for (int i = 0; i < allserials.length; i++) {
                                 if (allserials[i].equals(textOut.getText().toString())) {
                                     pos = i;
                                     break;
                                 }
-                            }
-                            employeeSerials.remove(pos);
+                            };
                             checkedItems[pos] = false;
                             ((LinearLayout) addView.getParent()).removeView(addView);
                         }
