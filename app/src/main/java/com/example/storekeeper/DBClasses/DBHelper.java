@@ -1194,4 +1194,21 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
         return returnList;
     }
+
+    public ArrayList<String> getAllTables() {
+        ArrayList<String> returnList = new ArrayList<>();
+        String sql = "select name from sqlite_sequence";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst()) {
+            do {
+                returnList.add(cursor.getString(0));
+            } while (cursor.moveToNext());
+
+        }
+        cursor.close();
+        db.close();
+        return returnList;
+
+    }
 }

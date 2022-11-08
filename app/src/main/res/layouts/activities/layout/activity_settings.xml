@@ -5,6 +5,25 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".settings">
+
+    <Button
+        android:id="@+id/show"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="Show"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/tablenames"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+
+    <de.codecrafters.tableview.TableView
+        android:id="@+id/sqliteTable"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/show" />
+
     <Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -22,10 +41,30 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
             android:layout_marginStart="30dp"
-            android:textSize="30dp"
-            android:text="Ρυθμίσεις" />
+            android:gravity="center_horizontal"
+            android:text="Ρυθμίσεις"
+            android:textSize="30dp" />
 
     </Toolbar>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tablenames"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:hint="Πίνακας"
+        app:layout_constraintEnd_toStartOf="@+id/show"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar">
+
+        <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+            android:id="@+id/tablenames1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            tools:ignore="KeyboardInaccessibleWidget" />
+
+    </com.google.android.material.textfield.TextInputLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
