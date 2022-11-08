@@ -1,18 +1,14 @@
 package com.example.storekeeper;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.Spinner;
-import android.widget.TableLayout;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.storekeeper.DBClasses.DBHelper;
-import com.example.storekeeper.newInserts.income_CreateNew;
-import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 
