@@ -16,14 +16,6 @@
         app:layout_constraintStart_toEndOf="@id/tablenames"
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
-    <de.codecrafters.tableview.TableView
-        android:id="@+id/sqliteTable"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/show" />
-
     <Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -64,7 +56,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clickable="true"
-            tools:ignore="KeyboardInaccessibleWidget" />
+            tools:ignore="KeyboardInaccessibleWidget,SpeakableTextPresentCheck" />
 
     </com.google.android.material.textfield.TextInputLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -20,7 +20,7 @@ public class settings extends AppCompatActivity {
 
     Button show;
     AutoCompleteTextView tablenames;
-    TableLayout sqliteTable;
+
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -30,7 +30,7 @@ public class settings extends AppCompatActivity {
 
         show = findViewById(R.id.show);
         tablenames = findViewById(R.id.tablenames1);
-        sqliteTable = findViewById(R.id.sqliteTable);
+
 
         DBHelper helper = new DBHelper(settings.this);
         ArrayList<String> tables = helper.getAllTables();
