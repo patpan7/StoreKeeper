@@ -1,42 +1,52 @@
 package com.example.storekeeper;
 
 import androidx.appcompat.app.AppCompatActivity;
-
+import androidx.cardview.widget.CardView;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
-import android.widget.Button;
-import android.widget.Spinner;
-import android.widget.TableLayout;
+import android.widget.CheckBox;
+import android.widget.EditText;
+
 
 import com.example.storekeeper.DBClasses.DBHelper;
-import com.example.storekeeper.newInserts.income_CreateNew;
-import com.google.android.material.textfield.TextInputLayout;
+import com.example.storekeeper.Models.productModel;
 
-import java.util.ArrayList;
 
 public class settings extends AppCompatActivity {
 
-    Button show;
-    AutoCompleteTextView tablenames;
-
-
+    EditText ip;
+    CardView savebtn;
+    CheckBox standalone;
+    alertDialogs dialog;
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        show = findViewById(R.id.show);
-        tablenames = findViewById(R.id.tablenames1);
-
+        ip = findViewById(R.id.settings_ip1);
+        standalone = findViewById(R.id.settings_standalone);
 
         DBHelper helper = new DBHelper(settings.this);
-        ArrayList<String> tables = helper.getAllTables();
-        tablenames.setAdapter(new ArrayAdapter<>(settings.this, R.layout.dropdown_row, tables));
-        tablenames.setThreshold(1);
 
+        savebtn.setOnClickListener(view -> {
+            dialog = new alertDialogs();
+            try {
+                if (!ip.getText().equals("")) {
+                    Boolean check = standalone.isChecked();
+                    boolean success = helper.settingsWrite(ip.getText().toString(),check);
+                    if (success) {
+                        dialog.launchSuccess(this, "");
+                    } else dialog.launchFail(this, "");
+                } else {
+                    dialog.launchFail(this, "Τα απαιτούμενα πεδία δεν είναι συμπληρωμένα");
+                }
+            } catch (Exception e) {
+                //product = new productModel(-1,"error","error",0);
+            }
+
+
+        });
 
     }
 }

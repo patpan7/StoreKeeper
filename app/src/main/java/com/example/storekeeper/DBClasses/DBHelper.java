@@ -35,6 +35,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String CHARGE = "charges";
     private static final String EMPRETURNS = "emp_returns";
     private static final String SUPRETURNS = "sup_returns";
+    private static final String SETTINGS = "settings";
 
     public DBHelper(@Nullable Context context) {
         super(context, "storekeeper.db", null, 1);
@@ -57,6 +58,8 @@ public class DBHelper extends SQLiteOpenHelper {
         createTable = "create table if not exists " + EMPRETURNS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, employee_name TEXT, return_date DATE, serial_number TEXT, msg TEXT)";
         db.execSQL(createTable);
         createTable = "create table if not exists " + SUPRETURNS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, supplier_name TEXT, return_date DATE, serial_number TEXT, msg TEXT)";
+        db.execSQL(createTable);
+        createTable = "create table if not exists " + SETTINGS + "(ip TEXT, standalone Boolean)";
         db.execSQL(createTable);
     }
 
@@ -323,7 +326,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public ArrayList<String> productsGetAllNames() {
         ArrayList<String> returnArray = new ArrayList<>();
 
-        String sql = "select name from " + PRODUCTS;
+        String sql = "select name from " + PRODUCTS + " where code != -1";
         SQLiteDatabase db = this.getReadableDatabase();
         String createTable = "create table if not exists " + PRODUCTS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, barcode TEXT unique, warranty int)";
         db.execSQL(createTable);
@@ -1210,5 +1213,17 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
         return returnList;
 
+    }
+
+    public boolean settingsWrite(String ip, Boolean standalone) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ContentValues cv = new ContentValues();
+
+        cv.put("ip", ip);
+        cv.put("standalone", standalone);
+        String createTable = "create table if not exists " + SETTINGS + "(ip TEXT, standalone Boolean)";
+        db.execSQL(createTable);
+        long insert = db.insert(SETTINGS, null, cv);
+        return insert != -1;
     }
 }
