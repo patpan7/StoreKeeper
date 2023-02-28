@@ -59,7 +59,7 @@
         app:layout_constraintTop_toBottomOf="@+id/settings_ip"/>
 
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/charge_insert_savebtn"
+        android:id="@+id/settings_savebtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_rowWeight="1"

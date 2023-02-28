@@ -59,8 +59,6 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(createTable);
         createTable = "create table if not exists " + SUPRETURNS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, supplier_name TEXT, return_date DATE, serial_number TEXT, msg TEXT)";
         db.execSQL(createTable);
-        createTable = "create table if not exists " + SETTINGS + "(ip TEXT, standalone Boolean)";
-        db.execSQL(createTable);
     }
 
     @Override
@@ -1213,17 +1211,5 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
         return returnList;
 
-    }
-
-    public boolean settingsWrite(String ip, Boolean standalone) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        ContentValues cv = new ContentValues();
-
-        cv.put("ip", ip);
-        cv.put("standalone", standalone);
-        String createTable = "create table if not exists " + SETTINGS + "(ip TEXT, standalone Boolean)";
-        db.execSQL(createTable);
-        long insert = db.insert(SETTINGS, null, cv);
-        return insert != -1;
     }
 }

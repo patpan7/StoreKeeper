@@ -7,9 +7,7 @@ import android.os.Bundle;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
-
 import com.example.storekeeper.DBClasses.DBHelper;
-import com.example.storekeeper.Models.productModel;
 
 
 public class settings extends AppCompatActivity {
@@ -29,12 +27,16 @@ public class settings extends AppCompatActivity {
 
         DBHelper helper = new DBHelper(settings.this);
 
+        //ip.setText(helper.getSettingsIP());
+        //standalone.setChecked(helper.getSettingsStandalone());
+
+        savebtn = findViewById(R.id.settings_savebtn);
         savebtn.setOnClickListener(view -> {
             dialog = new alertDialogs();
             try {
                 if (!ip.getText().equals("")) {
                     Boolean check = standalone.isChecked();
-                    boolean success = helper.settingsWrite(ip.getText().toString(),check);
+                    boolean success = true; //helper.settingsWrite(ip.getText().toString(),check);
                     if (success) {
                         dialog.launchSuccess(this, "");
                     } else dialog.launchFail(this, "");
@@ -44,8 +46,6 @@ public class settings extends AppCompatActivity {
             } catch (Exception e) {
                 //product = new productModel(-1,"error","error",0);
             }
-
-
         });
 
     }
