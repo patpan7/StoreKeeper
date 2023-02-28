@@ -638,11 +638,12 @@ public class DBHelper extends SQLiteOpenHelper {
         return update != -1;
     }
 
-    public void chargeAdd(String emp, String date) {
+    public void chargeAdd(String emp, String date,String serial) {
         SQLiteDatabase db = this.getReadableDatabase();
         ContentValues cv = new ContentValues();
         cv.put("employee_name", emp);
         cv.put("charge_date", formatDateForSQL(date));
+        cv.put("serial_number", serial);
         String createTable = "create table if not exists " + CHARGE + "(code INTEGER PRIMARY KEY AUTOINCREMENT, employee_name TEXT, charge_date DATE, serial_number TEXT)";
         db.execSQL(createTable);
         long insert = db.insert(CHARGE, null, cv);
@@ -1211,5 +1212,18 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
         return returnList;
 
+    }
+
+    public void clean() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(SERIALS,null,null);
+        db.delete(INCOMES,null,null);
+        db.delete(CHARGE,null,null);
+        db.delete(EMPRETURNS,null,null);
+        db.delete(SUPRETURNS,null,null);
+
+        //db.execSQL("delete from "+ SERIALS);
+        //db.execSQL("TRUNCATE table" + TABLE_NAME);
+        db.close();
     }
 }

@@ -99,12 +99,13 @@ public class charge_CreateNew extends AppCompatActivity {
                     for (int i = 0; i <= serial_numbers.size()-1; i++) {
                         //Toast.makeText(getApplicationContext()," ok ",Toast.LENGTH_LONG).show();
                         success2 = helper.serialUpdateEmployee(serial_numbers.get(i), Objects.requireNonNull(charge_date.getText()).toString(), emp_code,0);
+                        helper.chargeAdd(charge_employee.getText().toString(),charge_date.getText().toString(),serial_numbers.get(i));
                         if (success2)
                             successes +=1;
                     }
                     if (successes == serial_numbers.size()) {
                         dialog.launchSuccess(this, "");
-                        helper.chargeAdd(charge_employee.getText().toString(),charge_date.getText().toString());
+                        //helper.chargeAdd(charge_employee.getText().toString(),charge_date.getText().toString(),serial_numbers.get(i));
                         clear();
                     } else dialog.launchFail(this, "");
                 } else {

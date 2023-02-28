@@ -162,7 +162,7 @@ public class charge extends AppCompatActivity implements charge_RVInterface {
         chargeDialog(position);
 
     }
-    @SuppressLint("MissingInflatedId")
+
     public void chargeDialog(int pos) {
         dialogBuilder = new MaterialAlertDialogBuilder(this);
         final View chargePopupView = getLayoutInflater().inflate(R.layout.charge_popup, null);

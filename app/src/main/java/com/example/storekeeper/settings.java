@@ -1,11 +1,13 @@
 package com.example.storekeeper;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
 import com.example.storekeeper.DBClasses.DBHelper;
 
@@ -16,6 +18,7 @@ public class settings extends AppCompatActivity {
     CardView savebtn;
     CheckBox standalone;
     alertDialogs dialog;
+    Button clean;
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +49,12 @@ public class settings extends AppCompatActivity {
             } catch (Exception e) {
                 //product = new productModel(-1,"error","error",0);
             }
+        });
+
+        clean = findViewById(R.id.clean);
+        clean.setOnLongClickListener(view -> {
+            helper.clean();
+            return false;
         });
 
     }
