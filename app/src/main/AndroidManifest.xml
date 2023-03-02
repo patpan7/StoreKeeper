@@ -136,6 +136,7 @@
             android:name=".captureAct"
             android:stateNotNeeded="true"
             android:theme="@style/zxing_CaptureTheme" />
+        <service android:name=".DBClasses.SyncService"/>
     </application>
 
 </manifest>

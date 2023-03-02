@@ -1,24 +1,30 @@
 package com.example.storekeeper;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
 import com.example.storekeeper.DBClasses.DBHelper;
+import com.example.storekeeper.DBClasses.SyncService;
 
 
 public class settings extends AppCompatActivity {
 
-    EditText ip;
+    EditText ip, port;
     CardView savebtn;
     CheckBox standalone;
     alertDialogs dialog;
-    Button clean;
+    Button clean,clean2;
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,20 +32,22 @@ public class settings extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
 
         ip = findViewById(R.id.settings_ip1);
+        port = findViewById(R.id.settings_port1);
         standalone = findViewById(R.id.settings_standalone);
 
         DBHelper helper = new DBHelper(settings.this);
 
-        //ip.setText(helper.getSettingsIP());
-        //standalone.setChecked(helper.getSettingsStandalone());
+        ip.setText(helper.getSettingsIP());
+        port.setText(helper.getSettingPort());
+        standalone.setChecked(helper.getSettingsStandalone());
 
         savebtn = findViewById(R.id.settings_savebtn);
         savebtn.setOnClickListener(view -> {
             dialog = new alertDialogs();
             try {
-                if (!ip.getText().equals("")) {
+                if (ip.getText().length() != 0 && port.getText().length() != 0) {
                     Boolean check = standalone.isChecked();
-                    boolean success = true; //helper.settingsWrite(ip.getText().toString(),check);
+                    boolean success = helper.settingsWrite(ip.getText().toString(),port.getText().toString(),check);
                     if (success) {
                         dialog.launchSuccess(this, "");
                     } else dialog.launchFail(this, "");
@@ -47,9 +55,10 @@ public class settings extends AppCompatActivity {
                     dialog.launchFail(this, "Τα απαιτούμενα πεδία δεν είναι συμπληρωμένα");
                 }
             } catch (Exception e) {
-                //product = new productModel(-1,"error","error",0);
+                Log.d("EXCEPTION",e.toString());
             }
         });
+
 
         clean = findViewById(R.id.clean);
         clean.setOnLongClickListener(view -> {
@@ -57,5 +66,31 @@ public class settings extends AppCompatActivity {
             return false;
         });
 
+        clean.setOnClickListener(view -> {
+            Intent intent2 = new Intent(getApplicationContext(), SyncService.class);
+            getApplicationContext().startService(intent2);
+        });
+
+        clean2 = findViewById(R.id.clean2);
+        clean2.setOnClickListener(view -> {
+            boolean isServiceRunning = isMyServiceRunning(SyncService.class);
+            if (isServiceRunning) {
+                // το service έχει ξεκινήσει
+                Toast.makeText(this,"stared",Toast.LENGTH_LONG).show();
+            } else {
+                // το service δεν έχει ξεκινήσει
+                Toast.makeText(this,"Not stared",Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    public boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
@@ -27,6 +28,12 @@ import java.util.Date;
 
 public class DBHelper extends SQLiteOpenHelper {
 
+    private static final int DATABASE_VERSION = 4;
+
+    private static final int STATUS_UNSYNC = 0;
+    private static final int STATUS_SYNC = 1;
+    private static final int STATUS_UPDATE = 2;
+
     public static final String PRODUCTS = "products";
     public static final String EMPLOYEES = "employees";
     public static final String SUPPLIERS = "suppliers";
@@ -38,7 +45,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String SETTINGS = "settings";
 
     public DBHelper(@Nullable Context context) {
-        super(context, "storekeeper.db", null, 1);
+        super(context, "storekeeper.db", null, DATABASE_VERSION);
     }
 
     @Override
@@ -62,19 +69,50 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int i, int i1) {
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // Loop through each version when an upgrade occurs.
+        for (int version = oldVersion + 1; version <= newVersion; version++) {
+            switch (version) {
 
+                case 2:
+                    // Apply changes made in version 2
+                    db.execSQL("ALTER TABLE " + PRODUCTS + " ADD COLUMN sync_status int;");
+                    db.execSQL("ALTER TABLE " + EMPLOYEES + " ADD COLUMN sync_status int;");
+                    db.execSQL("ALTER TABLE " + SUPPLIERS + " ADD COLUMN sync_status int;");
+                    db.execSQL("ALTER TABLE " + SERIALS + " ADD COLUMN sync_status int;");
+                    db.execSQL("ALTER TABLE " + INCOMES + " ADD COLUMN sync_status int;");
+                    db.execSQL("ALTER TABLE " + CHARGE + " ADD COLUMN sync_status int;");
+                    db.execSQL("ALTER TABLE " + EMPRETURNS + " ADD COLUMN sync_status int;");
+                    db.execSQL("ALTER TABLE " + SUPRETURNS + " ADD COLUMN sync_status int;");
+                    break;
+                case 3:
+                    // Apply changes made in version 3
+                    String createTable = "create table if not exists " + SETTINGS + "(code INTEGER PRIMARY KEY, ip TEXT, port TEXT, stantalone int)";
+                    db.execSQL(createTable);
+                    break;
+                case 4:
+                    // Apply changes made in version 4
+                    ContentValues cv = new ContentValues();
+
+                    cv.put("code",1);
+                    cv.put("ip", "192.168.1.10");
+                    cv.put("port","1433");
+                    cv.put("standalone",1);
+                    long insert = db.insert(SETTINGS, null, cv);
+                    break;
+            }
+        }
     }
 
     //products methods
-    public boolean productAdd(productModel productModel) {
+    public boolean productAdd(@NonNull productModel productModel) {
         SQLiteDatabase db = this.getReadableDatabase();
         ContentValues cv = new ContentValues();
 
         cv.put("name", productModel.getName());
         cv.put("barcode", productModel.getBarcode());
         cv.put("warranty", productModel.getWarranty());
-
+        cv.put("sync_status",STATUS_UNSYNC);
         long insert = db.insert(PRODUCTS, null, cv);
         return insert != -1;
     }
@@ -111,6 +149,7 @@ public class DBHelper extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
         cv.put("name", productModel.getName());
         cv.put("barcode", productModel.getBarcode());
+        cv.put("sync_status",STATUS_UPDATE);
         long update = db.update(PRODUCTS, cv, "code= ?", new String[]{String.valueOf(productModel.getCode())});
         db.close();
         return update != -1;
@@ -139,7 +178,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("mail", employeesModel.getMail());
         cv.put("work", employeesModel.getWork());
         cv.put("id", employeesModel.getId());
-
+        cv.put("sync_status",STATUS_UNSYNC);
         long insert = db.insert(EMPLOYEES, null, cv);
         return insert != -1;
     }
@@ -183,6 +222,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("mail", employeesModel.getMail());
         cv.put("work", employeesModel.getWork());
         cv.put("id", employeesModel.getId());
+        cv.put("sync_status",STATUS_UPDATE);
         long update = db.update(EMPLOYEES, cv, "code= ?", new String[]{String.valueOf(employeesModel.getCode())});
         db.close();
         return update != -1;
@@ -210,6 +250,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("mobile", supplierModel.getMobile());
         cv.put("mail", supplierModel.getMail());
         cv.put("afm", supplierModel.getAfm());
+        cv.put("sync_status",STATUS_UNSYNC);
         String createTable = "create table if not exists " + SUPPLIERS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, phone TEXT, mobile TEXT, mail TEXT, afm TEXT unique)";
         db.execSQL(createTable);
         long insert = db.insert(SUPPLIERS, null, cv);
@@ -254,7 +295,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("mobile", supplierModel.getMobile());
         cv.put("mail", supplierModel.getMail());
         cv.put("afm", supplierModel.getAfm());
-
+        cv.put("sync_status",STATUS_UPDATE);
         String createTable = "create table if not exists " + SUPPLIERS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, phone TEXT, mobile TEXT, mail TEXT, afm TEXT unique)";
         db.execSQL(createTable);
         long update = db.update(SUPPLIERS, cv, "code= ?", new String[]{String.valueOf(supplierModel.getCode())});
@@ -358,6 +399,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("supplier_name", supplier);
         cv.put("income_date", formatDateForSQL(date));
         cv.put("serial_number", sn);
+        cv.put("sync_status",STATUS_UNSYNC);
         String createTable = "create table if not exists " + INCOMES + "(code INTEGER PRIMARY KEY AUTOINCREMENT, supplier_name TEXT, income_date DATE, serial_number TEXT)";
         db.execSQL(createTable);
         long insert = db.insert(INCOMES, null, cv);
@@ -383,6 +425,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("employee_code", 0);
         cv.put("charge_date", 0);
         cv.put("available", 1);
+        cv.put("sync_status",STATUS_UNSYNC);
         String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
         db.execSQL(createTable);
         long insert = db.insert(SERIALS, null, cv);
@@ -644,6 +687,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("employee_name", emp);
         cv.put("charge_date", formatDateForSQL(date));
         cv.put("serial_number", serial);
+        cv.put("sync_status",STATUS_UNSYNC);
         String createTable = "create table if not exists " + CHARGE + "(code INTEGER PRIMARY KEY AUTOINCREMENT, employee_name TEXT, charge_date DATE, serial_number TEXT)";
         db.execSQL(createTable);
         long insert = db.insert(CHARGE, null, cv);
@@ -790,6 +834,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("return_date", formatDateForSQL(date));
         cv.put("serial_number", sn);
         cv.put("msg", msg);
+        cv.put("sync_status",STATUS_UNSYNC);
         String createTable = "create table if not exists " + EMPRETURNS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, employee_name TEXT, return_date DATE, serial_number TEXT, msg TEXT)";
         db.execSQL(createTable);
         long insert = db.insert(EMPRETURNS, null, cv);
@@ -836,6 +881,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("return_date", formatDateForSQL(date));
         cv.put("serial_number", sn);
         cv.put("msg", msg);
+        cv.put("sync_status",STATUS_UNSYNC);
         String createTable = "create table if not exists " + SUPRETURNS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, supplier_name TEXT, return_date DATE, serial_number TEXT, msg TEXT)";
         db.execSQL(createTable);
         long insert = db.insert(SUPRETURNS, null, cv);
@@ -846,6 +892,7 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put("available", available);
+        cv.put("sync_status",STATUS_UPDATE);
         long update = db.update(SERIALS, cv, "serialnumber= ?", new String[]{sn});
         db.close();
         return update != -1;
@@ -1225,5 +1272,59 @@ public class DBHelper extends SQLiteOpenHelper {
         //db.execSQL("delete from "+ SERIALS);
         //db.execSQL("TRUNCATE table" + TABLE_NAME);
         db.close();
+    }
+
+    public boolean hasChanges() {
+        return false;
+    }
+
+    public String getSettingsIP() {
+        String ip = "";
+        String sql = "select ip from " + SETTINGS + " WHERE code = 1";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst())
+            ip = cursor.getString(0);
+        cursor.close();
+        db.close();
+        return ip;
+    }
+
+    public String getSettingPort() {
+        String port = "";
+        String sql = "select port from " + SETTINGS + " WHERE code = 1";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst())
+            port = cursor.getString(0);
+        cursor.close();
+        db.close();
+        return port;
+    }
+
+    public boolean getSettingsStandalone() {
+        int standalone = 0;
+        String sql = "select stantalone from " + SETTINGS + " WHERE code = 1";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst())
+            standalone = cursor.getInt(0);
+        cursor.close();
+        db.close();
+        return standalone == 1;
+    }
+
+    public boolean settingsWrite(String ip, String port, Boolean standalone) {
+        int checked = 0;
+        if (standalone)
+            checked = 1;
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("ip", ip);
+        cv.put("port",port);
+        cv.put("stantalone",checked);
+        long update = db.update(SETTINGS, cv, "code= ?", new String[]{String.valueOf(1)});
+        db.close();
+        return update != -1;
     }
 }
