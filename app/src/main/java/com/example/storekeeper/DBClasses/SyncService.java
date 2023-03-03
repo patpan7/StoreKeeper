@@ -31,7 +31,6 @@ public class SyncService extends Service {
         mDBHelper = new DBHelper(this);
         mMySQLiteHelper = new MySQLiteHelper(this);
         mMySQLHelper = new MySQLHelper(this);
-
     }
 
     @Override
@@ -61,7 +60,8 @@ public class SyncService extends Service {
                 @Override
                 public void run() {
                     Log.d(TAG, "Starting sync...");
-                    Toast.makeText(getApplicationContext(), "Starting sync...", Toast.LENGTH_SHORT).show();
+
+                    Toast.makeText(getApplicationContext(), "Starting sync..." + mMySQLHelper.connect(), Toast.LENGTH_SHORT).show();
                     // Έλεγχος για αλλαγές στη βάση δεδομένων SQLite
                     if (mDBHelper.hasChanges()) {
                         // Συγχρονισμός με τη βάση δεδομένων MySQL

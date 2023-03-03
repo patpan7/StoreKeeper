@@ -28,7 +28,7 @@ import java.util.Date;
 
 public class DBHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 1;
 
     private static final int STATUS_UNSYNC = 0;
     private static final int STATUS_SYNC = 1;
@@ -50,22 +50,30 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String createTable = "create table if not exists " + PRODUCTS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, barcode TEXT unique, warranty int)";
+        String createTable = "create table if not exists " + PRODUCTS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, barcode TEXT unique, warranty int, sync_status int)";
         db.execSQL(createTable);
-        createTable = "create table if not exists " + EMPLOYEES + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, phone TEXT, mobile TEXT, mail TEXT, work TEXT, id TEXT unique)";
+        createTable = "create table if not exists " + EMPLOYEES + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, phone TEXT, mobile TEXT, mail TEXT, work TEXT, id TEXT unique, sync_status int)";
         db.execSQL(createTable);
-        createTable = "create table if not exists " + SUPPLIERS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, phone TEXT, mobile TEXT, mail TEXT, afm TEXT unique)";
+        createTable = "create table if not exists " + SUPPLIERS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, phone TEXT, mobile TEXT, mail TEXT, afm TEXT unique,sync_status int)";
         db.execSQL(createTable);
-        createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
+        createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER, sync_status int)";
         db.execSQL(createTable);
-        createTable = "create table if not exists " + INCOMES + "(code INTEGER PRIMARY KEY AUTOINCREMENT, supplier_name TEXT, income_date DATE, serial_number TEXT)";
+        createTable = "create table if not exists " + INCOMES + "(code INTEGER PRIMARY KEY AUTOINCREMENT, supplier_name TEXT, income_date DATE, serial_number TEXT, sync_status int)";
         db.execSQL(createTable);
-        createTable = "create table if not exists " + CHARGE + "(code INTEGER PRIMARY KEY AUTOINCREMENT, employee_name TEXT, charge_date DATE, serial_number TEXT)";
+        createTable = "create table if not exists " + CHARGE + "(code INTEGER PRIMARY KEY AUTOINCREMENT, employee_name TEXT, charge_date DATE, serial_number TEXT, sync_status int)";
         db.execSQL(createTable);
-        createTable = "create table if not exists " + EMPRETURNS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, employee_name TEXT, return_date DATE, serial_number TEXT, msg TEXT)";
+        createTable = "create table if not exists " + EMPRETURNS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, employee_name TEXT, return_date DATE, serial_number TEXT, msg, sync_status int)";
         db.execSQL(createTable);
-        createTable = "create table if not exists " + SUPRETURNS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, supplier_name TEXT, return_date DATE, serial_number TEXT, msg TEXT)";
+        createTable = "create table if not exists " + SUPRETURNS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, supplier_name TEXT, return_date DATE, serial_number TEXT, msg TEXT, sync_status int)";
         db.execSQL(createTable);
+        createTable = "create table if not exists " + SETTINGS + "(code INTEGER PRIMARY KEY, ip TEXT, port TEXT, standalone int)";
+        db.execSQL(createTable);
+        ContentValues cv = new ContentValues();
+        cv.put("code",1);
+        cv.put("ip", "192.168.1.10");
+        cv.put("port","1433");
+        cv.put("standalone",1);
+        db.insert(SETTINGS, null, cv);
     }
 
     @Override
@@ -76,29 +84,12 @@ public class DBHelper extends SQLiteOpenHelper {
 
                 case 2:
                     // Apply changes made in version 2
-                    db.execSQL("ALTER TABLE " + PRODUCTS + " ADD COLUMN sync_status int;");
-                    db.execSQL("ALTER TABLE " + EMPLOYEES + " ADD COLUMN sync_status int;");
-                    db.execSQL("ALTER TABLE " + SUPPLIERS + " ADD COLUMN sync_status int;");
-                    db.execSQL("ALTER TABLE " + SERIALS + " ADD COLUMN sync_status int;");
-                    db.execSQL("ALTER TABLE " + INCOMES + " ADD COLUMN sync_status int;");
-                    db.execSQL("ALTER TABLE " + CHARGE + " ADD COLUMN sync_status int;");
-                    db.execSQL("ALTER TABLE " + EMPRETURNS + " ADD COLUMN sync_status int;");
-                    db.execSQL("ALTER TABLE " + SUPRETURNS + " ADD COLUMN sync_status int;");
                     break;
                 case 3:
                     // Apply changes made in version 3
-                    String createTable = "create table if not exists " + SETTINGS + "(code INTEGER PRIMARY KEY, ip TEXT, port TEXT, stantalone int)";
-                    db.execSQL(createTable);
                     break;
                 case 4:
                     // Apply changes made in version 4
-                    ContentValues cv = new ContentValues();
-
-                    cv.put("code",1);
-                    cv.put("ip", "192.168.1.10");
-                    cv.put("port","1433");
-                    cv.put("standalone",1);
-                    long insert = db.insert(SETTINGS, null, cv);
                     break;
             }
         }
@@ -1304,7 +1295,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public boolean getSettingsStandalone() {
         int standalone = 0;
-        String sql = "select stantalone from " + SETTINGS + " WHERE code = 1";
+        String sql = "select standalone from " + SETTINGS + " WHERE code = 1";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(sql, null);
         if (cursor.moveToFirst())
@@ -1322,7 +1313,7 @@ public class DBHelper extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
         cv.put("ip", ip);
         cv.put("port",port);
-        cv.put("stantalone",checked);
+        cv.put("standalone",checked);
         long update = db.update(SETTINGS, cv, "code= ?", new String[]{String.valueOf(1)});
         db.close();
         return update != -1;

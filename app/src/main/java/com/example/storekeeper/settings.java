@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
 import com.example.storekeeper.DBClasses.DBHelper;
+import com.example.storekeeper.DBClasses.MySQLHelper;
 import com.example.storekeeper.DBClasses.SyncService;
 
 
@@ -73,14 +74,17 @@ public class settings extends AppCompatActivity {
 
         clean2 = findViewById(R.id.clean2);
         clean2.setOnClickListener(view -> {
-            boolean isServiceRunning = isMyServiceRunning(SyncService.class);
-            if (isServiceRunning) {
-                // το service έχει ξεκινήσει
-                Toast.makeText(this,"stared",Toast.LENGTH_LONG).show();
-            } else {
-                // το service δεν έχει ξεκινήσει
-                Toast.makeText(this,"Not stared",Toast.LENGTH_LONG).show();
-            }
+            MySQLHelper mySQLHelper = new MySQLHelper(this);
+            Boolean con = mySQLHelper.connect();
+            Toast.makeText(this,"stared " + mySQLHelper.isConnected(),Toast.LENGTH_LONG).show();
+//            boolean isServiceRunning = isMyServiceRunning(SyncService.class);
+//            if (isServiceRunning) {
+//                // το service έχει ξεκινήσει
+//                Toast.makeText(this,"stared",Toast.LENGTH_LONG).show();
+//            } else {
+//                // το service δεν έχει ξεκινήσει
+//                Toast.makeText(this,"Not stared",Toast.LENGTH_LONG).show();
+//            }
         });
     }
 

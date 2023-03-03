@@ -1,8 +1,7 @@
 package com.example.storekeeper.DBClasses;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
+import android.os.StrictMode;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -14,22 +13,28 @@ public class MySQLHelper {
 
     private Connection mConnection;
     private String mUrl;
-    private String mUsername;
-    private String mPassword;
+    private String mUsername = "store";
+    private String mPassword = "keeper";
+    private String mDatabase = "store";
+    private DBHelper mDBHelper;
 
     public MySQLHelper(Context context) {
         // Φόρτωση παραμέτρων σύνδεσης από το αρχείο ρυθμίσεων
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        mUrl = preferences.getString("mysql_url", "");
-        mUsername = preferences.getString("mysql_username", "");
-        mPassword = preferences.getString("mysql_password", "");
+        mDBHelper = new DBHelper(context);
+        String ip = mDBHelper.getSettingsIP();
+        String port = mDBHelper.getSettingPort();
+        mUrl = "jdbc:mysql://" + ip + ":" + port + "/" + mDatabase;
     }
 
     public boolean connect() {
         try {
+
+            StrictMode.ThreadPolicy gfgPolicy =
+                    new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(gfgPolicy);
             // Δημιουργία σύνδεσης με τη βάση δεδομένων MySQL
             Class.forName("com.mysql.jdbc.Driver");
-            mConnection = DriverManager.getConnection(mUrl, mUsername, mPassword);
+            mConnection = DriverManager.getConnection(mUrl+"?user="+mUsername+"&password="+mPassword);
             return true;
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
