@@ -74,8 +74,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         cardSettings.setOnClickListener(view -> {
-            Intent intent = new Intent(MainActivity.this, settings.class);
-            startActivity(intent);
+//            Intent intent = new Intent(MainActivity.this, settings.class);
+//            startActivity(intent);
 
         });
 
