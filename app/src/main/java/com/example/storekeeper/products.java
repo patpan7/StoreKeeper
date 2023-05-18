@@ -1,7 +1,5 @@
 package com.example.storekeeper;
 
-import static com.example.storekeeper.R.layout.product_popup;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +13,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -33,7 +30,6 @@ import com.example.storekeeper.Models.productModel;
 import com.example.storekeeper.newInserts.product_CreateNew;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 
@@ -148,15 +144,15 @@ public class products extends AppCompatActivity implements products_RVInterface 
             public void onClick(View view) {
                 if (availableClicked[0]) {
                     availableClicked[0] = false;
-                    available_plus.setImageResource(R.drawable.plus);
-                    charged_plus.setImageResource(R.drawable.plus);
+                    available_plus.setImageResource(R.drawable.down);
+                    charged_plus.setImageResource(R.drawable.down);
                     container.removeAllViews();
 
                 } else {
                     availableClicked[0] = true;
                     chargedClicked[0] = false;
-                    available_plus.setImageResource(R.drawable.reject);
-                    charged_plus.setImageResource(R.drawable.plus);
+                    available_plus.setImageResource(R.drawable.up);
+                    charged_plus.setImageResource(R.drawable.down);
                     container.removeAllViews();
 
                     ArrayList<String> productSerials = helper.productGetAllAvailableSN(productModels.get(pos).getCode());
@@ -177,15 +173,15 @@ public class products extends AppCompatActivity implements products_RVInterface 
             public void onClick(View view) {
                 if (chargedClicked[0]) {
                     chargedClicked[0] = false;
-                    available_plus.setImageResource(R.drawable.plus);
-                    charged_plus.setImageResource(R.drawable.plus);
+                    available_plus.setImageResource(R.drawable.down);
+                    charged_plus.setImageResource(R.drawable.down);
                     container.removeAllViews();
 
                 } else {
                     chargedClicked[0] = true;
                     availableClicked[0] = false;
-                    available_plus.setImageResource(R.drawable.plus);
-                    charged_plus.setImageResource(R.drawable.reject);
+                    available_plus.setImageResource(R.drawable.down);
+                    charged_plus.setImageResource(R.drawable.up);
                     container.removeAllViews();
                     ArrayList<String> employees = helper.employeesGetAllNamesWithSN(productModels.get(pos).getCode());
 

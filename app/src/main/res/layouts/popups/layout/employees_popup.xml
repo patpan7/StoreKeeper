@@ -196,10 +196,10 @@
                     android:id="@+id/charged_plus"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:layout_marginTop="15dp"
+                    android:layout_marginTop="10dp"
                     android:background="@android:color/transparent"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/plus"
+                    android:src="@drawable/down"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/employees_popup_chargedProd"
                     app:layout_constraintTop_toBottomOf="@+id/employees_popup_id" />

@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">Store Keeper</string>
-    <string name="title_activity_login">login</string>
+    <string name="title_activity_login">Store Keeper</string>
 </resources>

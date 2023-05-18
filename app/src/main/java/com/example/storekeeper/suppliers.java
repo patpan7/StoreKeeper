@@ -144,12 +144,12 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
             public void onClick(View view) {
                 if (incomeClicked[0]) {
                     incomeClicked[0] = false;
-                    income_plus.setImageResource(R.drawable.plus);
+                    income_plus.setImageResource(R.drawable.down);
                     container.removeAllViews();
 
                 } else {
                     incomeClicked[0] = true;
-                    income_plus.setImageResource(R.drawable.reject);
+                    income_plus.setImageResource(R.drawable.up);
                     container.removeAllViews();
                     ArrayList<String> products = helper.productsGetAllNamesIncome(supplierModels.get(pos).getCode());
 

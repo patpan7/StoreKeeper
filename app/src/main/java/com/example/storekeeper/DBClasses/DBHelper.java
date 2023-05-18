@@ -1281,39 +1281,11 @@ public class DBHelper extends SQLiteOpenHelper {
         return ip;
     }
 
-    public String getSettingPort() {
-        String port = "";
-        String sql = "select port from " + SETTINGS + " WHERE code = 1";
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst())
-            port = cursor.getString(0);
-        cursor.close();
-        db.close();
-        return port;
-    }
 
-    public boolean getSettingsStandalone() {
-        int standalone = 0;
-        String sql = "select standalone from " + SETTINGS + " WHERE code = 1";
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst())
-            standalone = cursor.getInt(0);
-        cursor.close();
-        db.close();
-        return standalone == 1;
-    }
-
-    public boolean settingsWrite(String ip, String port, Boolean standalone) {
-        int checked = 0;
-        if (standalone)
-            checked = 1;
+    public boolean settingsWrite(String ip) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put("ip", ip);
-        cv.put("port",port);
-        cv.put("standalone",checked);
         long update = db.update(SETTINGS, cv, "code= ?", new String[]{String.valueOf(1)});
         db.close();
         return update != -1;

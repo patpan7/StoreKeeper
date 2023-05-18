@@ -5,9 +5,11 @@ import android.os.Bundle;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
 public class login extends AppCompatActivity {
     Button login;
+    CardView cardSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -15,11 +17,17 @@ public class login extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         login = findViewById(R.id.loginButton);
-        login.setOnClickListener(view ->
-                {
-                    Intent intent = new Intent(login.this, MainActivity.class);
-                    startActivity(intent);
+        login.setOnClickListener(view -> {
+            Intent intent = new Intent(login.this, MainActivity.class);
+            startActivity(intent);
 
-                });
+        });
+
+        cardSettings = findViewById(R.id.cardSettings);
+        cardSettings.setOnClickListener(view -> {
+            Intent intent = new Intent(login.this, settings.class);
+            startActivity(intent);
+        });
+
     }
 }

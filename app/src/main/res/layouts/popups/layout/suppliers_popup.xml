@@ -189,6 +189,7 @@
                         android:enabled="false"
                         android:inputType="number" />
                 </com.google.android.material.textfield.TextInputLayout>
+
                 <ImageButton
                     android:id="@+id/income_plus"
                     android:layout_width="40dp"
@@ -196,7 +197,7 @@
                     android:layout_marginTop="15dp"
                     android:background="@android:color/transparent"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/plus"
+                    android:src="@drawable/down"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/suppliers_popup_incomeProd"
                     app:layout_constraintTop_toBottomOf="@+id/suppliers_popup_afm" />

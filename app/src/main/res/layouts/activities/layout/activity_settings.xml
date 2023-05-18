@@ -36,7 +36,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
-        android:hint="IP"
+        android:hint="Server IP"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
@@ -50,35 +50,6 @@
             tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/settings_port"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:hint="PORT"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/settings_ip">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/settings_port1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="number"
-            tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-
-    <CheckBox
-        android:id="@+id/settings_standalone"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:checked="true"
-        android:text="Standalone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/settings_port"/>
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/settings_savebtn"
@@ -93,7 +64,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/settings_standalone"
+        app:layout_constraintTop_toBottomOf="@+id/settings_ip"
         app:layout_constraintVertical_bias="0.067">
 
         <LinearLayout

@@ -146,12 +146,12 @@ public class employees extends AppCompatActivity implements employees_RVInterfac
             public void onClick(View view) {
                 if (chargedClicked[0]) {
                     chargedClicked[0] = false;
-                    charged_plus.setImageResource(R.drawable.plus);
+                    charged_plus.setImageResource(R.drawable.down);
                     container.removeAllViews();
 
                 } else {
                     chargedClicked[0] = true;
-                    charged_plus.setImageResource(R.drawable.reject);
+                    charged_plus.setImageResource(R.drawable.up);
                     container.removeAllViews();
                     ArrayList<String> products = helper.productsGetAllNamesCharge(employeeModels.get(pos).getCode());
 
