@@ -34,6 +34,28 @@ public class MainActivity extends AppCompatActivity {
 
     SharedPreferences sharedPreferences;
 
+    int backButtonCount = 0;
+
+    @Override
+    public void onBackPressed() {
+
+        if (backButtonCount >= 1) {
+            backButtonCount = 0;
+            logoutOnBack();
+            finish();
+        } else {
+            Toast.makeText(this, "Press the back button once again to close the application.", Toast.LENGTH_SHORT).show();
+            backButtonCount++;
+        }
+    }
+
+    @Override
+    public void onUserLeaveHint() {
+        logoutOnBack();
+        finish();
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
             finish();
         }
         username = findViewById(R.id.main_username);
-        username.append(sharedPreferences.getString("username",""));
+        username.append(sharedPreferences.getString("username", ""));
 
         cardProducts = findViewById(R.id.cardProducts);
         cardEmployees = findViewById(R.id.cardEmployees);
@@ -99,43 +121,76 @@ public class MainActivity extends AppCompatActivity {
         });
 
         cardLogout.setOnClickListener(view -> {
-            DBHelper helper = new DBHelper(MainActivity.this);
-            String ip = helper.getSettingsIP();
-            RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-            String url = "http://" + ip + "/storekeeper/logout.php";
-            StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
-                    new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            if (response.equals("success")) {
-                                SharedPreferences.Editor editor = sharedPreferences.edit();
-                                editor.putString("logged", "");
-                                editor.putString("username", "");
-                                editor.putString("apiKey", "");
-                                editor.apply();
-                                Intent intent = new Intent(MainActivity.this, login.class);
-                                startActivity(intent);
-                                finish();
-                            } else
-                                Toast.makeText(getApplicationContext(), response, Toast.LENGTH_LONG).show();
-                        }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                   error.printStackTrace();
-                }
-            }) {
-                protected Map<String, String> getParams() {
-                    Map<String, String> paramV = new HashMap<>();
-                    paramV.put("username", sharedPreferences.getString("username",""));
-                    paramV.put("apiKey", sharedPreferences.getString("apiKey",""));
-                    return paramV;
-                }
-            };
-            queue.add(stringRequest);
-
-
+            logout();
         });
 
+    }
+
+    void logout() {
+        DBHelper helper = new DBHelper(MainActivity.this);
+        String ip = helper.getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+        String url = "http://" + ip + "/storekeeper/logout.php";
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                if (response.equals("success")) {
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("logged", "");
+                    editor.putString("username", "");
+                    editor.putString("apiKey", "");
+                    editor.apply();
+                    Intent intent = new Intent(MainActivity.this, login.class);
+                    startActivity(intent);
+                    finish();
+                } else Toast.makeText(getApplicationContext(), response, Toast.LENGTH_LONG).show();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("username", sharedPreferences.getString("username", ""));
+                paramV.put("apiKey", sharedPreferences.getString("apiKey", ""));
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
+    }
+
+    void logoutOnBack() {
+        DBHelper helper = new DBHelper(MainActivity.this);
+        String ip = helper.getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+        String url = "http://" + ip + "/storekeeper/logout.php";
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                if (response.equals("success")) {
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("logged", "");
+                    editor.putString("username", "");
+                    editor.putString("apiKey", "");
+                    editor.apply();
+                    finish();
+                } else Toast.makeText(getApplicationContext(), response, Toast.LENGTH_LONG).show();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("username", sharedPreferences.getString("username", ""));
+                paramV.put("apiKey", sharedPreferences.getString("apiKey", ""));
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
     }
 }

@@ -56,46 +56,43 @@ public class login extends AppCompatActivity {
 
         login = findViewById(R.id.loginButton);
         login.setOnClickListener(view -> {
-//            Intent intent = new Intent(login.this, MainActivity.class);
-//            startActivity(intent);
             progressBar.setVisibility(View.VISIBLE);
             String ip = helper.getSettingsIP();
             usernameData = String.valueOf(username.getText());
             passwordData = String.valueOf(password.getText());
             RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
             String url = "http://" + ip + "/storekeeper/login.php";
-            StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
-                    new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            progressBar.setVisibility(View.GONE);
-                            try {
-                                JSONObject jsonObject = new JSONObject(response);
-                                String status = jsonObject.getString("status");
-                                String message = jsonObject.getString("message");
-                                if (status.equals("success")) {
-                                    usernameAPI = jsonObject.getString("username");
-                                    apiKey = jsonObject.getString("apiKey");
-                                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
-                                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                                    editor.putString("logged", "true");
-                                    editor.putString("username", usernameAPI);
-                                    editor.putString("apiKey", apiKey);
-                                    editor.apply();
-                                    Intent intent = new Intent(login.this, MainActivity.class);
-                                    startActivity(intent);
-                                    finish();
-                                } else {
-                                        username.setError("Error!!!");
-                                        password.setError("Error!!!");
-                                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
-                                }
-                            } catch (JSONException e) {
-                                Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
-                                throw new RuntimeException(e);
-                            }
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    progressBar.setVisibility(View.GONE);
+                    try {
+                        JSONObject jsonObject = new JSONObject(response);
+                        String status = jsonObject.getString("status");
+                        String message = jsonObject.getString("message");
+                        if (status.equals("success")) {
+                            usernameAPI = jsonObject.getString("username");
+                            apiKey = jsonObject.getString("apiKey");
+                            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putString("logged", "true");
+                            editor.putString("username", usernameAPI);
+                            editor.putString("apiKey", apiKey);
+                            editor.apply();
+                            Intent intent = new Intent(login.this, MainActivity.class);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            username.setError("Error!!!");
+                            password.setError("Error!!!");
+                            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
                         }
-                    }, new Response.ErrorListener() {
+                    } catch (JSONException e) {
+                        Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
+                        throw new RuntimeException(e);
+                    }
+                }
+            }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     progressBar.setVisibility(View.GONE);
@@ -117,6 +114,5 @@ public class login extends AppCompatActivity {
             Intent intent = new Intent(login.this, settings.class);
             startActivity(intent);
         });
-
     }
 }
