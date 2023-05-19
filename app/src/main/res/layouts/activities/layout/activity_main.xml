@@ -21,6 +21,15 @@
 
         </ImageView>
 
+        <TextView
+            android:id="@+id/main_username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Welcome "
+            android:gravity="center"
+            android:textSize="20dp" />
+
+
         <GridLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -269,7 +278,7 @@
             </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardSettings"
+                android:id="@+id/cardLogout"
                 android:layout_width="0dp"
                 android:layout_height="100dp"
                 android:layout_rowWeight="1"
@@ -288,13 +297,13 @@
                     <ImageView
                         android:layout_width="50dp"
                         android:layout_height="50dp"
-                        android:background="@drawable/settings" />
+                        android:background="@drawable/logout" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="monospace"
-                        android:text="Ρυθμήσεις"
+                        android:text="Έξοδος"
                         android:textAlignment="center"
                         android:textSize="20dp" />
 
