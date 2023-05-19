@@ -69,10 +69,10 @@ public class DBHelper extends SQLiteOpenHelper {
         createTable = "create table if not exists " + SETTINGS + "(code INTEGER PRIMARY KEY, ip TEXT, port TEXT, standalone int)";
         db.execSQL(createTable);
         ContentValues cv = new ContentValues();
-        cv.put("code",1);
+        cv.put("code", 1);
         cv.put("ip", "192.168.1.10");
-        cv.put("port","1433");
-        cv.put("standalone",1);
+        cv.put("port", "1433");
+        cv.put("standalone", 1);
         db.insert(SETTINGS, null, cv);
     }
 
@@ -103,7 +103,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("name", productModel.getName());
         cv.put("barcode", productModel.getBarcode());
         cv.put("warranty", productModel.getWarranty());
-        cv.put("sync_status",STATUS_UNSYNC);
+        cv.put("sync_status", STATUS_UNSYNC);
         long insert = db.insert(PRODUCTS, null, cv);
         return insert != -1;
     }
@@ -140,7 +140,7 @@ public class DBHelper extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
         cv.put("name", productModel.getName());
         cv.put("barcode", productModel.getBarcode());
-        cv.put("sync_status",STATUS_UPDATE);
+        cv.put("sync_status", STATUS_UPDATE);
         long update = db.update(PRODUCTS, cv, "code= ?", new String[]{String.valueOf(productModel.getCode())});
         db.close();
         return update != -1;
@@ -169,7 +169,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("mail", employeesModel.getMail());
         cv.put("work", employeesModel.getWork());
         cv.put("id", employeesModel.getId());
-        cv.put("sync_status",STATUS_UNSYNC);
+        cv.put("sync_status", STATUS_UNSYNC);
         long insert = db.insert(EMPLOYEES, null, cv);
         return insert != -1;
     }
@@ -213,7 +213,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("mail", employeesModel.getMail());
         cv.put("work", employeesModel.getWork());
         cv.put("id", employeesModel.getId());
-        cv.put("sync_status",STATUS_UPDATE);
+        cv.put("sync_status", STATUS_UPDATE);
         long update = db.update(EMPLOYEES, cv, "code= ?", new String[]{String.valueOf(employeesModel.getCode())});
         db.close();
         return update != -1;
@@ -241,7 +241,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("mobile", supplierModel.getMobile());
         cv.put("mail", supplierModel.getMail());
         cv.put("afm", supplierModel.getAfm());
-        cv.put("sync_status",STATUS_UNSYNC);
+        cv.put("sync_status", STATUS_UNSYNC);
         String createTable = "create table if not exists " + SUPPLIERS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, phone TEXT, mobile TEXT, mail TEXT, afm TEXT unique)";
         db.execSQL(createTable);
         long insert = db.insert(SUPPLIERS, null, cv);
@@ -286,7 +286,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("mobile", supplierModel.getMobile());
         cv.put("mail", supplierModel.getMail());
         cv.put("afm", supplierModel.getAfm());
-        cv.put("sync_status",STATUS_UPDATE);
+        cv.put("sync_status", STATUS_UPDATE);
         String createTable = "create table if not exists " + SUPPLIERS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, phone TEXT, mobile TEXT, mail TEXT, afm TEXT unique)";
         db.execSQL(createTable);
         long update = db.update(SUPPLIERS, cv, "code= ?", new String[]{String.valueOf(supplierModel.getCode())});
@@ -390,7 +390,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("supplier_name", supplier);
         cv.put("income_date", formatDateForSQL(date));
         cv.put("serial_number", sn);
-        cv.put("sync_status",STATUS_UNSYNC);
+        cv.put("sync_status", STATUS_UNSYNC);
         String createTable = "create table if not exists " + INCOMES + "(code INTEGER PRIMARY KEY AUTOINCREMENT, supplier_name TEXT, income_date DATE, serial_number TEXT)";
         db.execSQL(createTable);
         long insert = db.insert(INCOMES, null, cv);
@@ -416,7 +416,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("employee_code", 0);
         cv.put("charge_date", 0);
         cv.put("available", 1);
-        cv.put("sync_status",STATUS_UNSYNC);
+        cv.put("sync_status", STATUS_UNSYNC);
         String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
         db.execSQL(createTable);
         long insert = db.insert(SERIALS, null, cv);
@@ -672,13 +672,13 @@ public class DBHelper extends SQLiteOpenHelper {
         return update != -1;
     }
 
-    public void chargeAdd(String emp, String date,String serial) {
+    public void chargeAdd(String emp, String date, String serial) {
         SQLiteDatabase db = this.getReadableDatabase();
         ContentValues cv = new ContentValues();
         cv.put("employee_name", emp);
         cv.put("charge_date", formatDateForSQL(date));
         cv.put("serial_number", serial);
-        cv.put("sync_status",STATUS_UNSYNC);
+        cv.put("sync_status", STATUS_UNSYNC);
         String createTable = "create table if not exists " + CHARGE + "(code INTEGER PRIMARY KEY AUTOINCREMENT, employee_name TEXT, charge_date DATE, serial_number TEXT)";
         db.execSQL(createTable);
         long insert = db.insert(CHARGE, null, cv);
@@ -825,7 +825,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("return_date", formatDateForSQL(date));
         cv.put("serial_number", sn);
         cv.put("msg", msg);
-        cv.put("sync_status",STATUS_UNSYNC);
+        cv.put("sync_status", STATUS_UNSYNC);
         String createTable = "create table if not exists " + EMPRETURNS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, employee_name TEXT, return_date DATE, serial_number TEXT, msg TEXT)";
         db.execSQL(createTable);
         long insert = db.insert(EMPRETURNS, null, cv);
@@ -872,7 +872,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("return_date", formatDateForSQL(date));
         cv.put("serial_number", sn);
         cv.put("msg", msg);
-        cv.put("sync_status",STATUS_UNSYNC);
+        cv.put("sync_status", STATUS_UNSYNC);
         String createTable = "create table if not exists " + SUPRETURNS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, supplier_name TEXT, return_date DATE, serial_number TEXT, msg TEXT)";
         db.execSQL(createTable);
         long insert = db.insert(SUPRETURNS, null, cv);
@@ -883,7 +883,7 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put("available", available);
-        cv.put("sync_status",STATUS_UPDATE);
+        cv.put("sync_status", STATUS_UPDATE);
         long update = db.update(SERIALS, cv, "serialnumber= ?", new String[]{sn});
         db.close();
         return update != -1;
@@ -1254,11 +1254,11 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public void clean() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(SERIALS,null,null);
-        db.delete(INCOMES,null,null);
-        db.delete(CHARGE,null,null);
-        db.delete(EMPRETURNS,null,null);
-        db.delete(SUPRETURNS,null,null);
+        db.delete(SERIALS, null, null);
+        db.delete(INCOMES, null, null);
+        db.delete(CHARGE, null, null);
+        db.delete(EMPRETURNS, null, null);
+        db.delete(SUPRETURNS, null, null);
 
         //db.execSQL("delete from "+ SERIALS);
         //db.execSQL("TRUNCATE table" + TABLE_NAME);
