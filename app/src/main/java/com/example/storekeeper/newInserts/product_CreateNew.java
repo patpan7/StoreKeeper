@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AppCompatActivity;
@@ -37,7 +38,7 @@ public class product_CreateNew extends AppCompatActivity {
         savebtn = findViewById(R.id.product_insert_savebtn);
         scanbtn = findViewById(R.id.product_insert_scanbtn);
 
-        DBHelper helper = new DBHelper(product_CreateNew.this);
+        DBHelper helper = new DBHelper(this);
         code.setText(String.valueOf(helper.productNextID()));
         scanbtn.setOnClickListener(view -> scanCode());
 
@@ -47,8 +48,9 @@ public class product_CreateNew extends AppCompatActivity {
                 int isError = checkFileds();
                 if (isError == 0) {
                     product = new productModel(-1, name.getText().toString().trim(), barcode.getText().toString(), Integer.parseInt(warranty.getText().toString()));
-                    boolean success = helper.productAdd(product);
-                    if (success) {
+                    String success = helper.productAdd(product,this);
+                    Toast.makeText(this,success,Toast.LENGTH_LONG).show();
+                    if (success.equals("success")) {
                         dialog.launchSuccess(this, "");
                         clear();
                     } else dialog.launchFail(this, "");

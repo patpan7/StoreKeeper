@@ -7,11 +7,18 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.storekeeper.Models.chargeModel;
 import com.example.storekeeper.Models.employeesModel;
 import com.example.storekeeper.Models.fromEmpReturnModel;
@@ -20,11 +27,16 @@ import com.example.storekeeper.Models.productModel;
 import com.example.storekeeper.Models.supplierModel;
 import com.example.storekeeper.Models.toSupReturnModel;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DBHelper extends SQLiteOpenHelper {
 
@@ -96,16 +108,50 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     //products methods
-    public boolean productAdd(@NonNull productModel productModel) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        ContentValues cv = new ContentValues();
+    public String productAdd(productModel productModel,Context context) throws JSONException {
+//        SQLiteDatabase db = this.getReadableDatabase();
+//        ContentValues cv = new ContentValues();
+//
+//        cv.put("name", productModel.getName());
+//        cv.put("barcode", productModel.getBarcode());
+//        cv.put("warranty", productModel.getWarranty());
+//        cv.put("sync_status", STATUS_UNSYNC);
+//        long insert = db.insert(PRODUCTS, null, cv);
+//        return insert != -1;
+        final String[] returnVal = {""};
+        Handler handler = new Handler(Looper.getMainLooper());
+        String ip = getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String url = "http://" + ip + "/storekeeper/productAdd.php";
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    String status = jsonObject.getString("status");
+                    String message = jsonObject.getString("message");
+                    if (status.equals("success")){
 
-        cv.put("name", productModel.getName());
-        cv.put("barcode", productModel.getBarcode());
-        cv.put("warranty", productModel.getWarranty());
-        cv.put("sync_status", STATUS_UNSYNC);
-        long insert = db.insert(PRODUCTS, null, cv);
-        return insert != -1;
+                    }
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("name", productModel.getName());
+                paramV.put("barcode", productModel.getBarcode());
+                paramV.put("warranty", String.valueOf(productModel.getWarranty()));
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
+        return returnVal[0];
     }
 
     public ArrayList<productModel> productsGetAll() {
