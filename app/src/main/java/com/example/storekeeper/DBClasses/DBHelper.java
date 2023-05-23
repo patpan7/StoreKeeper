@@ -7,8 +7,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -17,6 +15,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.storekeeper.Models.chargeModel;
@@ -26,6 +25,7 @@ import com.example.storekeeper.Models.incomeModel;
 import com.example.storekeeper.Models.productModel;
 import com.example.storekeeper.Models.supplierModel;
 import com.example.storekeeper.Models.toSupReturnModel;
+import com.example.storekeeper.alertDialogs;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -55,6 +55,8 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String EMPRETURNS = "emp_returns";
     private static final String SUPRETURNS = "sup_returns";
     private static final String SETTINGS = "settings";
+    alertDialogs dialog;
+
 
     public DBHelper(@Nullable Context context) {
         super(context, "storekeeper.db", null, DATABASE_VERSION);
@@ -108,7 +110,13 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     //products methods
-    public String productAdd(productModel productModel,Context context) throws JSONException {
+    public interface MyCallback {
+        void onSuccess(String response);
+
+        void onError(String error);
+    }
+
+    public void productAdd(productModel productModel, Context context, MyCallback callback) throws JSONException {
 //        SQLiteDatabase db = this.getReadableDatabase();
 //        ContentValues cv = new ContentValues();
 //
@@ -118,8 +126,6 @@ public class DBHelper extends SQLiteOpenHelper {
 //        cv.put("sync_status", STATUS_UNSYNC);
 //        long insert = db.insert(PRODUCTS, null, cv);
 //        return insert != -1;
-        final String[] returnVal = {""};
-        Handler handler = new Handler(Looper.getMainLooper());
         String ip = getSettingsIP();
         RequestQueue queue = Volley.newRequestQueue(context);
         String url = "http://" + ip + "/storekeeper/productAdd.php";
@@ -130,16 +136,18 @@ public class DBHelper extends SQLiteOpenHelper {
                     JSONObject jsonObject = new JSONObject(response);
                     String status = jsonObject.getString("status");
                     String message = jsonObject.getString("message");
-                    if (status.equals("success")){
-
-                    }
+                    if (status.equals("success")) {
+                        callback.onSuccess(message);
+                    } else
+                        callback.onError(message);
                 } catch (JSONException e) {
-                    throw new RuntimeException(e);
+                    callback.onError(e.toString());
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                callback.onError("error");
             }
         }) {
             protected Map<String, String> getParams() {
@@ -151,7 +159,6 @@ public class DBHelper extends SQLiteOpenHelper {
             }
         };
         queue.add(stringRequest);
-        return returnVal[0];
     }
 
     public ArrayList<productModel> productsGetAll() {
@@ -192,15 +199,39 @@ public class DBHelper extends SQLiteOpenHelper {
         return update != -1;
     }
 
-    public int productNextID() {
-        int nextID = 0;
-        String sql = "select seq from sqlite_sequence WHERE name = '" + PRODUCTS + "'";
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst()) nextID = cursor.getInt(0);
-        cursor.close();
-        db.close();
-        return nextID + 1;
+    public int productNextID(Context context) {
+        final int[] nextID = {0};
+//        String sql = "select seq from sqlite_sequence WHERE name = '" + PRODUCTS + "'";
+//        SQLiteDatabase db = this.getReadableDatabase();
+//        Cursor cursor = db.rawQuery(sql, null);
+//        if (cursor.moveToFirst()) nextID = cursor.getInt(0);
+//        cursor.close();
+//        db.close();
+//        return nextID + 1;
+        String ip = getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String url = "http://" + ip + "/storekeeper/productNextID.php";
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            String status = response.getString("status");
+                            int message = response.getInt("message");
+                            nextID[0] = message;
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        });
+        queue.add(request);
+        return nextID[0];
     }
     //-------------------------------------------------------------------
 

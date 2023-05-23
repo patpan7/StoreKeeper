@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AppCompatActivity;
@@ -39,7 +38,7 @@ public class product_CreateNew extends AppCompatActivity {
         scanbtn = findViewById(R.id.product_insert_scanbtn);
 
         DBHelper helper = new DBHelper(this);
-        code.setText(String.valueOf(helper.productNextID()));
+        code.setText(String.valueOf(helper.productNextID(this)));
         scanbtn.setOnClickListener(view -> scanCode());
 
         savebtn.setOnClickListener(view -> {
@@ -48,12 +47,20 @@ public class product_CreateNew extends AppCompatActivity {
                 int isError = checkFileds();
                 if (isError == 0) {
                     product = new productModel(-1, name.getText().toString().trim(), barcode.getText().toString(), Integer.parseInt(warranty.getText().toString()));
-                    String success = helper.productAdd(product,this);
-                    Toast.makeText(this,success,Toast.LENGTH_LONG).show();
-                    if (success.equals("success")) {
-                        dialog.launchSuccess(this, "");
-                        clear();
-                    } else dialog.launchFail(this, "");
+                    helper.productAdd(product, this, new DBHelper.MyCallback() {
+                        @Override
+                        public void onSuccess(String response) {
+                            // Εδώ μπορείτε να χειριστείτε την επιτυχή απάντηση (response)
+                            dialog.launchSuccess(product_CreateNew.this, response);
+                            clear();
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            // Εδώ μπορείτε να χειριστείτε το σφάλμα (error)
+                            dialog.launchFail(product_CreateNew.this, error);
+                        }
+                    });
                 } else {
                     dialog.launchFail(this, "Τα απαιτούμενα πεδία δεν είναι συμπληρωμένα");
                 }
@@ -67,7 +74,7 @@ public class product_CreateNew extends AppCompatActivity {
 
     private void clear() {
         DBHelper helper = new DBHelper(product_CreateNew.this);
-        code.setText(String.valueOf(helper.productNextID()));
+        code.setText(String.valueOf(helper.productNextID(this)));
         name.setText("");
         name.clearFocus();
         barcode.setText("");
