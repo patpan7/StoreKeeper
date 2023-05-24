@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
+import android.widget.EditText;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -26,7 +27,9 @@ import com.example.storekeeper.Models.productModel;
 import com.example.storekeeper.Models.supplierModel;
 import com.example.storekeeper.Models.toSupReturnModel;
 import com.example.storekeeper.alertDialogs;
+import com.example.storekeeper.products;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -138,8 +141,7 @@ public class DBHelper extends SQLiteOpenHelper {
                     String message = jsonObject.getString("message");
                     if (status.equals("success")) {
                         callback.onSuccess(message);
-                    } else
-                        callback.onError(message);
+                    } else callback.onError(message);
                 } catch (JSONException e) {
                     callback.onError(e.toString());
                 }
@@ -161,31 +163,62 @@ public class DBHelper extends SQLiteOpenHelper {
         queue.add(stringRequest);
     }
 
-    public ArrayList<productModel> productsGetAll() {
+    public void productsGetAll(Context context, ArrayList<productModel> dbProducts) {
 
-        ArrayList<productModel> returnArray = new ArrayList<>();
+//        ArrayList<productModel> returnArray = new ArrayList<>();
+//
+//        String sql = "select * from " + PRODUCTS;
+//        SQLiteDatabase db = this.getReadableDatabase();
+//        String createTable = "create table if not exists " + PRODUCTS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, barcode TEXT unique, warranty int)";
+//        db.execSQL(createTable);
+//        Cursor cursor = db.rawQuery(sql, null);
+//
+//        if (cursor.moveToFirst()) {
+//            do {
+//                int code = cursor.getInt(0);
+//                String name = cursor.getString(1);
+//                String barcode = cursor.getString(2);
+//                int warranty = cursor.getInt(3);
+//
+//                productModel newProduct = new productModel(code, name, barcode, warranty);
+//                returnArray.add(newProduct);
+//            } while (cursor.moveToNext());
+//
+//        }
+//        cursor.close();
+//        db.close();
+        String ip = getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String url = "http://" + ip + "/storekeeper/productsGetAll.php";
 
-        String sql = "select * from " + PRODUCTS;
-        SQLiteDatabase db = this.getReadableDatabase();
-        String createTable = "create table if not exists " + PRODUCTS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, barcode TEXT unique, warranty int)";
-        db.execSQL(createTable);
-        Cursor cursor = db.rawQuery(sql, null);
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
 
-        if (cursor.moveToFirst()) {
-            do {
-                int code = cursor.getInt(0);
-                String name = cursor.getString(1);
-                String barcode = cursor.getString(2);
-                int warranty = cursor.getInt(3);
-
-                productModel newProduct = new productModel(code, name, barcode, warranty);
-                returnArray.add(newProduct);
-            } while (cursor.moveToNext());
-
-        }
-        cursor.close();
-        db.close();
-        return returnArray;
+                    String status = response.getString("status");
+                    JSONArray message = response.getJSONArray("message");
+                    if (status.equals("success"))
+                        for (int i = 0; i < message.length(); i++) {
+                            JSONObject productObject = message.getJSONObject(i);
+                            int code = productObject.getInt("code");
+                            String name = productObject.getString("name");
+                            String barcode = productObject.getString("barcode");
+                            int warranty = productObject.getInt("warranty");
+                            productModel newProduct = new productModel(code, name, barcode, warranty);
+                            dbProducts.add(newProduct);
+                        }
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        });
+        queue.add(request);
     }
 
     public boolean productUpdate(productModel productModel) {
@@ -199,8 +232,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return update != -1;
     }
 
-    public int productNextID(Context context) {
-        final int[] nextID = {0};
+    public void productNextID(Context context, EditText code) {
 //        String sql = "select seq from sqlite_sequence WHERE name = '" + PRODUCTS + "'";
 //        SQLiteDatabase db = this.getReadableDatabase();
 //        Cursor cursor = db.rawQuery(sql, null);
@@ -212,26 +244,25 @@ public class DBHelper extends SQLiteOpenHelper {
         RequestQueue queue = Volley.newRequestQueue(context);
         String url = "http://" + ip + "/storekeeper/productNextID.php";
 
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            String status = response.getString("status");
-                            int message = response.getInt("message");
-                            nextID[0] = message;
-                        } catch (JSONException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                }, new Response.ErrorListener() {
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    String status = response.getString("status");
+                    int message = response.getInt("message");
+                    if (status.equals("success")) code.setText(message + "");
+                    else code.setText("NULL");
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 error.printStackTrace();
             }
         });
         queue.add(request);
-        return nextID[0];
     }
     //-------------------------------------------------------------------
 
@@ -529,8 +560,7 @@ public class DBHelper extends SQLiteOpenHelper {
         String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
         db.execSQL(createTable);
         Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst())
-            isOld = true;
+        if (cursor.moveToFirst()) isOld = true;
 
         cursor.close();
         db.close();
@@ -648,8 +678,7 @@ public class DBHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) employeeName = cursor.getString(0);
         cursor.close();
         db.close();
-        if (employeeName.equals("0"))
-            employeeName = "";
+        if (employeeName.equals("0")) employeeName = "";
         return employeeName;
     }
 
@@ -658,9 +687,8 @@ public class DBHelper extends SQLiteOpenHelper {
         String sql = "select charge_date from " + SERIALS + " WHERE serialnumber = '" + sn + "'";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst())
-            if (!cursor.getString(0).equals("0"))
-                charge_date = formatDateForAndroid(cursor.getString(0));
+        if (cursor.moveToFirst()) if (!cursor.getString(0).equals("0"))
+            charge_date = formatDateForAndroid(cursor.getString(0));
         cursor.close();
         db.close();
         return charge_date;
@@ -729,9 +757,7 @@ public class DBHelper extends SQLiteOpenHelper {
         String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
         db.execSQL(createTable);
         Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst())
-            if (cursor.getInt(0) == 1)
-                available = true;
+        if (cursor.moveToFirst()) if (cursor.getInt(0) == 1) available = true;
 
         cursor.close();
         db.close();
@@ -885,9 +911,7 @@ public class DBHelper extends SQLiteOpenHelper {
         String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
         db.execSQL(createTable);
         Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst())
-            if (cursor.getInt(0) == emp_code)
-                isCharged = true;
+        if (cursor.moveToFirst()) if (cursor.getInt(0) == emp_code) isCharged = true;
 
         cursor.close();
         db.close();
@@ -915,9 +939,7 @@ public class DBHelper extends SQLiteOpenHelper {
         String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
         db.execSQL(createTable);
         Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst())
-            if (cursor.getInt(0) != 0)
-                isCharged = true;
+        if (cursor.moveToFirst()) if (cursor.getInt(0) != 0) isCharged = true;
 
         cursor.close();
         db.close();
@@ -932,9 +954,7 @@ public class DBHelper extends SQLiteOpenHelper {
         String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
         db.execSQL(createTable);
         Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst())
-            if (cursor.getInt(0) == sup_code)
-                isFromSup = true;
+        if (cursor.moveToFirst()) if (cursor.getInt(0) == sup_code) isFromSup = true;
 
         cursor.close();
         db.close();
@@ -1043,9 +1063,7 @@ public class DBHelper extends SQLiteOpenHelper {
         String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
         db.execSQL(createTable);
         Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst())
-            if (cursor.getInt(1) >= 0)
-                isOld = true;
+        if (cursor.moveToFirst()) if (cursor.getInt(1) >= 0) isOld = true;
 
         cursor.close();
         db.close();
@@ -1059,9 +1077,7 @@ public class DBHelper extends SQLiteOpenHelper {
         String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
         db.execSQL(createTable);
         Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst())
-            if (cursor.getInt(1) == -1)
-                isReturn = true;
+        if (cursor.moveToFirst()) if (cursor.getInt(1) == -1) isReturn = true;
 
         cursor.close();
         db.close();
@@ -1075,9 +1091,7 @@ public class DBHelper extends SQLiteOpenHelper {
         String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
         db.execSQL(createTable);
         Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst())
-            if (cursor.getInt(0) == prod_code)
-                isThisProd = true;
+        if (cursor.moveToFirst()) if (cursor.getInt(0) == prod_code) isThisProd = true;
 
         cursor.close();
         db.close();
@@ -1091,8 +1105,7 @@ public class DBHelper extends SQLiteOpenHelper {
         String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
         db.execSQL(createTable);
         Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst())
-            sum = cursor.getInt(0);
+        if (cursor.moveToFirst()) sum = cursor.getInt(0);
         cursor.close();
         db.close();
         return sum;
@@ -1105,8 +1118,7 @@ public class DBHelper extends SQLiteOpenHelper {
         String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
         db.execSQL(createTable);
         Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst())
-            sum = cursor.getInt(0);
+        if (cursor.moveToFirst()) sum = cursor.getInt(0);
         cursor.close();
         db.close();
         return sum;
@@ -1119,8 +1131,7 @@ public class DBHelper extends SQLiteOpenHelper {
         String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
         db.execSQL(createTable);
         Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst())
-            sum = cursor.getInt(0);
+        if (cursor.moveToFirst()) sum = cursor.getInt(0);
         cursor.close();
         db.close();
         return sum;
@@ -1190,8 +1201,7 @@ public class DBHelper extends SQLiteOpenHelper {
         String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
         db.execSQL(createTable);
         Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst())
-            sum = cursor.getInt(0);
+        if (cursor.moveToFirst()) sum = cursor.getInt(0);
         cursor.close();
         db.close();
         return sum;
@@ -1238,8 +1248,7 @@ public class DBHelper extends SQLiteOpenHelper {
         String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
         db.execSQL(createTable);
         Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst())
-            sum = cursor.getInt(0);
+        if (cursor.moveToFirst()) sum = cursor.getInt(0);
         cursor.close();
         db.close();
         return sum;
@@ -1351,8 +1360,7 @@ public class DBHelper extends SQLiteOpenHelper {
         String sql = "select ip from " + SETTINGS + " WHERE code = 1";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst())
-            ip = cursor.getString(0);
+        if (cursor.moveToFirst()) ip = cursor.getString(0);
         cursor.close();
         db.close();
         return ip;

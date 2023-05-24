@@ -101,7 +101,8 @@ public class products extends AppCompatActivity implements products_RVInterface 
     }
 
     private void setUpProductModels() {
-        ArrayList<productModel> dbProducts = helper.productsGetAll();
+        ArrayList<productModel> dbProducts = new ArrayList<productModel>();
+        helper.productsGetAll(products.this,dbProducts);
         productModels.clear();
         productModels.addAll(dbProducts);
         adapter = new products_RVAdapter(this, dbProducts, this);

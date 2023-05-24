@@ -38,7 +38,8 @@ public class product_CreateNew extends AppCompatActivity {
         scanbtn = findViewById(R.id.product_insert_scanbtn);
 
         DBHelper helper = new DBHelper(this);
-        code.setText(String.valueOf(helper.productNextID(this)));
+        helper.productNextID(this,code);
+        //code.setText(String.valueOf(helper.productNextID(this)));
         scanbtn.setOnClickListener(view -> scanCode());
 
         savebtn.setOnClickListener(view -> {
@@ -74,7 +75,7 @@ public class product_CreateNew extends AppCompatActivity {
 
     private void clear() {
         DBHelper helper = new DBHelper(product_CreateNew.this);
-        code.setText(String.valueOf(helper.productNextID(this)));
+        helper.productNextID(this,code);
         name.setText("");
         name.clearFocus();
         barcode.setText("");
@@ -99,6 +100,10 @@ public class product_CreateNew extends AppCompatActivity {
 
     int checkFileds() {
         int error = 0;
+        if (code.getText().toString().equals("NULL")) {
+            code.setError("Error!!!");
+            error += 1;
+        }
         if (name.getText().toString().equals("")) {
             name.setError("Error!!!");
             error += 1;

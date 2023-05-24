@@ -3,6 +3,7 @@ package com.example.storekeeper;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -89,7 +90,7 @@ public class login extends AppCompatActivity {
                         }
                     } catch (JSONException e) {
                         Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
-                        throw new RuntimeException(e);
+                        //throw new RuntimeException(e);
                     }
                 }
             }, new Response.ErrorListener() {
@@ -106,6 +107,7 @@ public class login extends AppCompatActivity {
                     return paramV;
                 }
             };
+            Log.e("Tag",stringRequest.toString());
             queue.add(stringRequest);
         });
 
