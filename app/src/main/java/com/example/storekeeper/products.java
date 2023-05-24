@@ -13,6 +13,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -23,6 +24,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.storekeeper.Adapters.products_RVAdapter;
 import com.example.storekeeper.DBClasses.DBHelper;
 import com.example.storekeeper.Interfaces.products_RVInterface;
@@ -30,6 +37,10 @@ import com.example.storekeeper.Models.productModel;
 import com.example.storekeeper.newInserts.product_CreateNew;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -48,6 +59,7 @@ public class products extends AppCompatActivity implements products_RVInterface 
     ImageButton available_plus, charged_plus;
     LinearLayout container;
     ArrayList<productModel> productModels = new ArrayList<>();
+    ArrayList<productModel> dbProducts = new ArrayList<>();
     alertDialogs dialogAlert;
     DBHelper helper = new DBHelper(products.this);
 
@@ -101,10 +113,49 @@ public class products extends AppCompatActivity implements products_RVInterface 
     }
 
     private void setUpProductModels() {
-        ArrayList<productModel> dbProducts = new ArrayList<productModel>();
-        helper.productsGetAll(products.this,dbProducts);
+//        ProgressDialog progress = new ProgressDialog(this);
+//        progress.setTitle("Loading");
+//        progress.setMessage("Wait while loading...");
+//        progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
+//        progress.show();
+
+        dbProducts.clear();
+        String ip = helper.getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = "http://" + ip + "/storekeeper/productsGetAll.php";
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+
+                    String status = response.getString("status");
+                    JSONArray message = response.getJSONArray("message");
+                    if (status.equals("success"))
+                        for (int i = 0; i < message.length(); i++) {
+                            JSONObject productObject = message.getJSONObject(i);
+                            int code = productObject.getInt("code");
+                            String name = productObject.getString("name");
+                            String barcode = productObject.getString("barcode");
+                            int warranty = productObject.getInt("warranty");
+                            productModel newProduct = new productModel(code, name, barcode, warranty);
+                            dbProducts.add(newProduct);
+                        }
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        });
+        queue.add(request);
         productModels.clear();
         productModels.addAll(dbProducts);
+        Toast.makeText(this,productModels.size()+"",Toast.LENGTH_LONG).show();
         adapter = new products_RVAdapter(this, dbProducts, this);
         recyclerView.setAdapter(adapter);
     }
@@ -191,7 +242,7 @@ public class products extends AppCompatActivity implements products_RVInterface 
                         final View addView = layoutInflater.inflate(R.layout.income_popup_row, null);
                         TextView employeeName = addView.findViewById(R.id.income_popup_row_product);
                         LinearLayout containerSN = addView.findViewById(R.id.containerSerials);
-                        employeeName.setText(employees.get(i).toString());
+                        employeeName.setText(employees.get(i));
                         int emp_code = helper.employeeGetCode(employees.get(i));
                         ArrayList<String> serials = helper.serialsGetFromEmpProd(productModels.get(pos).getCode(), emp_code);
                         for (int j = 0; j < serials.size(); j++) {

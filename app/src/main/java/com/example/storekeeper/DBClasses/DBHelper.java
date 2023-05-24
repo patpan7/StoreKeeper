@@ -27,7 +27,6 @@ import com.example.storekeeper.Models.productModel;
 import com.example.storekeeper.Models.supplierModel;
 import com.example.storekeeper.Models.toSupReturnModel;
 import com.example.storekeeper.alertDialogs;
-import com.example.storekeeper.products;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,6 +39,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 public class DBHelper extends SQLiteOpenHelper {
 
@@ -163,7 +163,7 @@ public class DBHelper extends SQLiteOpenHelper {
         queue.add(stringRequest);
     }
 
-    public void productsGetAll(Context context, ArrayList<productModel> dbProducts) {
+    public ArrayList<productModel> productsGetAll(Context context, MyCallback myCallback) throws ExecutionException, InterruptedException {
 
 //        ArrayList<productModel> returnArray = new ArrayList<>();
 //
@@ -187,39 +187,45 @@ public class DBHelper extends SQLiteOpenHelper {
 //        }
 //        cursor.close();
 //        db.close();
-        String ip = getSettingsIP();
-        RequestQueue queue = Volley.newRequestQueue(context);
-        String url = "http://" + ip + "/storekeeper/productsGetAll.php";
-
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-
-                    String status = response.getString("status");
-                    JSONArray message = response.getJSONArray("message");
-                    if (status.equals("success"))
-                        for (int i = 0; i < message.length(); i++) {
-                            JSONObject productObject = message.getJSONObject(i);
-                            int code = productObject.getInt("code");
-                            String name = productObject.getString("name");
-                            String barcode = productObject.getString("barcode");
-                            int warranty = productObject.getInt("warranty");
-                            productModel newProduct = new productModel(code, name, barcode, warranty);
-                            dbProducts.add(newProduct);
-                        }
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-            }
-        });
-        queue.add(request);
+        //ArrayList<productModel> returnArray = new ArrayList<>();
+        return null;
     }
+
+    private ArrayList<productModel> convertResponseToList(String response) {
+        ArrayList<productModel> productList = new ArrayList<>();
+
+        try {
+            // Δημιουργία ενός JSONObject από το JSON String
+            JSONObject jsonObject = new JSONObject(response);
+
+            // Ανάκτηση του JSONArray με όνομα "message"
+            JSONArray jsonArray = jsonObject.getJSONArray("message");
+
+            // Επανάληψη μέσω των αντικειμένων του JSONArray
+            for (int i = 0; i < jsonArray.length(); i++) {
+                // Ανάκτηση του τρέχοντος JSONObject
+                JSONObject productObject = jsonArray.getJSONObject(i);
+
+                // Ανάκτηση των δεδομένων του προϊόντος
+                int code = Integer.parseInt(productObject.getString("code"));
+                String name = productObject.getString("name");
+                String barcode = productObject.getString("barcode");
+                int warranty = Integer.parseInt(productObject.getString("warranty"));
+
+                // Δημιουργία του αντικειμένου Product
+                productModel product = new productModel(code, name, barcode, warranty);
+
+                // Προσθήκη του αντικειμένου Product στη λίστα
+                productList.add(product);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return productList;
+    }
+
 
     public boolean productUpdate(productModel productModel) {
         SQLiteDatabase db = this.getWritableDatabase();
