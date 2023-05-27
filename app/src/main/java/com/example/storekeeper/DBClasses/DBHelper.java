@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
+import android.util.Log;
 import android.widget.EditText;
 
 import androidx.annotation.Nullable;
@@ -28,7 +29,6 @@ import com.example.storekeeper.Models.supplierModel;
 import com.example.storekeeper.Models.toSupReturnModel;
 import com.example.storekeeper.alertDialogs;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -39,7 +39,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 public class DBHelper extends SQLiteOpenHelper {
 
@@ -163,79 +162,48 @@ public class DBHelper extends SQLiteOpenHelper {
         queue.add(stringRequest);
     }
 
-    public ArrayList<productModel> productsGetAll(Context context, MyCallback myCallback) throws ExecutionException, InterruptedException {
-
-//        ArrayList<productModel> returnArray = new ArrayList<>();
-//
-//        String sql = "select * from " + PRODUCTS;
-//        SQLiteDatabase db = this.getReadableDatabase();
-//        String createTable = "create table if not exists " + PRODUCTS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, barcode TEXT unique, warranty int)";
-//        db.execSQL(createTable);
-//        Cursor cursor = db.rawQuery(sql, null);
-//
-//        if (cursor.moveToFirst()) {
-//            do {
-//                int code = cursor.getInt(0);
-//                String name = cursor.getString(1);
-//                String barcode = cursor.getString(2);
-//                int warranty = cursor.getInt(3);
-//
-//                productModel newProduct = new productModel(code, name, barcode, warranty);
-//                returnArray.add(newProduct);
-//            } while (cursor.moveToNext());
-//
-//        }
-//        cursor.close();
+    public void productUpdate(productModel productModel, Context context, MyCallback callback) throws JSONException {
+//        SQLiteDatabase db = this.getWritableDatabase();
+//        ContentValues cv = new ContentValues();
+//        cv.put("name", productModel.getName());
+//        cv.put("barcode", productModel.getBarcode());
+//        cv.put("sync_status", STATUS_UPDATE);
+//        long update = db.update(PRODUCTS, cv, "code= ?", new String[]{String.valueOf(productModel.getCode())});
 //        db.close();
-        //ArrayList<productModel> returnArray = new ArrayList<>();
-        return null;
-    }
-
-    private ArrayList<productModel> convertResponseToList(String response) {
-        ArrayList<productModel> productList = new ArrayList<>();
-
-        try {
-            // Δημιουργία ενός JSONObject από το JSON String
-            JSONObject jsonObject = new JSONObject(response);
-
-            // Ανάκτηση του JSONArray με όνομα "message"
-            JSONArray jsonArray = jsonObject.getJSONArray("message");
-
-            // Επανάληψη μέσω των αντικειμένων του JSONArray
-            for (int i = 0; i < jsonArray.length(); i++) {
-                // Ανάκτηση του τρέχοντος JSONObject
-                JSONObject productObject = jsonArray.getJSONObject(i);
-
-                // Ανάκτηση των δεδομένων του προϊόντος
-                int code = Integer.parseInt(productObject.getString("code"));
-                String name = productObject.getString("name");
-                String barcode = productObject.getString("barcode");
-                int warranty = Integer.parseInt(productObject.getString("warranty"));
-
-                // Δημιουργία του αντικειμένου Product
-                productModel product = new productModel(code, name, barcode, warranty);
-
-                // Προσθήκη του αντικειμένου Product στη λίστα
-                productList.add(product);
+//        return update != -1;
+        String ip = getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String url = "http://" + ip + "/storekeeper/productUpdate.php";
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    String status = jsonObject.getString("status");
+                    String message = jsonObject.getString("message");
+                    if (status.equals("success")) {
+                        callback.onSuccess(message);
+                    } else callback.onError(message);
+                } catch (JSONException e) {
+                    callback.onError(e.toString());
+                }
             }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return productList;
-    }
-
-
-    public boolean productUpdate(productModel productModel) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues cv = new ContentValues();
-        cv.put("name", productModel.getName());
-        cv.put("barcode", productModel.getBarcode());
-        cv.put("sync_status", STATUS_UPDATE);
-        long update = db.update(PRODUCTS, cv, "code= ?", new String[]{String.valueOf(productModel.getCode())});
-        db.close();
-        return update != -1;
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                callback.onError("error");
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("code", productModel.getCode() + "");
+                paramV.put("name", productModel.getName());
+                paramV.put("barcode", productModel.getBarcode());
+                paramV.put("warranty", String.valueOf(productModel.getWarranty()));
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
     }
 
     public void productNextID(Context context, EditText code) {
@@ -256,10 +224,10 @@ public class DBHelper extends SQLiteOpenHelper {
                 try {
                     String status = response.getString("status");
                     int message = response.getInt("message");
-                    if (status.equals("success")) code.setText(message + "");
+                    if (status.equals("success")) code.setText(String.valueOf(message));
                     else code.setText("NULL");
                 } catch (JSONException e) {
-                    throw new RuntimeException(e);
+                    Log.e(getClass().toString(), e.toString());
                 }
             }
         }, new Response.ErrorListener() {
@@ -269,6 +237,75 @@ public class DBHelper extends SQLiteOpenHelper {
             }
         });
         queue.add(request);
+    }
+
+    public void productsGetIncomeSum(Context context, int code, EditText incomeSum) {
+//        int sum = 0;
+//        String sql = "select count(serialnumber) from " + SERIALS + " WHERE prod_code = " + code + " and available != -1";
+//        SQLiteDatabase db = this.getReadableDatabase();
+//        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
+//        db.execSQL(createTable);
+//        Cursor cursor = db.rawQuery(sql, null);
+//        if (cursor.moveToFirst()) sum = cursor.getInt(0);
+//        cursor.close();
+//        db.close();
+//        return sum;
+        String ip = getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String url = "http://" + ip + "/storekeeper/productsGetIncomeSum.php";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    String status = jsonObject.getString("status");
+                    int message = jsonObject.getInt("message");
+                    if (status.equals("success")) incomeSum.setText(String.valueOf(message));
+                    else incomeSum.setText("NULL");
+                } catch (JSONException e) {
+                    Log.e(getClass().toString(), e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //callback.onError("error");
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("code", code + "");
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
+    }
+
+    public int productsGetAvailable(int code) {
+        int sum = 0;
+        String sql = "select count(serialnumber) from " + SERIALS + " WHERE prod_code = " + code + " and available = 1";
+        SQLiteDatabase db = this.getReadableDatabase();
+        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
+        db.execSQL(createTable);
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst()) sum = cursor.getInt(0);
+        cursor.close();
+        db.close();
+        return sum;
+    }
+
+    public int productsGetCharged(int code) {
+        int sum = 0;
+        String sql = "select count(serialnumber) from " + SERIALS + " WHERE prod_code = " + code + " and available = 0";
+        SQLiteDatabase db = this.getReadableDatabase();
+        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
+        db.execSQL(createTable);
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst()) sum = cursor.getInt(0);
+        cursor.close();
+        db.close();
+        return sum;
     }
     //-------------------------------------------------------------------
 
@@ -1102,45 +1139,6 @@ public class DBHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return isThisProd;
-    }
-
-    public int productsGetIncomeSum(int code) {
-        int sum = 0;
-        String sql = "select count(serialnumber) from " + SERIALS + " WHERE prod_code = " + code + " and available != -1";
-        SQLiteDatabase db = this.getReadableDatabase();
-        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
-        db.execSQL(createTable);
-        Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst()) sum = cursor.getInt(0);
-        cursor.close();
-        db.close();
-        return sum;
-    }
-
-    public int productsGetAvailable(int code) {
-        int sum = 0;
-        String sql = "select count(serialnumber) from " + SERIALS + " WHERE prod_code = " + code + " and available = 1";
-        SQLiteDatabase db = this.getReadableDatabase();
-        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
-        db.execSQL(createTable);
-        Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst()) sum = cursor.getInt(0);
-        cursor.close();
-        db.close();
-        return sum;
-    }
-
-    public int productsGetCharged(int code) {
-        int sum = 0;
-        String sql = "select count(serialnumber) from " + SERIALS + " WHERE prod_code = " + code + " and available = 0";
-        SQLiteDatabase db = this.getReadableDatabase();
-        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
-        db.execSQL(createTable);
-        Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst()) sum = cursor.getInt(0);
-        cursor.close();
-        db.close();
-        return sum;
     }
 
     public ArrayList<String> productGetAllAvailableSN(int code) {

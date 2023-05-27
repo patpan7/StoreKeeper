@@ -2,6 +2,7 @@ package com.example.storekeeper.newInserts;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
@@ -66,7 +67,7 @@ public class product_CreateNew extends AppCompatActivity {
                     dialog.launchFail(this, "Τα απαιτούμενα πεδία δεν είναι συμπληρωμένα");
                 }
             } catch (Exception e) {
-                //product = new productModel(-1,"error","error",0);
+                Log.e(getClass().toString(),e.toString());
             }
 
 

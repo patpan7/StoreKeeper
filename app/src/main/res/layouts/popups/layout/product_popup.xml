@@ -100,6 +100,25 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/product_popup_warranty"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:hint="Μήνες εγγύησης"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/product_popup_barcode">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/product_popup_warranty1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:enabled="false"
+                        android:inputType="number" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/product_popup_incomesum"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
@@ -108,7 +127,7 @@
                     android:hint="Σύνολο εισαγωγών"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/product_popup_barcode">
+                    app:layout_constraintTop_toBottomOf="@+id/product_popup_warranty">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/product_popup_incomesum1"
