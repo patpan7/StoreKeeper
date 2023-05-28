@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -24,6 +25,12 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.storekeeper.DBClasses.DBHelper;
 import com.example.storekeeper.R;
 import com.example.storekeeper.alertDialogs;
@@ -32,6 +39,10 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -49,6 +60,7 @@ public class income_CreateNew extends AppCompatActivity {
     DBHelper helper = new DBHelper(income_CreateNew.this);
     ArrayList<String> serial_numbers;
     ArrayList<String> serial_numbers_return;
+    ArrayList<String> supplierList,productList;
     alertDialogs dialog;
 
 
@@ -76,10 +88,7 @@ public class income_CreateNew extends AppCompatActivity {
         serial_numbers_return = new ArrayList<>();
         income_suppliers1 = findViewById(R.id.income_insert_supplier);
         income_suppliers = findViewById(R.id.income_insert_supplier1);
-        ArrayList<String> supplierList = helper.suppliersGetAllNames();
-        income_suppliers.setAdapter(new ArrayAdapter<>(income_CreateNew.this, R.layout.dropdown_row, supplierList));
-        income_suppliers.setThreshold(1);
-
+        suppliersGetAllNames();
 
         income_date = findViewById(R.id.income_insert_date1);
         Calendar calendar = Calendar.getInstance(Locale.ROOT);
@@ -97,9 +106,8 @@ public class income_CreateNew extends AppCompatActivity {
 
         income_products1 = findViewById(R.id.income_insert_product);
         income_products = findViewById(R.id.income_insert_product1);
-        ArrayList<String> productList = helper.productsGetAllNames();
-        income_products.setAdapter(new ArrayAdapter<>(income_CreateNew.this, R.layout.dropdown_row, productList));
-        income_products.setThreshold(1);
+        productsGetAllNames();
+
         income_products.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -210,6 +218,79 @@ public class income_CreateNew extends AppCompatActivity {
 
 
         });
+    }
+
+    private void suppliersGetAllNames() {
+        supplierList = new ArrayList<>();
+        String ip = helper.getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(income_CreateNew.this);
+        String url = "http://" + ip + "/storekeeper/suppliers/suppliersGetAll.php";
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+
+                    String status = response.getString("status");
+                    JSONArray message = response.getJSONArray("message");
+                    if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
+                        JSONObject productObject = message.getJSONObject(i);
+                        String name = productObject.getString("name");
+                        supplierList.add(name);
+                    }
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(income_CreateNew.this,
+                            R.layout.dropdown_row, supplierList);
+
+                    // Σύνδεση του ArrayAdapter με το AutoCompleteTextView
+                    income_suppliers.setAdapter(adapter);
+                } catch (JSONException e) {
+                    Log.e(getClass().toString(), e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        });
+        queue.add(request);
+    }
+
+    private void productsGetAllNames() {
+        productList = new ArrayList<>();
+        String ip = helper.getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(income_CreateNew.this);
+        String url = "http://" + ip + "/storekeeper/products/productsGetAll.php";
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+
+                    String status = response.getString("status");
+                    JSONArray message = response.getJSONArray("message");
+                    if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
+                        JSONObject productObject = message.getJSONObject(i);
+                        String name = productObject.getString("name");
+                        productList.add(name);
+                    }
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(income_CreateNew.this,
+                            R.layout.dropdown_row, productList);
+
+                    // Σύνδεση του ArrayAdapter με το AutoCompleteTextView
+                    income_products.setAdapter(adapter);
+                    income_products.setThreshold(1);
+                } catch (JSONException e) {
+                    Log.e(getClass().toString(), e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        });
+        queue.add(request);
     }
 
     private int checkFields() {
