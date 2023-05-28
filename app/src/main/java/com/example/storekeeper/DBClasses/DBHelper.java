@@ -282,30 +282,109 @@ public class DBHelper extends SQLiteOpenHelper {
         queue.add(stringRequest);
     }
 
-    public int productsGetAvailable(int code) {
-        int sum = 0;
-        String sql = "select count(serialnumber) from " + SERIALS + " WHERE prod_code = " + code + " and available = 1";
-        SQLiteDatabase db = this.getReadableDatabase();
-        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
-        db.execSQL(createTable);
-        Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst()) sum = cursor.getInt(0);
-        cursor.close();
-        db.close();
-        return sum;
+    public void productsGetAvailable(Context context, int code, EditText available) {
+//        int sum = 0;
+//        String sql = "select count(serialnumber) from " + SERIALS + " WHERE prod_code = " + code + " and available = 1";
+//        SQLiteDatabase db = this.getReadableDatabase();
+//        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
+//        db.execSQL(createTable);
+//        Cursor cursor = db.rawQuery(sql, null);
+//        if (cursor.moveToFirst()) sum = cursor.getInt(0);
+//        cursor.close();
+//        db.close();
+//        return sum;
+        String ip = getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String url = "http://" + ip + "/storekeeper/productsGetAvailable.php";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    String status = jsonObject.getString("status");
+                    int message = jsonObject.getInt("message");
+                    if (status.equals("success")) available.setText(String.valueOf(message));
+                    else available.setText("NULL");
+                } catch (JSONException e) {
+                    Log.e(getClass().toString(), e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //callback.onError("error");
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("code", code + "");
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
     }
 
-    public int productsGetCharged(int code) {
-        int sum = 0;
-        String sql = "select count(serialnumber) from " + SERIALS + " WHERE prod_code = " + code + " and available = 0";
+    public void productsGetCharged(Context context, int code, EditText charged) {
+//        int sum = 0;
+//        String sql = "select count(serialnumber) from " + SERIALS + " WHERE prod_code = " + code + " and available = 0";
+//        SQLiteDatabase db = this.getReadableDatabase();
+//        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
+//        db.execSQL(createTable);
+//        Cursor cursor = db.rawQuery(sql, null);
+//        if (cursor.moveToFirst()) sum = cursor.getInt(0);
+//        cursor.close();
+//        db.close();
+//        return sum;
+        String ip = getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String url = "http://" + ip + "/storekeeper/productsGetCharged.php";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    String status = jsonObject.getString("status");
+                    int message = jsonObject.getInt("message");
+                    if (status.equals("success")) charged.setText(String.valueOf(message));
+                    else charged.setText("NULL");
+                } catch (JSONException e) {
+                    Log.e(getClass().toString(), e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //callback.onError("error");
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("code", code + "");
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
+    }
+
+    public ArrayList<String> productGetAllAvailableSN(int code) {
+        ArrayList<String> returnList = new ArrayList<>();
+        String sql = "select serialnumber from " + SERIALS + " WHERE prod_code = " + code + " and available = 1";
         SQLiteDatabase db = this.getReadableDatabase();
         String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
         db.execSQL(createTable);
         Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst()) sum = cursor.getInt(0);
+        if (cursor.moveToFirst()) {
+            do {
+                returnList.add(cursor.getString(0));
+            } while (cursor.moveToNext());
+
+        }
         cursor.close();
         db.close();
-        return sum;
+
+        return returnList;
     }
     //-------------------------------------------------------------------
 
@@ -1139,25 +1218,6 @@ public class DBHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return isThisProd;
-    }
-
-    public ArrayList<String> productGetAllAvailableSN(int code) {
-        ArrayList<String> returnList = new ArrayList<>();
-        String sql = "select serialnumber from " + SERIALS + " WHERE prod_code = " + code + " and available = 1";
-        SQLiteDatabase db = this.getReadableDatabase();
-        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
-        db.execSQL(createTable);
-        Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst()) {
-            do {
-                returnList.add(cursor.getString(0));
-            } while (cursor.moveToNext());
-
-        }
-        cursor.close();
-        db.close();
-
-        return returnList;
     }
 
     public ArrayList<String> employeesGetAllNamesWithSN(int code) {

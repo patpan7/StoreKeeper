@@ -176,8 +176,6 @@ public class products extends AppCompatActivity implements products_RVInterface 
     @Override
     public void onItemClick(int position) {
         productDialog(position);
-
-        //Toast.makeText(this, "", Toast.LENGTH_SHORT).show();
     }
 
     @SuppressLint("SetTextI18n")
@@ -200,10 +198,11 @@ public class products extends AppCompatActivity implements products_RVInterface 
         product_popup_barcode.setText(productModels.get(pos).getBarcode());
         product_popup_warranty.setText(String.valueOf(productModels.get(pos).getWarranty()));
         //product_popup_incomeSum.setText(helper.productsGetIncomeSum(productModels.get(pos).getCode()) + "");
-        helper.productsGetIncomeSum(products.this,productModels.get(pos).getCode(),product_popup_incomeSum);
-        product_popup_available.setText(helper.productsGetAvailable(productModels.get(pos).getCode()) + "");
-        product_popup_charged.setText(helper.productsGetCharged(productModels.get(pos).getCode()) + "");
-
+        helper.productsGetIncomeSum(products.this, productModels.get(pos).getCode(), product_popup_incomeSum);
+        //product_popup_available.setText(helper.productsGetAvailable(productModels.get(pos).getCode()) + "");
+        helper.productsGetAvailable(products.this, productModels.get(pos).getCode(), product_popup_available);
+        //product_popup_charged.setText(helper.productsGetCharged(productModels.get(pos).getCode()) + "");
+        helper.productsGetCharged(products.this, productModels.get(pos).getCode(), product_popup_charged);
         final boolean[] availableClicked = {false};
         final boolean[] chargedClicked = {false};
 
@@ -302,8 +301,7 @@ public class products extends AppCompatActivity implements products_RVInterface 
                             dialog.dismiss();
                             if (!searchView.getQuery().equals(""))
                                 adapter.getFilter().filter(searchView.getQuery());
-                            else
-                                setUpProductModels();
+                            else setUpProductModels();
                         }
 
                         @Override
@@ -326,7 +324,6 @@ public class products extends AppCompatActivity implements products_RVInterface 
             product_popup_name.setEnabled(true);
             product_popup_barcode.setEnabled(true);
             product_popup_warranty.setEnabled(true);
-            //product_popup_balance.setEnabled(true);
         });
 
     }
