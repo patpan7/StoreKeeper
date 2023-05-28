@@ -188,7 +188,7 @@ public class fromEmpReturn_CreateNew extends AppCompatActivity {
         savebtn.setOnClickListener(view -> {
             dialog = new alertDialogs();
             try {
-                int isError = checkFileds();
+                int isError = checkFields();
                 if (isError == 0) {
                     boolean success2 = false;
                     int successes = 0;
@@ -214,7 +214,7 @@ public class fromEmpReturn_CreateNew extends AppCompatActivity {
         });
     }
 
-    private int checkFileds() {
+    private int checkFields() {
         int error = 0;
         if (return_employee.getText().toString().equals("")) {
             return_employee.setError("Error!!!");

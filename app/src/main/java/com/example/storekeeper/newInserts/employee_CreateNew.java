@@ -2,6 +2,7 @@ package com.example.storekeeper.newInserts;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -35,11 +36,11 @@ public class employee_CreateNew extends AppCompatActivity {
         savebtn = findViewById(R.id.employees_insert_savebtn);
 
         DBHelper helper = new DBHelper(employee_CreateNew.this);
-        code.setText(String.valueOf(helper.employeeNextID()));
+        helper.employeeNextID(employee_CreateNew.this, code);
         savebtn.setOnClickListener(view -> {
             dialog = new alertDialogs();
             try {
-                int isError = checkFileds();
+                int isError = checkFields();
                 if (isError == 0) {
                     employee = new employeesModel(-1,
                             name.getText().toString().trim(),
@@ -48,17 +49,26 @@ public class employee_CreateNew extends AppCompatActivity {
                             mail.getText().toString().trim(),
                             work.getText().toString().trim(),
                             id.getText().toString().trim());
-                    boolean success = helper.employeeAdd(employee);
-                    if (success) {
-                        dialog.launchSuccess(this, "");
-                        clear();
-                    } else
-                        dialog.launchFail(this, "");
+                    helper.employeeAdd(employee, this, new DBHelper.MyCallback() {
+                        @Override
+                        public void onSuccess(String response) {
+                            // Εδώ μπορείτε να χειριστείτε την επιτυχή απάντηση (response)
+                            dialog.launchSuccess(employee_CreateNew.this, response);
+                            clear();
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            // Εδώ μπορείτε να χειριστείτε το σφάλμα (error)
+                            dialog.launchFail(employee_CreateNew.this, error);
+                        }
+                    });
+
                 } else {
                     dialog.launchFail(this, "Τα απαιτούμενα πεδία δεν είναι συμπληρωμένα");
                 }
             } catch (Exception e) {
-                //product = new productModel(-1,"error","error",0);
+                Log.e(getClass().toString(),e.toString());
             }
 
 
@@ -67,7 +77,7 @@ public class employee_CreateNew extends AppCompatActivity {
 
     private void clear() {
         DBHelper helper = new DBHelper(employee_CreateNew.this);
-        code.setText(String.valueOf(helper.employeeNextID()));
+        helper.employeeNextID(employee_CreateNew.this,code);
         name.setText("");
         name.clearFocus();
         phone.setText("");
@@ -83,7 +93,7 @@ public class employee_CreateNew extends AppCompatActivity {
 
     }
 
-    int checkFileds() {
+    int checkFields() {
         int error = 0;
         if (name.getText().toString().equals("")) {
             name.setError("Error!!!");

@@ -46,9 +46,12 @@ public class product_CreateNew extends AppCompatActivity {
         savebtn.setOnClickListener(view -> {
             dialog = new alertDialogs();
             try {
-                int isError = checkFileds();
+                int isError = checkFields();
                 if (isError == 0) {
-                    product = new productModel(-1, name.getText().toString().trim(), barcode.getText().toString(), Integer.parseInt(warranty.getText().toString()));
+                    product = new productModel(-1,
+                            name.getText().toString().trim(),
+                            barcode.getText().toString(),
+                            Integer.parseInt(warranty.getText().toString()));
                     helper.productAdd(product, this, new DBHelper.MyCallback() {
                         @Override
                         public void onSuccess(String response) {
@@ -99,7 +102,7 @@ public class product_CreateNew extends AppCompatActivity {
         if (result.getContents() != null) barcode.setText(result.getContents());
     });
 
-    int checkFileds() {
+    int checkFields() {
         int error = 0;
         if (code.getText().toString().equals("NULL")) {
             code.setError("Error!!!");

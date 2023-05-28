@@ -111,13 +111,14 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
-    //products methods
+
     public interface MyCallback {
         void onSuccess(String response);
 
         void onError(String error);
     }
 
+    //products methods
     public void productAdd(productModel productModel, Context context, MyCallback callback) throws JSONException {
 //        SQLiteDatabase db = this.getReadableDatabase();
 //        ContentValues cv = new ContentValues();
@@ -130,7 +131,7 @@ public class DBHelper extends SQLiteOpenHelper {
 //        return insert != -1;
         String ip = getSettingsIP();
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = "http://" + ip + "/storekeeper/productAdd.php";
+        String url = "http://" + ip + "/storekeeper/products/productAdd.php";
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -173,7 +174,7 @@ public class DBHelper extends SQLiteOpenHelper {
 //        return update != -1;
         String ip = getSettingsIP();
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = "http://" + ip + "/storekeeper/productUpdate.php";
+        String url = "http://" + ip + "/storekeeper/products/productUpdate.php";
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -216,7 +217,7 @@ public class DBHelper extends SQLiteOpenHelper {
 //        return nextID + 1;
         String ip = getSettingsIP();
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = "http://" + ip + "/storekeeper/productNextID.php";
+        String url = "http://" + ip + "/storekeeper/products/productNextID.php";
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
@@ -252,7 +253,7 @@ public class DBHelper extends SQLiteOpenHelper {
 //        return sum;
         String ip = getSettingsIP();
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = "http://" + ip + "/storekeeper/productsGetIncomeSum.php";
+        String url = "http://" + ip + "/storekeeper/products/productsGetIncomeSum.php";
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
             @Override
@@ -295,7 +296,7 @@ public class DBHelper extends SQLiteOpenHelper {
 //        return sum;
         String ip = getSettingsIP();
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = "http://" + ip + "/storekeeper/productsGetAvailable.php";
+        String url = "http://" + ip + "/storekeeper/products/productsGetAvailable.php";
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
             @Override
@@ -338,7 +339,7 @@ public class DBHelper extends SQLiteOpenHelper {
 //        return sum;
         String ip = getSettingsIP();
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = "http://" + ip + "/storekeeper/productsGetCharged.php";
+        String url = "http://" + ip + "/storekeeper/products/productsGetCharged.php";
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
             @Override
@@ -389,152 +390,365 @@ public class DBHelper extends SQLiteOpenHelper {
     //-------------------------------------------------------------------
 
     //employees methods
-    public boolean employeeAdd(employeesModel employeesModel) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        ContentValues cv = new ContentValues();
-
-        cv.put("name", employeesModel.getName());
-        cv.put("phone", employeesModel.getPhone());
-        cv.put("mobile", employeesModel.getMobile());
-        cv.put("mail", employeesModel.getMail());
-        cv.put("work", employeesModel.getWork());
-        cv.put("id", employeesModel.getId());
-        cv.put("sync_status", STATUS_UNSYNC);
-        long insert = db.insert(EMPLOYEES, null, cv);
-        return insert != -1;
+    public void employeeAdd(employeesModel employeesModel, Context context, MyCallback callback) {
+//        SQLiteDatabase db = this.getReadableDatabase();
+//        ContentValues cv = new ContentValues();
+//
+//        cv.put("name", employeesModel.getName());
+//        cv.put("phone", employeesModel.getPhone());
+//        cv.put("mobile", employeesModel.getMobile());
+//        cv.put("mail", employeesModel.getMail());
+//        cv.put("work", employeesModel.getWork());
+//        cv.put("id", employeesModel.getId());
+//        cv.put("sync_status", STATUS_UNSYNC);
+//        long insert = db.insert(EMPLOYEES, null, cv);
+//        return insert != -1;
+        String ip = getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String url = "http://" + ip + "/storekeeper/employees/employeeAdd.php";
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    String status = jsonObject.getString("status");
+                    String message = jsonObject.getString("message");
+                    if (status.equals("success")) {
+                        callback.onSuccess(message);
+                    } else callback.onError(message);
+                } catch (JSONException e) {
+                    callback.onError(e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                callback.onError("error");
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("name", employeesModel.getName());
+                paramV.put("phone", employeesModel.getPhone());
+                paramV.put("mobile", employeesModel.getMobile());
+                paramV.put("mail", employeesModel.getMail());
+                paramV.put("work", employeesModel.getWork());
+                paramV.put("id", employeesModel.getId());
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
     }
 
-    public ArrayList<employeesModel> employeesGetAll() {
-
-        ArrayList<employeesModel> returnArray = new ArrayList<>();
-
-        String sql = "select * from " + EMPLOYEES;
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        Cursor cursor = db.rawQuery(sql, null);
-
-        if (cursor.moveToFirst()) {
-            do {
-                int code = cursor.getInt(0);
-                String name = cursor.getString(1);
-                String phone = cursor.getString(2);
-                String mobile = cursor.getString(3);
-                String mail = cursor.getString(4);
-                String work = cursor.getString(5);
-                String id = cursor.getString(6);
-
-                employeesModel newEmployee = new employeesModel(code, name, phone, mobile, mail, work, id);
-
-                returnArray.add(newEmployee);
-            } while (cursor.moveToNext());
-
-        }
-        cursor.close();
-        db.close();
-        return returnArray;
+    public void employeeUpdate(employeesModel employeesModel, Context context, MyCallback callback) throws JSONException {
+//        SQLiteDatabase db = this.getWritableDatabase();
+//        ContentValues cv = new ContentValues();
+//        cv.put("name", employeesModel.getName());
+//        cv.put("phone", employeesModel.getPhone());
+//        cv.put("mobile", employeesModel.getMobile());
+//        cv.put("mail", employeesModel.getMail());
+//        cv.put("work", employeesModel.getWork());
+//        cv.put("id", employeesModel.getId());
+//        cv.put("sync_status", STATUS_UPDATE);
+//        long update = db.update(EMPLOYEES, cv, "code= ?", new String[]{String.valueOf(employeesModel.getCode())});
+//        db.close();
+//        return update != -1;
+        String ip = getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String url = "http://" + ip + "/storekeeper/employees/employeeUpdate.php";
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    String status = jsonObject.getString("status");
+                    String message = jsonObject.getString("message");
+                    if (status.equals("success")) {
+                        callback.onSuccess(message);
+                    } else callback.onError(message);
+                } catch (JSONException e) {
+                    callback.onError(e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                callback.onError("error");
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("code", employeesModel.getCode() + "");
+                paramV.put("name", employeesModel.getName());
+                paramV.put("phone", employeesModel.getPhone());
+                paramV.put("mobile", employeesModel.getMobile());
+                paramV.put("mail", employeesModel.getMail());
+                paramV.put("work", employeesModel.getWork());
+                paramV.put("id", employeesModel.getId());
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
     }
 
-    public boolean employeeUpdate(employeesModel employeesModel) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues cv = new ContentValues();
-        cv.put("name", employeesModel.getName());
-        cv.put("phone", employeesModel.getPhone());
-        cv.put("mobile", employeesModel.getMobile());
-        cv.put("mail", employeesModel.getMail());
-        cv.put("work", employeesModel.getWork());
-        cv.put("id", employeesModel.getId());
-        cv.put("sync_status", STATUS_UPDATE);
-        long update = db.update(EMPLOYEES, cv, "code= ?", new String[]{String.valueOf(employeesModel.getCode())});
-        db.close();
-        return update != -1;
+    public void employeeNextID(Context context, EditText code) {
+//        int nextID = 0;
+//        String sql = "select seq from sqlite_sequence WHERE name = '" + EMPLOYEES + "'";
+//        SQLiteDatabase db = this.getReadableDatabase();
+//        Cursor cursor = db.rawQuery(sql, null);
+//        if (cursor.moveToFirst()) nextID = cursor.getInt(0);
+//        cursor.close();
+//        db.close();
+//        return nextID + 1;
+        String ip = getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String url = "http://" + ip + "/storekeeper/employees/employeeNextID.php";
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    String status = response.getString("status");
+                    int message = response.getInt("message");
+                    if (status.equals("success")) code.setText(String.valueOf(message));
+                    else code.setText("NULL");
+                } catch (JSONException e) {
+                    Log.e(getClass().toString(), e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        });
+        queue.add(request);
     }
 
-    public int employeeNextID() {
-        int nextID = 0;
-        String sql = "select seq from sqlite_sequence WHERE name = '" + EMPLOYEES + "'";
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst()) nextID = cursor.getInt(0);
-        cursor.close();
-        db.close();
-        return nextID + 1;
+    public void employeeGetChargedProd(Context context, int code, EditText charged) {
+//        int sum = 0;
+//        String sql = "select count(serialnumber) from " + SERIALS + " WHERE employee_code = " + code + " and available = 0";
+//        SQLiteDatabase db = this.getReadableDatabase();
+//        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
+//        db.execSQL(createTable);
+//        Cursor cursor = db.rawQuery(sql, null);
+//        if (cursor.moveToFirst()) sum = cursor.getInt(0);
+//        cursor.close();
+//        db.close();
+//        return sum;
+        String ip = getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String url = "http://" + ip + "/storekeeper/employees/employeeGetChargedProd.php";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    String status = jsonObject.getString("status");
+                    int message = jsonObject.getInt("message");
+                    if (status.equals("success")) charged.setText(String.valueOf(message));
+                    else charged.setText("NULL");
+                } catch (JSONException e) {
+                    Log.e(getClass().toString(), e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //callback.onError("error");
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("code", code + "");
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
     }
     //-------------------------------------------------------------------
 
     //suppliers methods
-    public boolean supplierAdd(supplierModel supplierModel) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        ContentValues cv = new ContentValues();
-
-        cv.put("name", supplierModel.getName());
-        cv.put("phone", supplierModel.getPhone());
-        cv.put("mobile", supplierModel.getMobile());
-        cv.put("mail", supplierModel.getMail());
-        cv.put("afm", supplierModel.getAfm());
-        cv.put("sync_status", STATUS_UNSYNC);
-        String createTable = "create table if not exists " + SUPPLIERS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, phone TEXT, mobile TEXT, mail TEXT, afm TEXT unique)";
-        db.execSQL(createTable);
-        long insert = db.insert(SUPPLIERS, null, cv);
-        return insert != -1;
+    public void supplierAdd(supplierModel supplierModel, Context context, MyCallback callback) {
+//        SQLiteDatabase db = this.getReadableDatabase();
+//        ContentValues cv = new ContentValues();
+//
+//        cv.put("name", supplierModel.getName());
+//        cv.put("phone", supplierModel.getPhone());
+//        cv.put("mobile", supplierModel.getMobile());
+//        cv.put("mail", supplierModel.getMail());
+//        cv.put("afm", supplierModel.getAfm());
+//        cv.put("sync_status", STATUS_UNSYNC);
+//        String createTable = "create table if not exists " + SUPPLIERS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, phone TEXT, mobile TEXT, mail TEXT, afm TEXT unique)";
+//        db.execSQL(createTable);
+//        long insert = db.insert(SUPPLIERS, null, cv);
+//        return insert != -1;
+        String ip = getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String url = "http://" + ip + "/storekeeper/suppliers/supplierAdd.php";
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    String status = jsonObject.getString("status");
+                    String message = jsonObject.getString("message");
+                    if (status.equals("success")) {
+                        callback.onSuccess(message);
+                    } else callback.onError(message);
+                } catch (JSONException e) {
+                    callback.onError(e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                callback.onError(error.toString());
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("code", supplierModel.getCode() + "");
+                paramV.put("name", supplierModel.getName());
+                paramV.put("phone", supplierModel.getPhone());
+                paramV.put("mobile", supplierModel.getMobile());
+                paramV.put("mail", supplierModel.getMail());
+                paramV.put("afm", supplierModel.getAfm());
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
     }
 
-    public ArrayList<supplierModel> suppliersGetAll() {
-
-        ArrayList<supplierModel> returnArray = new ArrayList<>();
-
-        String sql = "select * from " + SUPPLIERS;
-        SQLiteDatabase db = this.getReadableDatabase();
-        String createTable = "create table if not exists " + SUPPLIERS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, phone TEXT, mobile TEXT, mail TEXT, afm TEXT unique)";
-        db.execSQL(createTable);
-        Cursor cursor = db.rawQuery(sql, null);
-
-        if (cursor.moveToFirst()) {
-            do {
-                int code = cursor.getInt(0);
-                String name = cursor.getString(1);
-                String phone = cursor.getString(2);
-                String mobile = cursor.getString(3);
-                String mail = cursor.getString(4);
-                String afm = cursor.getString(5);
-
-                supplierModel newSupplier = new supplierModel(code, name, phone, mobile, mail, afm);
-
-                returnArray.add(newSupplier);
-            } while (cursor.moveToNext());
-
-        }
-        cursor.close();
-        db.close();
-        return returnArray;
+    public void supplierUpdate(supplierModel supplierModel,Context context, MyCallback callback) {
+//        SQLiteDatabase db = this.getWritableDatabase();
+//        ContentValues cv = new ContentValues();
+//        cv.put("name", supplierModel.getName());
+//        cv.put("phone", supplierModel.getPhone());
+//        cv.put("mobile", supplierModel.getMobile());
+//        cv.put("mail", supplierModel.getMail());
+//        cv.put("afm", supplierModel.getAfm());
+//        cv.put("sync_status", STATUS_UPDATE);
+//        String createTable = "create table if not exists " + SUPPLIERS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, phone TEXT, mobile TEXT, mail TEXT, afm TEXT unique)";
+//        db.execSQL(createTable);
+//        long update = db.update(SUPPLIERS, cv, "code= ?", new String[]{String.valueOf(supplierModel.getCode())});
+//        db.close();
+//        return update != -1;
+        String ip = getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String url = "http://" + ip + "/storekeeper/suppliers/supplierUpdate.php";
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    String status = jsonObject.getString("status");
+                    String message = jsonObject.getString("message");
+                    if (status.equals("success")) {
+                        callback.onSuccess(message);
+                    } else callback.onError(message);
+                } catch (JSONException e) {
+                    callback.onError(e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                callback.onError("error");
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("code", supplierModel.getCode() + "");
+                paramV.put("name", supplierModel.getName());
+                paramV.put("phone", supplierModel.getPhone());
+                paramV.put("mobile", supplierModel.getMobile());
+                paramV.put("mail", supplierModel.getMail());
+                paramV.put("afm", supplierModel.getAfm());
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
     }
 
-    public boolean supplierUpdate(supplierModel supplierModel) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues cv = new ContentValues();
-        cv.put("name", supplierModel.getName());
-        cv.put("phone", supplierModel.getPhone());
-        cv.put("mobile", supplierModel.getMobile());
-        cv.put("mail", supplierModel.getMail());
-        cv.put("afm", supplierModel.getAfm());
-        cv.put("sync_status", STATUS_UPDATE);
-        String createTable = "create table if not exists " + SUPPLIERS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, phone TEXT, mobile TEXT, mail TEXT, afm TEXT unique)";
-        db.execSQL(createTable);
-        long update = db.update(SUPPLIERS, cv, "code= ?", new String[]{String.valueOf(supplierModel.getCode())});
-        db.close();
-        return update != -1;
+    public void supplierNextID(Context context, EditText code) {
+//        int nextID = 0;
+//        String sql = "select seq from sqlite_sequence WHERE name = '" + SUPPLIERS + "'";
+//        SQLiteDatabase db = this.getReadableDatabase();
+//        Cursor cursor = db.rawQuery(sql, null);
+//        if (cursor.moveToFirst()) nextID = cursor.getInt(0);
+//        cursor.close();
+//        db.close();
+//        return nextID + 1;
+        String ip = getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String url = "http://" + ip + "/storekeeper/suppliers/supplierNextID.php";
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    String status = response.getString("status");
+                    int message = response.getInt("message");
+                    if (status.equals("success")) code.setText(String.valueOf(message));
+                    else code.setText("NULL");
+                } catch (JSONException e) {
+                    Log.e(getClass().toString(), e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        });
+        queue.add(request);
     }
 
-    public int supplierNextID() {
-        int nextID = 0;
-        String sql = "select seq from sqlite_sequence WHERE name = '" + SUPPLIERS + "'";
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst()) nextID = cursor.getInt(0);
-        cursor.close();
-        db.close();
-        return nextID + 1;
+    public void supplierGetAllIncomeProd(Context context, int code, EditText income) {
+//        int sum = 0;
+//        String sql = "select count(serialnumber) from " + SERIALS + " WHERE supplier_code = " + code + " and (available = 0 or available = 1)";
+//        SQLiteDatabase db = this.getReadableDatabase();
+//        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
+//        db.execSQL(createTable);
+//        Cursor cursor = db.rawQuery(sql, null);
+//        if (cursor.moveToFirst()) sum = cursor.getInt(0);
+//        cursor.close();
+//        db.close();
+//        return sum;
+        String ip = getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String url = "http://" + ip + "/storekeeper/suppliers/supplierGetAllIncomeProd.php";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    String status = jsonObject.getString("status");
+                    int message = jsonObject.getInt("message");
+                    if (status.equals("success")) income.setText(String.valueOf(message));
+                    else income.setText("NULL");
+                } catch (JSONException e) {
+                    Log.e(getClass().toString(), e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //callback.onError("error");
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("code", code + "");
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
     }
-    //-------------------------------------------------------------------
+//-------------------------------------------------------------------
 
     //income methods
     public ArrayList<incomeModel> incomeGetAll(String start, String end) throws ParseException {
@@ -734,7 +948,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
         return returnList;
     }
-    //-------------------------------------------------------------------
+//-------------------------------------------------------------------
 
     //warranty methods
     public String productGetNameFromSerial(String sn) {
@@ -815,7 +1029,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
         return charge_date;
     }
-    //-------------------------------------------------------------------
+//-------------------------------------------------------------------
 
     //charge methods
     public ArrayList<chargeModel> chargeGetAll(String start, String end) {
@@ -1258,20 +1472,6 @@ public class DBHelper extends SQLiteOpenHelper {
         return returnList;
     }
 
-    public int employeeGetChargedProd(int code) {
-        int sum = 0;
-        String sql = "select count(serialnumber) from " + SERIALS + " WHERE employee_code = " + code + " and available = 0";
-        SQLiteDatabase db = this.getReadableDatabase();
-        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
-        db.execSQL(createTable);
-        Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst()) sum = cursor.getInt(0);
-        cursor.close();
-        db.close();
-        return sum;
-
-    }
-
     public ArrayList<String> productsGetAllNamesCharge(int code) {
         ArrayList<String> returnList = new ArrayList<>();
         String sql = "select " + PRODUCTS + ".name from " + PRODUCTS + ", " + SERIALS + " where " + PRODUCTS + ".code=" + SERIALS + ".prod_code  and employee_code=" + code + "  GROUP BY prod_code";
@@ -1303,19 +1503,6 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
         return returnList;
 
-    }
-
-    public int supplierGetAllIncomeProd(int code) {
-        int sum = 0;
-        String sql = "select count(serialnumber) from " + SERIALS + " WHERE supplier_code = " + code + " and (available = 0 or available = 1)";
-        SQLiteDatabase db = this.getReadableDatabase();
-        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
-        db.execSQL(createTable);
-        Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst()) sum = cursor.getInt(0);
-        cursor.close();
-        db.close();
-        return sum;
     }
 
     public ArrayList<String> productsGetAllNamesIncome(int code) {

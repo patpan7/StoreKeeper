@@ -1,6 +1,7 @@
 package com.example.storekeeper.newInserts;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,32 +33,45 @@ public class supplier_CreateNew extends AppCompatActivity {
         savebtn = findViewById(R.id.suppliers_insert_savebtn);
 
         DBHelper helper = new DBHelper(supplier_CreateNew.this);
-        code.setText(String.valueOf(helper.supplierNextID()));
+        helper.supplierNextID(supplier_CreateNew.this,code);
         savebtn.setOnClickListener(view -> {
             dialog = new alertDialogs();
             try {
-                int isError = checkFileds();
+                int isError = checkFields();
                 if (isError == 0) {
-                    supplier = new supplierModel(-1, name.getText().toString().trim(), phone.getText().toString().trim(), mobile.getText().toString().trim(), mail.getText().toString().trim(), afm.getText().toString().trim());
-                    boolean success = helper.supplierAdd(supplier);
-                    if (success) {
-                        dialog.launchSuccess(this, "");
-                        clear();
-                    } else dialog.launchFail(this, "");
+                    supplier = new supplierModel(-1,
+                            name.getText().toString().trim(),
+                            phone.getText().toString().trim(),
+                            mobile.getText().toString().trim(),
+                            mail.getText().toString().trim(),
+                            afm.getText().toString().trim());
+                    helper.supplierAdd(supplier, this, new DBHelper.MyCallback() {
+                        @Override
+                        public void onSuccess(String response) {
+                            // Εδώ μπορείτε να χειριστείτε την επιτυχή απάντηση (response)
+                            dialog.launchSuccess(supplier_CreateNew.this, response);
+                            clear();
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            // Εδώ μπορείτε να χειριστείτε το σφάλμα (error)
+                            dialog.launchFail(supplier_CreateNew.this, error);
+                        }
+                    });
+
                 } else {
                     dialog.launchFail(this, "Τα απαιτούμενα πεδία δεν είναι συμπληρωμένα");
                 }
             } catch (Exception e) {
-                //product = new productModel(-1,"error","error",0);
+                Log.e(getClass().toString(),e.toString());
             }
-
-
         });
     }
 
     private void clear() {
         DBHelper helper = new DBHelper(supplier_CreateNew.this);
-        code.setText(String.valueOf(helper.employeeNextID()));
+        helper.supplierNextID(supplier_CreateNew.this,code);
         name.setText("");
         name.clearFocus();
         phone.setText("");
@@ -70,7 +84,7 @@ public class supplier_CreateNew extends AppCompatActivity {
         afm.clearFocus();
     }
 
-    int checkFileds() {
+    int checkFields() {
         int error = 0;
         if (name.getText().toString().equals("")) {
             name.setError("Error!!!");

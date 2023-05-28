@@ -15,6 +15,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -60,6 +61,7 @@ public class products extends AppCompatActivity implements products_RVInterface 
     ImageButton available_plus, charged_plus;
     LinearLayout container;
     ArrayList<productModel> productModels = new ArrayList<>();
+    ArrayList<productModel> productModelsFiltered = new ArrayList<>();
     ArrayList<productModel> dbProducts = new ArrayList<>();
     alertDialogs dialogAlert;
     DBHelper helper = new DBHelper(products.this);
@@ -109,11 +111,28 @@ public class products extends AppCompatActivity implements products_RVInterface 
 
             @Override
             public boolean onQueryTextChange(String s) {
-                adapter.getFilter().filter(s);
+                //adapter.getFilter().filter(s);
+                filterList(s);
                 return true;
             }
         });
+    }
 
+    private void filterList(String s) {
+        ArrayList<productModel> filteredList = new ArrayList<>();
+        productModelsFiltered.clear();
+        for (productModel product : productModels) {
+            if (product.getName().toUpperCase().contains(s.toUpperCase()) || String.valueOf(product.getCode()).contains(s.toUpperCase()) || String.valueOf(product.getBarcode()).contains(s.toUpperCase())) {
+                filteredList.add(product);
+                productModelsFiltered.add(product);
+            }
+        }
+
+        if (filteredList.isEmpty()) {
+            Toast.makeText(this, "No data", Toast.LENGTH_LONG).show();
+        } else {
+            adapter.setFilteredList(filteredList);
+        }
     }
 
     private void showLoading() {
@@ -128,10 +147,11 @@ public class products extends AppCompatActivity implements products_RVInterface 
     }
 
     private void setUpProductModels() {
+        productModelsFiltered.clear();
         dbProducts.clear();
         String ip = helper.getSettingsIP();
         RequestQueue queue = Volley.newRequestQueue(products.this);
-        String url = "http://" + ip + "/storekeeper/productsGetAll.php";
+        String url = "http://" + ip + "/storekeeper/products/productsGetAll.php";
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
@@ -150,7 +170,7 @@ public class products extends AppCompatActivity implements products_RVInterface 
                         dbProducts.add(newProduct);
                     }
                 } catch (JSONException e) {
-                    throw new RuntimeException(e);
+                    Log.e(getClass().toString(), e.toString());
                 }
                 setuprecyclerview(dbProducts);
             }
@@ -175,7 +195,14 @@ public class products extends AppCompatActivity implements products_RVInterface 
 
     @Override
     public void onItemClick(int position) {
-        productDialog(position);
+        if (productModelsFiltered.isEmpty())
+            productDialog(position);
+        else {
+            int code1 = productModelsFiltered.get(position).getCode();
+            for (int i = 0; i < productModels.size(); i++)
+                if (productModels.get(i).getCode() == code1)
+                    productDialog(i);
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -284,7 +311,7 @@ public class products extends AppCompatActivity implements products_RVInterface 
         product_popup_savebtn.setOnClickListener(view -> {
             dialogAlert = new alertDialogs();
             try {
-                int isError = checkFileds();
+                int isError = checkFields();
                 if (isError == 0) {
                     int id = Integer.parseInt(product_popup_code.getText().toString());
                     String name = product_popup_name.getText().toString().trim();
@@ -328,7 +355,7 @@ public class products extends AppCompatActivity implements products_RVInterface 
 
     }
 
-    int checkFileds() {
+    int checkFields() {
         int error = 0;
         if (product_popup_name.getText().toString().equals("")) {
             product_popup_name.setError("Error!!!");

@@ -153,7 +153,7 @@ public class income_CreateNew extends AppCompatActivity {
         savebtn.setOnClickListener(view -> {
             dialog = new alertDialogs();
             try {
-                int isError = checkFileds();
+                int isError = checkFields();
                 if (isError == 0) {
                     int prod_code = helper.productGetCode(income_products.getText().toString());
                     int supp_code = helper.supplierGetCode(income_suppliers.getText().toString());
@@ -212,7 +212,7 @@ public class income_CreateNew extends AppCompatActivity {
         });
     }
 
-    private int checkFileds() {
+    private int checkFields() {
         int error = 0;
         if (income_suppliers.getText().toString().equals("")) {
             income_suppliers.setError("Error!!!");

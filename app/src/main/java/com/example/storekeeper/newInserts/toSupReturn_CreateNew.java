@@ -186,7 +186,7 @@ public class toSupReturn_CreateNew extends AppCompatActivity {
         savebtn.setOnClickListener(view -> {
             dialog = new alertDialogs();
             try {
-                int isError = checkFileds();
+                int isError = checkFields();
                 if (isError == 0) {
                     boolean success2 = false;
                     boolean success3 = false;
@@ -213,7 +213,7 @@ public class toSupReturn_CreateNew extends AppCompatActivity {
         });
     }
 
-    private int checkFileds() {
+    private int checkFields() {
         int error = 0;
         if (return_supplier.getText().toString().equals("")) {
             return_supplier.setError("Error!!!");
