@@ -4,8 +4,7 @@ public class productModel {
     int code;
     String name;
     String barcode;
-    int warranty
-            ;
+    int warranty;
 
     public int getCode() {
         return code;
@@ -50,9 +49,9 @@ public class productModel {
         this.warranty = productWarranty;
     }
 
-    public productModel(int productId, String productName, String productBarcode) {
+    public productModel(int productId, String productName, int warranty) {
         this.code = productId;
         this.name = productName;
-        this.barcode = productBarcode;
+        this.warranty = warranty;
     }
 }

@@ -142,7 +142,11 @@ public class employees extends AppCompatActivity implements employees_RVInterfac
     private void showLoading() {
         progress = new ProgressDialog(this);
         progress.setTitle("Loading");
-        progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
+        progress.setCancelable(true); // disable dismiss by tapping outside of the dialog
+        progress.setCanceledOnTouchOutside(false);
+        progress.setOnCancelListener(dialogInterface -> {
+            onBackPressed();
+        });
         progress.show();
     }
 

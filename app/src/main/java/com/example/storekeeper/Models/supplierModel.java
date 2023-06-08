@@ -21,6 +21,11 @@ public class supplierModel {
         this.name = name;
     }
 
+    public supplierModel(int code, String name) {
+        this.code = code;
+        this.name = name;
+    }
+
     public int getCode() {
         return code;
     }

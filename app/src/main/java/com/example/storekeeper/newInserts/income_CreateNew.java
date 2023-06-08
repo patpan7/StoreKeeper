@@ -32,6 +32,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.storekeeper.DBClasses.DBHelper;
+import com.example.storekeeper.Models.productModel;
+import com.example.storekeeper.Models.supplierModel;
 import com.example.storekeeper.R;
 import com.example.storekeeper.alertDialogs;
 import com.example.storekeeper.captureAct;
@@ -60,7 +62,8 @@ public class income_CreateNew extends AppCompatActivity {
     DBHelper helper = new DBHelper(income_CreateNew.this);
     ArrayList<String> serial_numbers;
     ArrayList<String> serial_numbers_return;
-    ArrayList<String> supplierList,productList;
+    ArrayList<supplierModel> supplierList;
+    ArrayList<productModel> productList;
     alertDialogs dialog;
 
 
@@ -163,20 +166,23 @@ public class income_CreateNew extends AppCompatActivity {
             try {
                 int isError = checkFields();
                 if (isError == 0) {
-                    int prod_code = helper.productGetCode(income_products.getText().toString());
-                    int supp_code = helper.supplierGetCode(income_suppliers.getText().toString());
-                    int warranty = helper.productGetWarranty(prod_code);
+                    //int prod_code = helper.productGetCode(income_products.getText().toString());
+                    int prod_code = productList.get(income_products.getListSelection()).getCode();
+                    //int supp_code = helper.supplierGetCode(income_suppliers.getText().toString());
+                    int supp_code = supplierList.get(income_suppliers.getListSelection()).getCode();
+                    //int warranty = helper.productGetWarranty(prod_code);
+                    int warranty = productList.get(income_products.getListSelection()).getWarranty();
                     boolean success2 = false;
                     boolean success3 = false;
                     int successes = 0;
-                    for (int i = 0; i <= serial_numbers.size() - 1; i++) {
+                    for (int i = 0; i < serial_numbers.size(); i++) {
                         //Toast.makeText(getApplicationContext()," ok ",Toast.LENGTH_LONG).show();
                         success2 = helper.serialAdd(serial_numbers.get(i), prod_code, Objects.requireNonNull(income_date.getText()).toString(), supp_code, warranty);
                         helper.incomeAdd(income_suppliers.getText().toString(), income_date.getText().toString(), serial_numbers.get(i));
                         if (success2)
                             successes += 1;
                     }
-                    for (int i = 0; i <= serial_numbers_return.size() - 1; i++) {
+                    for (int i = 0; i < serial_numbers_return.size(); i++) {
                         //Toast.makeText(getApplicationContext()," ok ",Toast.LENGTH_LONG).show();
                         success3 = helper.serialUpdateAvailable(serial_numbers_return.get(i), 1);
                         helper.incomeAdd(income_suppliers.getText().toString(), income_date.getText().toString(), serial_numbers_return.get(i));
@@ -230,16 +236,19 @@ public class income_CreateNew extends AppCompatActivity {
             @Override
             public void onResponse(JSONObject response) {
                 try {
-
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(income_CreateNew.this,
+                            R.layout.dropdown_row);
                     String status = response.getString("status");
                     JSONArray message = response.getJSONArray("message");
                     if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
                         JSONObject productObject = message.getJSONObject(i);
+                        int code = productObject.getInt("code");
                         String name = productObject.getString("name");
-                        supplierList.add(name);
+                        supplierModel supplier = new supplierModel(code,name);
+                        supplierList.add(supplier);
+                        adapter.add(name);
                     }
-                    ArrayAdapter<String> adapter = new ArrayAdapter<>(income_CreateNew.this,
-                            R.layout.dropdown_row, supplierList);
+
 
                     // Σύνδεση του ArrayAdapter με το AutoCompleteTextView
                     income_suppliers.setAdapter(adapter);
@@ -266,16 +275,20 @@ public class income_CreateNew extends AppCompatActivity {
             @Override
             public void onResponse(JSONObject response) {
                 try {
-
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(income_CreateNew.this,
+                            R.layout.dropdown_row);
                     String status = response.getString("status");
                     JSONArray message = response.getJSONArray("message");
                     if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
                         JSONObject productObject = message.getJSONObject(i);
+                        int code = productObject.getInt("code");
                         String name = productObject.getString("name");
-                        productList.add(name);
+                        int warranty = productObject.getInt("warranty");
+                        productModel product = new productModel(code,name,warranty);
+                        productList.add(product);
+                        adapter.add(name);
                     }
-                    ArrayAdapter<String> adapter = new ArrayAdapter<>(income_CreateNew.this,
-                            R.layout.dropdown_row, productList);
+
 
                     // Σύνδεση του ArrayAdapter με το AutoCompleteTextView
                     income_products.setAdapter(adapter);
@@ -362,7 +375,7 @@ public class income_CreateNew extends AppCompatActivity {
     });
 
     void dynamicSerials(String sn) {
-        int prod_code = helper.productGetCode(income_products.getText().toString());
+        int prod_code = productList.get(income_products.getListSelection()).getCode();
         boolean isThisProd = helper.checkSerialNumberProd(sn, prod_code);
         boolean isStock = helper.checkSerialNumberStock(sn);
 
