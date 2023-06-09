@@ -283,8 +283,9 @@ public class income_CreateNew extends AppCompatActivity {
                         JSONObject productObject = message.getJSONObject(i);
                         int code = productObject.getInt("code");
                         String name = productObject.getString("name");
+                        String barcode = productObject.getString("barcode");
                         int warranty = productObject.getInt("warranty");
-                        productModel product = new productModel(code,name,warranty);
+                        productModel product = new productModel(code,name,barcode,warranty);
                         productList.add(product);
                         adapter.add(name);
                     }
@@ -357,8 +358,14 @@ public class income_CreateNew extends AppCompatActivity {
     }
 
     ActivityResultLauncher<ScanOptions> barLauncher = registerForActivityResult(new ScanContract(), result -> {
-        if (result.getContents() != null)
-            income_products.setText(helper.productGetName(result.getContents()));
+        if (result.getContents() != null){
+            String name = "";
+            for (int i = 0; i<productList.size(); i++){
+                if (productList.get(i).getBarcode().equals(result.getContents()))
+                    income_products.setText(productList.get(i).getName());
+            }
+        }
+            //income_products.setText(helper.productGetName(result.getContents()));
     });
 
     private void scanSerial() {
