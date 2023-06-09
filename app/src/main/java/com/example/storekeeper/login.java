@@ -44,6 +44,7 @@ public class login extends AppCompatActivity {
 
         sharedPreferences = getSharedPreferences("MyAppName", MODE_PRIVATE);
         if (sharedPreferences.getString("logged", "false").equals("true")) {
+
             Intent intent = new Intent(login.this, MainActivity.class);
             startActivity(intent);
             finish();
