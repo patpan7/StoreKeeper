@@ -13,6 +13,7 @@ import android.widget.EditText;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -828,43 +829,116 @@ public class DBHelper extends SQLiteOpenHelper {
         return name;
     }
 
-    public void incomeAdd(String supplier, String date, String sn) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        ContentValues cv = new ContentValues();
-        cv.put("supplier_name", supplier);
-        cv.put("income_date", formatDateForSQL(date));
-        cv.put("serial_number", sn);
-        cv.put("sync_status", STATUS_UNSYNC);
-        String createTable = "create table if not exists " + INCOMES + "(code INTEGER PRIMARY KEY AUTOINCREMENT, supplier_name TEXT, income_date DATE, serial_number TEXT)";
-        db.execSQL(createTable);
-        long insert = db.insert(INCOMES, null, cv);
+    public void incomeAdd(int supplier_code, String date, String sn, Context context, MyCallback callback) {
+//        SQLiteDatabase db = this.getReadableDatabase();
+//        ContentValues cv = new ContentValues();
+//        cv.put("supplier_name", supplier);
+//        cv.put("income_date", formatDateForSQL(date));
+//        cv.put("serial_number", sn);
+//        cv.put("sync_status", STATUS_UNSYNC);
+//        String createTable = "create table if not exists " + INCOMES + "(code INTEGER PRIMARY KEY AUTOINCREMENT, supplier_name TEXT, income_date DATE, serial_number TEXT)";
+//        db.execSQL(createTable);
+//        long insert = db.insert(INCOMES, null, cv);
+        String ip = getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String url = "http://" + ip + "/storekeeper/incomes/incomeAdd.php";
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    String status = jsonObject.getString("status");
+                    String message = jsonObject.getString("message");
+                    if (status.equals("success")) {
+                        callback.onSuccess(message);
+                    } else callback.onError(message);
+                } catch (JSONException e) {
+                    callback.onError(e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                callback.onError(error.toString());
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("supplier_code", String.valueOf(supplier_code));
+                paramV.put("income_date", formatDateForSQL(date));
+                paramV.put("serial_number", sn);
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public boolean serialAdd(String serialnumber, int prod_code, String income_date, int supplier_code, int warranty) throws ParseException {
-        SQLiteDatabase db = this.getReadableDatabase();
-        ContentValues cv = new ContentValues();
+    public void serialAdd(String serialnumber, int prod_code, String income_date, int supplier_code, int warranty,Context context, MyCallback callback) throws ParseException, AuthFailureError {
+//        SQLiteDatabase db = this.getReadableDatabase();
+//        ContentValues cv = new ContentValues();
+//        String income_date_format = formatDateForSQL(income_date);
+//
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+//        Calendar c = Calendar.getInstance();
+//        c.setTime(sdf.parse(income_date_format));
+//        c.add(Calendar.MONTH, warranty);
+//        String warrantyString = sdf.format(c.getTime());
+//
+//        cv.put("serialnumber", serialnumber);
+//        cv.put("prod_code", prod_code);
+//        cv.put("income_date", income_date_format);
+//        cv.put("warranty_date", warrantyString);
+//        cv.put("supplier_code", supplier_code);
+//        cv.put("employee_code", 0);
+//        cv.put("charge_date", 0);
+//        cv.put("available", 1);
+//        cv.put("sync_status", STATUS_UNSYNC);
+//        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
+//        db.execSQL(createTable);
+//        long insert = db.insert(SERIALS, null, cv);
+//        return insert != -1;
         String income_date_format = formatDateForSQL(income_date);
-
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Calendar c = Calendar.getInstance();
         c.setTime(sdf.parse(income_date_format));
         c.add(Calendar.MONTH, warranty);
         String warrantyString = sdf.format(c.getTime());
 
-        cv.put("serialnumber", serialnumber);
-        cv.put("prod_code", prod_code);
-        cv.put("income_date", income_date_format);
-        cv.put("warranty_date", warrantyString);
-        cv.put("supplier_code", supplier_code);
-        cv.put("employee_code", 0);
-        cv.put("charge_date", 0);
-        cv.put("available", 1);
-        cv.put("sync_status", STATUS_UNSYNC);
-        String createTable = "create table if not exists " + SERIALS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, serialnumber TEXT unique, prod_code int, income_date DATE, warranty_date DATE, supplier_code INTEGER, employee_code INTEGER, charge_date DATE, available INTEGER)";
-        db.execSQL(createTable);
-        long insert = db.insert(SERIALS, null, cv);
-        return insert != -1;
+        String ip = getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String url = "http://" + ip + "/storekeeper/incomes/serialAdd.php";
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    String status = jsonObject.getString("status");
+                    String message = jsonObject.getString("message");
+                    if (status.equals("success")) {
+                        callback.onSuccess(message);
+                    } else callback.onError(message);
+                } catch (JSONException e) {
+                    callback.onError(e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                callback.onError(error.toString());
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("serialnumber", serialnumber);
+                paramV.put("prod_code", String.valueOf(prod_code));
+                paramV.put("income_date", income_date_format);
+                paramV.put("warranty_date", warrantyString);
+                paramV.put("supplier_code", String.valueOf(supplier_code));
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
     }
 
     public int productGetCode(String name) {
@@ -1312,14 +1386,45 @@ public class DBHelper extends SQLiteOpenHelper {
         return insert != -1;
     }
 
-    public boolean serialUpdateAvailable(String sn, int available) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues cv = new ContentValues();
-        cv.put("available", available);
-        cv.put("sync_status", STATUS_UPDATE);
-        long update = db.update(SERIALS, cv, "serialnumber= ?", new String[]{sn});
-        db.close();
-        return update != -1;
+    public void serialUpdateAvailable(String sn, int available, Context context, MyCallback callback) {
+//        SQLiteDatabase db = this.getWritableDatabase();
+//        ContentValues cv = new ContentValues();
+//        cv.put("available", available);
+//        cv.put("sync_status", STATUS_UPDATE);
+//        long update = db.update(SERIALS, cv, "serialnumber= ?", new String[]{sn});
+//        db.close();
+//        return update != -1;
+        String ip = getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String url = "http://" + ip + "/storekeeper/incomes/serialUpdateAvailable.php";
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    String status = jsonObject.getString("status");
+                    String message = jsonObject.getString("message");
+                    if (status.equals("success")) {
+                        callback.onSuccess(message);
+                    } else callback.onError(message);
+                } catch (JSONException e) {
+                    callback.onError(e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                callback.onError(error.toString());
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("serialnumber",sn);
+                paramV.put("available", String.valueOf(available));
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
     }
 
     public ArrayList<String> productsGetAllNamesRerunEmp(String employeename, String date) {

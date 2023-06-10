@@ -193,7 +193,7 @@ public class toSupReturn_CreateNew extends AppCompatActivity {
                     int successes = 0;
                     for (int i = 0; i <= serial_numbers.size() - 1; i++) {
                         //Toast.makeText(getApplicationContext()," ok ",Toast.LENGTH_LONG).show();
-                        success2 =helper.serialUpdateAvailable(serial_numbers.get(i),-1);
+                        //success2 =helper.serialUpdateAvailable(serial_numbers.get(i),-1);
                         success3 = helper.returnToSupAdd(return_supplier.getText().toString(), return_date.getText().toString(), serial_numbers.get(i), return_msg.getText().toString());
                         if (success2 && success3)
                             successes += 1;

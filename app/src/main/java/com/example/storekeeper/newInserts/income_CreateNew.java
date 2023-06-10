@@ -33,6 +33,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.storekeeper.DBClasses.DBHelper;
 import com.example.storekeeper.Models.productModel;
+import com.example.storekeeper.Models.serialModel;
 import com.example.storekeeper.Models.supplierModel;
 import com.example.storekeeper.R;
 import com.example.storekeeper.alertDialogs;
@@ -64,7 +65,12 @@ public class income_CreateNew extends AppCompatActivity {
     ArrayList<String> serial_numbers_return;
     ArrayList<supplierModel> supplierList;
     ArrayList<productModel> productList;
+    ArrayList<serialModel> serialsList;
     alertDialogs dialog;
+    int prod_code;
+    int supp_code;
+    int warranty;
+    int successes = 0;
 
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -84,6 +90,9 @@ public class income_CreateNew extends AppCompatActivity {
                 income_suppliers.setEnabled(true);
                 income_suppliers1.setEnabled(true);
                 lock.setImageResource(R.drawable.unlock);
+                prod_code = 0;
+                supp_code = 0;
+                warranty = 0;
                 return true;
             }
         });
@@ -110,7 +119,7 @@ public class income_CreateNew extends AppCompatActivity {
         income_products1 = findViewById(R.id.income_insert_product);
         income_products = findViewById(R.id.income_insert_product1);
         productsGetAllNames();
-
+        serialsGetAll();
         income_products.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -126,6 +135,16 @@ public class income_CreateNew extends AppCompatActivity {
                     income_suppliers.setEnabled(false);
                     income_suppliers1.setEnabled(false);
                     lock.setImageResource(R.drawable.lock2);
+                    for (productModel p : productList){
+                        if (p.getName().contentEquals(income_products.getText())) {
+                            prod_code = p.getCode();
+                            warranty = p.getWarranty();
+                        }
+                    }
+                    for (supplierModel s : supplierList){
+                        if (s.getName().contentEquals(income_suppliers.getText()))
+                            supp_code = s.getCode();
+                    }
                 } else {
                     income_products.setEnabled(true);
                 }
@@ -167,27 +186,63 @@ public class income_CreateNew extends AppCompatActivity {
                 int isError = checkFields();
                 if (isError == 0) {
                     //int prod_code = helper.productGetCode(income_products.getText().toString());
-                    int prod_code = productList.get(income_products.getListSelection()).getCode();
                     //int supp_code = helper.supplierGetCode(income_suppliers.getText().toString());
-                    int supp_code = supplierList.get(income_suppliers.getListSelection()).getCode();
                     //int warranty = helper.productGetWarranty(prod_code);
-                    int warranty = productList.get(income_products.getListSelection()).getWarranty();
-                    boolean success2 = false;
-                    boolean success3 = false;
-                    int successes = 0;
+
                     for (int i = 0; i < serial_numbers.size(); i++) {
                         //Toast.makeText(getApplicationContext()," ok ",Toast.LENGTH_LONG).show();
-                        success2 = helper.serialAdd(serial_numbers.get(i), prod_code, Objects.requireNonNull(income_date.getText()).toString(), supp_code, warranty);
-                        helper.incomeAdd(income_suppliers.getText().toString(), income_date.getText().toString(), serial_numbers.get(i));
-                        if (success2)
-                            successes += 1;
+                        helper.serialAdd(serial_numbers.get(i), prod_code, Objects.requireNonNull(income_date.getText()).toString(), supp_code, warranty,this, new DBHelper.MyCallback(){
+                            @Override
+                            public void onSuccess(String response) {
+                                // Εδώ μπορείτε να χειριστείτε την επιτυχή απάντηση (response)
+                                successes += 1;
+                            }
+
+                            @Override
+                            public void onError(String error) {
+                                // Εδώ μπορείτε να χειριστείτε το σφάλμα (error)
+                            }
+                        });
+                        helper.incomeAdd(supp_code, income_date.getText().toString(), serial_numbers.get(i), this, new DBHelper.MyCallback(){
+                            @Override
+                            public void onSuccess(String response) {
+                                // Εδώ μπορείτε να χειριστείτε την επιτυχή απάντηση (response)
+                                successes += 1;
+                            }
+
+                            @Override
+                            public void onError(String error) {
+                                // Εδώ μπορείτε να χειριστείτε το σφάλμα (error)
+                            }
+                        });
+
                     }
                     for (int i = 0; i < serial_numbers_return.size(); i++) {
                         //Toast.makeText(getApplicationContext()," ok ",Toast.LENGTH_LONG).show();
-                        success3 = helper.serialUpdateAvailable(serial_numbers_return.get(i), 1);
-                        helper.incomeAdd(income_suppliers.getText().toString(), income_date.getText().toString(), serial_numbers_return.get(i));
-                        if (success3)
-                            successes += 1;
+                        helper.serialUpdateAvailable(serial_numbers_return.get(i), 1,this, new DBHelper.MyCallback(){
+                            @Override
+                            public void onSuccess(String response) {
+                                // Εδώ μπορείτε να χειριστείτε την επιτυχή απάντηση (response)
+                                successes += 1;
+                            }
+
+                            @Override
+                            public void onError(String error) {
+                                // Εδώ μπορείτε να χειριστείτε το σφάλμα (error)
+                            }
+                        });
+                        helper.incomeAdd(supp_code, income_date.getText().toString(), serial_numbers_return.get(i), this, new DBHelper.MyCallback(){
+                            @Override
+                            public void onSuccess(String response) {
+                                // Εδώ μπορείτε να χειριστείτε την επιτυχή απάντηση (response)
+                                successes += 1;
+                            }
+
+                            @Override
+                            public void onError(String error) {
+                                // Εδώ μπορείτε να χειριστείτε το σφάλμα (error)
+                            }
+                        });
                     }
                     if (successes == (serial_numbers.size() + serial_numbers_return.size())) {
                         dialog.launchSuccess(this, "");
@@ -244,7 +299,7 @@ public class income_CreateNew extends AppCompatActivity {
                         JSONObject productObject = message.getJSONObject(i);
                         int code = productObject.getInt("code");
                         String name = productObject.getString("name");
-                        supplierModel supplier = new supplierModel(code,name);
+                        supplierModel supplier = new supplierModel(code, name);
                         supplierList.add(supplier);
                         adapter.add(name);
                     }
@@ -285,7 +340,7 @@ public class income_CreateNew extends AppCompatActivity {
                         String name = productObject.getString("name");
                         String barcode = productObject.getString("barcode");
                         int warranty = productObject.getInt("warranty");
-                        productModel product = new productModel(code,name,barcode,warranty);
+                        productModel product = new productModel(code, name, barcode, warranty);
                         productList.add(product);
                         adapter.add(name);
                     }
@@ -294,6 +349,39 @@ public class income_CreateNew extends AppCompatActivity {
                     // Σύνδεση του ArrayAdapter με το AutoCompleteTextView
                     income_products.setAdapter(adapter);
                     income_products.setThreshold(1);
+                } catch (JSONException e) {
+                    Log.e(getClass().toString(), e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        });
+        queue.add(request);
+    }
+
+    private void serialsGetAll() {
+        serialsList = new ArrayList<>();
+        String ip = helper.getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(income_CreateNew.this);
+        String url = "http://" + ip + "/storekeeper/incomes/serialsGetAll.php";
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    String status = response.getString("status");
+                    JSONArray message = response.getJSONArray("message");
+                    if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
+                        JSONObject productObject = message.getJSONObject(i);
+                        String serialnumber = productObject.getString("serialnumber");
+                        int prod_code = productObject.getInt("prod_code");
+                        int available = productObject.getInt("available");
+                        serialModel serial = new serialModel(serialnumber, prod_code, available);
+                        serialsList.add(serial);
+                    }
                 } catch (JSONException e) {
                     Log.e(getClass().toString(), e.toString());
                 }
@@ -346,6 +434,9 @@ public class income_CreateNew extends AppCompatActivity {
         serial_numbers.clear();
         serial_numbers_return.clear();
         lock.setImageResource(R.drawable.unlock);
+        prod_code = 0;
+        supp_code = 0;
+        warranty = 0;
     }
 
     private void scanCode() {
@@ -358,14 +449,14 @@ public class income_CreateNew extends AppCompatActivity {
     }
 
     ActivityResultLauncher<ScanOptions> barLauncher = registerForActivityResult(new ScanContract(), result -> {
-        if (result.getContents() != null){
+        if (result.getContents() != null) {
             String name = "";
-            for (int i = 0; i<productList.size(); i++){
+            for (int i = 0; i < productList.size(); i++) {
                 if (productList.get(i).getBarcode().equals(result.getContents()))
                     income_products.setText(productList.get(i).getName());
             }
         }
-            //income_products.setText(helper.productGetName(result.getContents()));
+        //income_products.setText(helper.productGetName(result.getContents()));
     });
 
     private void scanSerial() {
@@ -382,21 +473,30 @@ public class income_CreateNew extends AppCompatActivity {
     });
 
     void dynamicSerials(String sn) {
-        int prod_code = productList.get(income_products.getListSelection()).getCode();
-        boolean isThisProd = helper.checkSerialNumberProd(sn, prod_code);
-        boolean isStock = helper.checkSerialNumberStock(sn);
+//        boolean isThisProd = helper.checkSerialNumberProd(sn, prod_code);
+//        boolean isStock = helper.checkSerialNumberStock(sn);
+//        boolean isReturn = helper.checkSerialNumberOnReturn(sn);
+        boolean isStock = false;
+        boolean isReturn = false;
+        for (serialModel s : serialsList) {
+            if (s.getSerialnumber() != null && s.getSerialnumber().equals(sn) && s.getProd_code() == prod_code) {
+                isStock = true;
+                isReturn = s.getAvailable() == -1;
+                break;
+            }
+        }
 
-        if (isStock || serial_numbers.contains(sn) && !isThisProd) {
+
+        if (isStock || serial_numbers.contains(sn)) {
             Toast.makeText(getApplicationContext(), "Το serial number: " + sn + " υπάρχει ή δεν ανήκει σε αυτό το προϊόν!!!", Toast.LENGTH_LONG).show();
         } else {
 
-            boolean isReturn = helper.checkSerialNumberOnReturn(sn);
+
             LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             final View addView = layoutInflater.inflate(R.layout.income_insert_row, null);
             TextView textOut = addView.findViewById(R.id.textout);
             textOut.setText(sn);
             if (isReturn) {
-
                 serial_numbers_return.add(sn);
                 ImageButton buttonRemove = addView.findViewById(R.id.remove);
                 buttonRemove.setOnClickListener(new View.OnClickListener() {
