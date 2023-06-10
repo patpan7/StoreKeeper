@@ -231,7 +231,7 @@ public class income_CreateNew extends AppCompatActivity {
                                 // Εδώ μπορείτε να χειριστείτε το σφάλμα (error)
                             }
                         });
-                        helper.incomeAdd(supp_code, income_date.getText().toString(), serial_numbers_return.get(i), this, new DBHelper.MyCallback(){
+                        helper.incomeAdd(supp_code, Objects.requireNonNull(income_date.getText()).toString(), serial_numbers_return.get(i), this, new DBHelper.MyCallback(){
                             @Override
                             public void onSuccess(String response) {
                                 // Εδώ μπορείτε να χειριστείτε την επιτυχή απάντηση (response)
