@@ -14,11 +14,13 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.RequestFuture;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.storekeeper.Models.chargeModel;
@@ -29,6 +31,7 @@ import com.example.storekeeper.Models.productModel;
 import com.example.storekeeper.Models.supplierModel;
 import com.example.storekeeper.Models.toSupReturnModel;
 import com.example.storekeeper.alertDialogs;
+import com.example.storekeeper.newInserts.income_CreateNew;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,6 +43,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 public class DBHelper extends SQLiteOpenHelper {
 
@@ -798,38 +802,43 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
 
-    public ArrayList<String> productsGetAllNames() {
-        ArrayList<String> returnArray = new ArrayList<>();
+    public  void incomeAddNew(ArrayList<String> serial_numbers, int prod_code, String date, int supp_code, int warranty, income_CreateNew income_createNew){
+        String ip = getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String url = "http://" + ip + "/storekeeper/incomes/incomeAdd.php";
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    String status = jsonObject.getString("status");
+                    String message = jsonObject.getString("message");
+                    if (status.equals("success")) {
+                        response = 1+"";
+                    }
+                    response = 1+"";
+                } catch (JSONException e) {
 
-        String sql = "select name from " + PRODUCTS + " where code != -1";
-        SQLiteDatabase db = this.getReadableDatabase();
-        String createTable = "create table if not exists " + PRODUCTS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, barcode TEXT unique, warranty int)";
-        db.execSQL(createTable);
-        Cursor cursor = db.rawQuery(sql, null);
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("supplier_code", String.valueOf(supp_code));
+                paramV.put("income_date", formatDateForSQL(date));
+                paramV.put("serial_number", sn);
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
 
-        if (cursor.moveToFirst()) {
-            do {
-                returnArray.add(cursor.getString(0));
-            } while (cursor.moveToNext());
-
-        }
-        cursor.close();
-        db.close();
-        return returnArray;
     }
 
-    public String productGetName(String barcode) {
-        String name = null;
-        String sql = "select name from " + PRODUCTS + " WHERE barcode = '" + barcode + "'";
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst()) name = cursor.getString(0);
-        cursor.close();
-        db.close();
-        return name;
-    }
-
-    public void incomeAdd(int supplier_code, String date, String sn, Context context, MyCallback callback) {
+    public void incomeAdd(int supplier_code, String date, String sn, Context context) throws ExecutionException, InterruptedException {
 //        SQLiteDatabase db = this.getReadableDatabase();
 //        ContentValues cv = new ContentValues();
 //        cv.put("supplier_name", supplier);
@@ -850,16 +859,16 @@ public class DBHelper extends SQLiteOpenHelper {
                     String status = jsonObject.getString("status");
                     String message = jsonObject.getString("message");
                     if (status.equals("success")) {
-                        callback.onSuccess(message);
-                    } else callback.onError(message);
+                        response = 1+"";
+                    }
+                    response = 1+"";
                 } catch (JSONException e) {
-                    callback.onError(e.toString());
+
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                callback.onError(error.toString());
             }
         }) {
             protected Map<String, String> getParams() {
@@ -874,7 +883,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public void serialAdd(String serialnumber, int prod_code, String income_date, int supplier_code, int warranty,Context context, MyCallback callback) throws ParseException, AuthFailureError {
+    public void serialAdd(String serialnumber, int prod_code, String income_date, int supplier_code, int warranty, Context context) throws ParseException, AuthFailureError, ExecutionException, InterruptedException {
 //        SQLiteDatabase db = this.getReadableDatabase();
 //        ContentValues cv = new ContentValues();
 //        String income_date_format = formatDateForSQL(income_date);
@@ -916,16 +925,14 @@ public class DBHelper extends SQLiteOpenHelper {
                     String status = jsonObject.getString("status");
                     String message = jsonObject.getString("message");
                     if (status.equals("success")) {
-                        callback.onSuccess(message);
-                    } else callback.onError(message);
+                        response = 1+"";
+                    }
                 } catch (JSONException e) {
-                    callback.onError(e.toString());
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                callback.onError(error.toString());
             }
         }) {
             protected Map<String, String> getParams() {
@@ -1386,7 +1393,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return insert != -1;
     }
 
-    public void serialUpdateAvailable(String sn, int available, Context context, MyCallback callback) {
+    public String serialUpdateAvailable(String sn, int available, Context context) throws ExecutionException, InterruptedException {
 //        SQLiteDatabase db = this.getWritableDatabase();
 //        ContentValues cv = new ContentValues();
 //        cv.put("available", available);
@@ -1405,16 +1412,16 @@ public class DBHelper extends SQLiteOpenHelper {
                     String status = jsonObject.getString("status");
                     String message = jsonObject.getString("message");
                     if (status.equals("success")) {
-                        callback.onSuccess(message);
-                    } else callback.onError(message);
+                        response = 1+"";
+                    }
                 } catch (JSONException e) {
-                    callback.onError(e.toString());
+
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                callback.onError(error.toString());
+
             }
         }) {
             protected Map<String, String> getParams() {
@@ -1425,6 +1432,17 @@ public class DBHelper extends SQLiteOpenHelper {
             }
         };
         queue.add(stringRequest);
+        RequestFuture<String> future = RequestFuture.newFuture();
+        stringRequest.setShouldCache(false);
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(
+                0,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        stringRequest.setShouldCache(false);
+
+        stringRequest.setShouldCache(false);
+        queue.add(stringRequest);
+        return future.get();
     }
 
     public ArrayList<String> productsGetAllNamesRerunEmp(String employeename, String date) {

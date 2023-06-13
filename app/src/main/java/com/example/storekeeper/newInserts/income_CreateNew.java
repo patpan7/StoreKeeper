@@ -51,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class income_CreateNew extends AppCompatActivity {
 
@@ -191,59 +192,17 @@ public class income_CreateNew extends AppCompatActivity {
 
                     for (int i = 0; i < serial_numbers.size(); i++) {
                         //Toast.makeText(getApplicationContext()," ok ",Toast.LENGTH_LONG).show();
-                        helper.serialAdd(serial_numbers.get(i), prod_code, Objects.requireNonNull(income_date.getText()).toString(), supp_code, warranty,this, new DBHelper.MyCallback(){
-                            @Override
-                            public void onSuccess(String response) {
-                                // Εδώ μπορείτε να χειριστείτε την επιτυχή απάντηση (response)
-                                successes += 1;
-                            }
-
-                            @Override
-                            public void onError(String error) {
-                                // Εδώ μπορείτε να χειριστείτε το σφάλμα (error)
-                            }
-                        });
-                        helper.incomeAdd(supp_code, income_date.getText().toString(), serial_numbers.get(i), this, new DBHelper.MyCallback(){
-                            @Override
-                            public void onSuccess(String response) {
-                                // Εδώ μπορείτε να χειριστείτε την επιτυχή απάντηση (response)
-                                successes += 1;
-                            }
-
-                            @Override
-                            public void onError(String error) {
-                                // Εδώ μπορείτε να χειριστείτε το σφάλμα (error)
-                            }
-                        });
+                        helper.serialAdd(serial_numbers.get(i), prod_code, Objects.requireNonNull(income_date.getText()).toString(), supp_code, warranty,this);
+                        helper.incomeAdd(supp_code, income_date.getText().toString(), serial_numbers.get(i), this);
 
                     }
+                    helper.incomeAddNew(serial_numbers,prod_code,income_date.getText().toString(),supp_code,warranty,this);
                     for (int i = 0; i < serial_numbers_return.size(); i++) {
                         //Toast.makeText(getApplicationContext()," ok ",Toast.LENGTH_LONG).show();
-                        helper.serialUpdateAvailable(serial_numbers_return.get(i), 1,this, new DBHelper.MyCallback(){
-                            @Override
-                            public void onSuccess(String response) {
-                                // Εδώ μπορείτε να χειριστείτε την επιτυχή απάντηση (response)
-                                successes += 1;
-                            }
-
-                            @Override
-                            public void onError(String error) {
-                                // Εδώ μπορείτε να χειριστείτε το σφάλμα (error)
-                            }
-                        });
-                        helper.incomeAdd(supp_code, Objects.requireNonNull(income_date.getText()).toString(), serial_numbers_return.get(i), this, new DBHelper.MyCallback(){
-                            @Override
-                            public void onSuccess(String response) {
-                                // Εδώ μπορείτε να χειριστείτε την επιτυχή απάντηση (response)
-                                successes += 1;
-                            }
-
-                            @Override
-                            public void onError(String error) {
-                                // Εδώ μπορείτε να χειριστείτε το σφάλμα (error)
-                            }
-                        });
+                        helper.serialUpdateAvailable(serial_numbers_return.get(i), 1,this);
+                        helper.incomeAdd(supp_code, Objects.requireNonNull(income_date.getText()).toString(), serial_numbers_return.get(i), this);
                     }
+                    Log.e("counter",successes+"");
                     if (successes == (serial_numbers.size() + serial_numbers_return.size())) {
                         dialog.launchSuccess(this, "");
                         AlertDialog.Builder aler = new AlertDialog.Builder(this);
