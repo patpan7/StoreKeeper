@@ -136,13 +136,13 @@ public class income_CreateNew extends AppCompatActivity {
                     income_suppliers.setEnabled(false);
                     income_suppliers1.setEnabled(false);
                     lock.setImageResource(R.drawable.lock2);
-                    for (productModel p : productList){
+                    for (productModel p : productList) {
                         if (p.getName().contentEquals(income_products.getText())) {
                             prod_code = p.getCode();
                             warranty = p.getWarranty();
                         }
                     }
-                    for (supplierModel s : supplierList){
+                    for (supplierModel s : supplierList) {
                         if (s.getName().contentEquals(income_suppliers.getText()))
                             supp_code = s.getCode();
                     }
@@ -192,43 +192,76 @@ public class income_CreateNew extends AppCompatActivity {
 
                     for (int i = 0; i < serial_numbers.size(); i++) {
                         //Toast.makeText(getApplicationContext()," ok ",Toast.LENGTH_LONG).show();
-                        helper.serialAdd(serial_numbers.get(i), prod_code, Objects.requireNonNull(income_date.getText()).toString(), supp_code, warranty,this);
+                        helper.serialAdd(serial_numbers.get(i), prod_code, Objects.requireNonNull(income_date.getText()).toString(), supp_code, warranty, this);
                         helper.incomeAdd(supp_code, income_date.getText().toString(), serial_numbers.get(i), this);
 
                     }
-                    helper.incomeAddNew(serial_numbers,prod_code,income_date.getText().toString(),supp_code,warranty,this);
-                    for (int i = 0; i < serial_numbers_return.size(); i++) {
-                        //Toast.makeText(getApplicationContext()," ok ",Toast.LENGTH_LONG).show();
-                        helper.serialUpdateAvailable(serial_numbers_return.get(i), 1,this);
-                        helper.incomeAdd(supp_code, Objects.requireNonNull(income_date.getText()).toString(), serial_numbers_return.get(i), this);
-                    }
-                    Log.e("counter",successes+"");
-                    if (successes == (serial_numbers.size() + serial_numbers_return.size())) {
-                        dialog.launchSuccess(this, "");
-                        AlertDialog.Builder aler = new AlertDialog.Builder(this);
-                        aler.setMessage("Συνέχεια παραλαβής?");
-                        aler.setPositiveButton("Συνέχεια", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                income_products.setEnabled(true);
-                                income_products1.setEnabled(true);
-                                barcode_btn.setEnabled(true);
-                                lock.setImageResource(R.drawable.unlock);
-                                income_products.setText("");
-                                income_serialnumber.setText("");
-                                container.removeAllViews();
-                                serial_numbers.clear();
-                                serial_numbers_return.clear();
-                            }
-                        });
-                        aler.setNegativeButton("Νέα παραλαβή", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                clear();
-                            }
-                        });
-                        aler.create().show();
-                    } else dialog.launchFail(this, "");
+                    helper.incomeAddNew(serial_numbers, prod_code, income_date.getText().toString(), supp_code, warranty, this, new DBHelper.MyCallback() {
+                        @Override
+                        public void onSuccess(String response) {
+                            dialog.launchSuccess(income_CreateNew.this, "");
+                            AlertDialog.Builder aler = new AlertDialog.Builder(income_CreateNew.this);
+                            aler.setMessage("Συνέχεια παραλαβής?");
+                            aler.setPositiveButton("Συνέχεια", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    income_products.setEnabled(true);
+                                    income_products1.setEnabled(true);
+                                    barcode_btn.setEnabled(true);
+                                    lock.setImageResource(R.drawable.unlock);
+                                    income_products.setText("");
+                                    income_serialnumber.setText("");
+                                    container.removeAllViews();
+                                    serial_numbers.clear();
+                                    serial_numbers_return.clear();
+                                }
+                            });
+                            aler.setNegativeButton("Νέα παραλαβή", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    clear();
+                                }
+                            });
+                            aler.create().show();
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            dialog.launchFail(income_CreateNew.this, error);
+                        }
+                    });
+//                    for (int i = 0; i < serial_numbers_return.size(); i++) {
+//                        //Toast.makeText(getApplicationContext()," ok ",Toast.LENGTH_LONG).show();
+//                        helper.serialUpdateAvailable(serial_numbers_return.get(i), 1, this);
+//                        helper.incomeAdd(supp_code, Objects.requireNonNull(income_date.getText()).toString(), serial_numbers_return.get(i), this);
+//                    }
+//                    Log.e("counter", successes + "");
+//                    if (successes == (serial_numbers.size() + serial_numbers_return.size())) {
+//                        dialog.launchSuccess(this, "");
+//                        AlertDialog.Builder aler = new AlertDialog.Builder(this);
+//                        aler.setMessage("Συνέχεια παραλαβής?");
+//                        aler.setPositiveButton("Συνέχεια", new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialogInterface, int i) {
+//                                income_products.setEnabled(true);
+//                                income_products1.setEnabled(true);
+//                                barcode_btn.setEnabled(true);
+//                                lock.setImageResource(R.drawable.unlock);
+//                                income_products.setText("");
+//                                income_serialnumber.setText("");
+//                                container.removeAllViews();
+//                                serial_numbers.clear();
+//                                serial_numbers_return.clear();
+//                            }
+//                        });
+//                        aler.setNegativeButton("Νέα παραλαβή", new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialogInterface, int i) {
+//                                clear();
+//                            }
+//                        });
+//                        aler.create().show();
+//                    } else dialog.launchFail(this, "");
                 } else {
                     dialog.launchFail(this, "Τα απαιτούμενα πεδία δεν είναι συμπληρωμένα");
                 }

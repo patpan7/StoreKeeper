@@ -33,12 +33,14 @@ import com.example.storekeeper.Models.toSupReturnModel;
 import com.example.storekeeper.alertDialogs;
 import com.example.storekeeper.newInserts.income_CreateNew;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -626,7 +628,7 @@ public class DBHelper extends SQLiteOpenHelper {
         queue.add(stringRequest);
     }
 
-    public void supplierUpdate(supplierModel supplierModel,Context context, MyCallback callback) {
+    public void supplierUpdate(supplierModel supplierModel, Context context, MyCallback callback) {
 //        SQLiteDatabase db = this.getWritableDatabase();
 //        ContentValues cv = new ContentValues();
 //        cv.put("name", supplierModel.getName());
@@ -802,40 +804,51 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
 
-    public  void incomeAddNew(ArrayList<String> serial_numbers, int prod_code, String date, int supp_code, int warranty, income_CreateNew income_createNew){
+    public void incomeAddNew(ArrayList<String> serial_numbers, int prod_code, String date, int supp_code, int warranty, Context context, MyCallback callback) {
         String ip = getSettingsIP();
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = "http://" + ip + "/storekeeper/incomes/incomeAdd.php";
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                try {
-                    JSONObject jsonObject = new JSONObject(response);
-                    String status = jsonObject.getString("status");
-                    String message = jsonObject.getString("message");
-                    if (status.equals("success")) {
-                        response = 1+"";
+        String url = "http://" + ip + "/storekeeper/incomes/incomeAddNew.php";
+        JSONObject jsonData = new JSONObject();
+        try {
+            jsonData.put("serials", new JSONArray(serial_numbers));
+            jsonData.put("date", date);
+            jsonData.put("supp_code", supp_code);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        // Δημιουργήστε ένα αίτημα POST με τη χρήση της κλάσης StringRequest
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, jsonData,
+                response -> {
+                    // Εδώ μπορείτε να χειριστείτε την απάντηση από τον server
+                    try {
+                        String status = response.getString("status");
+                        String message = response.getString("message");
+                        if (status.equals("success")) {
+                            callback.onSuccess(message);
+                        } else callback.onError(message);
+                    } catch (JSONException e) {
+                        callback.onError(e.toString());
                     }
-                    response = 1+"";
-                } catch (JSONException e) {
-
+                },
+                error -> {
+                    // Εδώ μπορείτε να χειριστείτε οποιοδήποτε σφάλμα συμβεί κατά την εκτέλεση του αιτήματος
                 }
-            }
-        }, new Response.ErrorListener() {
+        ) {
             @Override
-            public void onErrorResponse(VolleyError error) {
+            public byte[] getBody() {
+                return jsonData.toString().getBytes();
             }
-        }) {
-            protected Map<String, String> getParams() {
-                Map<String, String> paramV = new HashMap<>();
-                paramV.put("supplier_code", String.valueOf(supp_code));
-                paramV.put("income_date", formatDateForSQL(date));
-                paramV.put("serial_number", sn);
-                return paramV;
+
+            @Override
+            public String getBodyContentType() {
+                return "application/json";
             }
         };
-        queue.add(stringRequest);
 
+
+        // Προσθέστε το αίτημα στον RequestQueue για εκτέλεση
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        requestQueue.add(request);
     }
 
     public void incomeAdd(int supplier_code, String date, String sn, Context context) throws ExecutionException, InterruptedException {
@@ -859,9 +872,9 @@ public class DBHelper extends SQLiteOpenHelper {
                     String status = jsonObject.getString("status");
                     String message = jsonObject.getString("message");
                     if (status.equals("success")) {
-                        response = 1+"";
+                        response = 1 + "";
                     }
-                    response = 1+"";
+                    response = 1 + "";
                 } catch (JSONException e) {
 
                 }
@@ -925,7 +938,7 @@ public class DBHelper extends SQLiteOpenHelper {
                     String status = jsonObject.getString("status");
                     String message = jsonObject.getString("message");
                     if (status.equals("success")) {
-                        response = 1+"";
+                        response = 1 + "";
                     }
                 } catch (JSONException e) {
                 }
@@ -1412,7 +1425,7 @@ public class DBHelper extends SQLiteOpenHelper {
                     String status = jsonObject.getString("status");
                     String message = jsonObject.getString("message");
                     if (status.equals("success")) {
-                        response = 1+"";
+                        response = 1 + "";
                     }
                 } catch (JSONException e) {
 
@@ -1426,7 +1439,7 @@ public class DBHelper extends SQLiteOpenHelper {
         }) {
             protected Map<String, String> getParams() {
                 Map<String, String> paramV = new HashMap<>();
-                paramV.put("serialnumber",sn);
+                paramV.put("serialnumber", sn);
                 paramV.put("available", String.valueOf(available));
                 return paramV;
             }
@@ -1434,10 +1447,7 @@ public class DBHelper extends SQLiteOpenHelper {
         queue.add(stringRequest);
         RequestFuture<String> future = RequestFuture.newFuture();
         stringRequest.setShouldCache(false);
-        stringRequest.setRetryPolicy(new DefaultRetryPolicy(
-                0,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(0, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         stringRequest.setShouldCache(false);
 
         stringRequest.setShouldCache(false);
