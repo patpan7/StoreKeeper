@@ -186,17 +186,7 @@ public class income_CreateNew extends AppCompatActivity {
             try {
                 int isError = checkFields();
                 if (isError == 0) {
-                    //int prod_code = helper.productGetCode(income_products.getText().toString());
-                    //int supp_code = helper.supplierGetCode(income_suppliers.getText().toString());
-                    //int warranty = helper.productGetWarranty(prod_code);
-
-                    for (int i = 0; i < serial_numbers.size(); i++) {
-                        //Toast.makeText(getApplicationContext()," ok ",Toast.LENGTH_LONG).show();
-                        helper.serialAdd(serial_numbers.get(i), prod_code, Objects.requireNonNull(income_date.getText()).toString(), supp_code, warranty, this);
-                        helper.incomeAdd(supp_code, income_date.getText().toString(), serial_numbers.get(i), this);
-
-                    }
-                    helper.incomeAddNew(serial_numbers, prod_code, income_date.getText().toString(), supp_code, warranty, this, new DBHelper.MyCallback() {
+                    helper.incomeAddNew(serial_numbers, serial_numbers_return, prod_code, income_date.getText().toString(), supp_code, warranty, this, new DBHelper.MyCallback() {
                         @Override
                         public void onSuccess(String response) {
                             dialog.launchSuccess(income_CreateNew.this, "");
@@ -230,38 +220,6 @@ public class income_CreateNew extends AppCompatActivity {
                             dialog.launchFail(income_CreateNew.this, error);
                         }
                     });
-//                    for (int i = 0; i < serial_numbers_return.size(); i++) {
-//                        //Toast.makeText(getApplicationContext()," ok ",Toast.LENGTH_LONG).show();
-//                        helper.serialUpdateAvailable(serial_numbers_return.get(i), 1, this);
-//                        helper.incomeAdd(supp_code, Objects.requireNonNull(income_date.getText()).toString(), serial_numbers_return.get(i), this);
-//                    }
-//                    Log.e("counter", successes + "");
-//                    if (successes == (serial_numbers.size() + serial_numbers_return.size())) {
-//                        dialog.launchSuccess(this, "");
-//                        AlertDialog.Builder aler = new AlertDialog.Builder(this);
-//                        aler.setMessage("Συνέχεια παραλαβής?");
-//                        aler.setPositiveButton("Συνέχεια", new DialogInterface.OnClickListener() {
-//                            @Override
-//                            public void onClick(DialogInterface dialogInterface, int i) {
-//                                income_products.setEnabled(true);
-//                                income_products1.setEnabled(true);
-//                                barcode_btn.setEnabled(true);
-//                                lock.setImageResource(R.drawable.unlock);
-//                                income_products.setText("");
-//                                income_serialnumber.setText("");
-//                                container.removeAllViews();
-//                                serial_numbers.clear();
-//                                serial_numbers_return.clear();
-//                            }
-//                        });
-//                        aler.setNegativeButton("Νέα παραλαβή", new DialogInterface.OnClickListener() {
-//                            @Override
-//                            public void onClick(DialogInterface dialogInterface, int i) {
-//                                clear();
-//                            }
-//                        });
-//                        aler.create().show();
-//                    } else dialog.launchFail(this, "");
                 } else {
                     dialog.launchFail(this, "Τα απαιτούμενα πεδία δεν είναι συμπληρωμένα");
                 }
@@ -482,8 +440,6 @@ public class income_CreateNew extends AppCompatActivity {
         if (isStock || serial_numbers.contains(sn)) {
             Toast.makeText(getApplicationContext(), "Το serial number: " + sn + " υπάρχει ή δεν ανήκει σε αυτό το προϊόν!!!", Toast.LENGTH_LONG).show();
         } else {
-
-
             LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             final View addView = layoutInflater.inflate(R.layout.income_insert_row, null);
             TextView textOut = addView.findViewById(R.id.textout);
