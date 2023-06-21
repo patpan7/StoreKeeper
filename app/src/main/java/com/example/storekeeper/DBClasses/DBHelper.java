@@ -824,6 +824,7 @@ public class DBHelper extends SQLiteOpenHelper {
                     } else callback.onError(message);
                 } catch (JSONException e) {
                     callback.onError(e.toString());
+                    Log.e("log",e.toString());
                 }
             }
         }, new Response.ErrorListener() {

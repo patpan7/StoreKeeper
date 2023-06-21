@@ -372,7 +372,12 @@ public class income_CreateNew extends AppCompatActivity {
         income_suppliers.setEnabled(true);
         income_suppliers1.setEnabled(true);
         income_suppliers.clearFocus();
-        income_date.setText("");
+        Calendar calendar = Calendar.getInstance(Locale.ROOT);
+        int mDay = calendar.get(Calendar.DATE);
+        int mMonth = calendar.get(Calendar.MONTH);
+        int mYear = calendar.get(Calendar.YEAR);
+        income_date.setText(mDay + "/" + (mMonth + 1) + "/" + mYear);
+        income_date.setShowSoftInputOnFocus(false);
         income_products.setText("");
         income_products.setEnabled(true);
         income_products1.setEnabled(true);
@@ -428,16 +433,27 @@ public class income_CreateNew extends AppCompatActivity {
 //        boolean isReturn = helper.checkSerialNumberOnReturn(sn);
         boolean isStock = false;
         boolean isReturn = false;
+        boolean isThisProd = false;
         for (serialModel s : serialsList) {
             if (s.getSerialnumber() != null && s.getSerialnumber().equals(sn) && s.getProd_code() == prod_code) {
+                if (s.getProd_code() == prod_code)
+                    if (s.getAvailable() == -1) {
+                        isReturn = true;
+                        isThisProd = true;
+                        break;
+                    } else {
+                        isStock = true;
+                        isThisProd = true;
+                        break;
+                    }
+
                 isStock = true;
-                isReturn = s.getAvailable() == -1;
                 break;
             }
         }
 
 
-        if (isStock || serial_numbers.contains(sn)) {
+        if (isStock || serial_numbers.contains(sn) && !isThisProd) {
             Toast.makeText(getApplicationContext(), "Το serial number: " + sn + " υπάρχει ή δεν ανήκει σε αυτό το προϊόν!!!", Toast.LENGTH_LONG).show();
         } else {
             LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -456,7 +472,6 @@ public class income_CreateNew extends AppCompatActivity {
                     }
                 });
             } else {
-
                 serial_numbers.add(sn);
                 ImageButton buttonRemove = addView.findViewById(R.id.remove);
                 buttonRemove.setOnClickListener(new View.OnClickListener() {
