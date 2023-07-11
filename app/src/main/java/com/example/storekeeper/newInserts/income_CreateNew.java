@@ -428,9 +428,6 @@ public class income_CreateNew extends AppCompatActivity {
     });
 
     void dynamicSerials(String sn) {
-//        boolean isThisProd = helper.checkSerialNumberProd(sn, prod_code);
-//        boolean isStock = helper.checkSerialNumberStock(sn);
-//        boolean isReturn = helper.checkSerialNumberOnReturn(sn);
         boolean isStock = false;
         boolean isReturn = false;
         boolean isThisProd = false;
