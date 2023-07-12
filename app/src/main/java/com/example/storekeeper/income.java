@@ -32,11 +32,10 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.storekeeper.Adapters.income_RVAdapter;
-import com.example.storekeeper.Adapters.suppliers_RVAdapter;
 import com.example.storekeeper.DBClasses.DBHelper;
 import com.example.storekeeper.Interfaces.income_RVInterface;
 import com.example.storekeeper.Models.incomeModel;
-import com.example.storekeeper.Models.supplierModel;
+import com.example.storekeeper.Models.productModel;
 import com.example.storekeeper.newInserts.income_CreateNew;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -67,6 +66,8 @@ public class income extends AppCompatActivity implements income_RVInterface {
     ArrayList<incomeModel> incomeModelsFiltered = new ArrayList<>();
     ArrayList<incomeModel> incomeModel = new ArrayList<>();
     ArrayList<incomeModel> dbIncomes = new ArrayList<>();
+    ArrayList<productModel> products;
+    ArrayList<String> serials;
     DBHelper helper = new DBHelper(income.this);
     ProgressDialog progress;
     @SuppressLint({"MissingInflatedId", "SetTextI18n"})
@@ -205,7 +206,7 @@ public class income extends AppCompatActivity implements income_RVInterface {
         RequestQueue queue = Volley.newRequestQueue(income.this);
         String url = "http://" + ip + "/storekeeper/incomes/incomeGetAll.php";
 
-        StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+        StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 try {
@@ -215,7 +216,7 @@ public class income extends AppCompatActivity implements income_RVInterface {
                     if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
                         JSONObject productObject = message.getJSONObject(i);
                         String supplier = productObject.getString("name");
-                        String date = productObject.getString("income_date");
+                        String date = formatDateForAndroid(productObject.getString("income_date"));
                         incomeModel newIncome = new incomeModel(date, supplier);
                         dbIncomes.add(newIncome);
                     }
@@ -287,17 +288,16 @@ public class income extends AppCompatActivity implements income_RVInterface {
         income_popup_supplier.setText(incomeModel.get(pos).getSupplier());
         income_popup_date.setText(incomeModel.get(pos).getDate());
 
-        int supplierCode = helper.supplierGetCode(incomeModel.get(pos).getSupplier());
-        ArrayList<String> products = helper.productsGetAllNamesIncome(incomeModel.get(pos).getSupplier(), incomeModel.get(pos).getDate());
-
+        productsGetAllNamesIncome(incomeModel.get(pos).getSupplier(), incomeModel.get(pos).getDate());
         for (int i = 0; i < products.size(); i++) {
             LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             final View addView = layoutInflater.inflate(R.layout.income_popup_row, null);
             TextView productName = addView.findViewById(R.id.income_popup_row_product);
             LinearLayout containerSN = addView.findViewById(R.id.containerSerials);
-            productName.setText(products.get(i).toString());
-            int prod_code = helper.productGetCode(products.get(i));
-            ArrayList<String> serials = helper.serialGetAllIncome(incomeModel.get(pos).getSupplier(), incomeModel.get(pos).getDate(),prod_code);
+            productName.setText(products.get(i).getName());
+            int prod_code = products.get(i).getCode();
+            //helper.serialGetAllIncome(incomeModel.get(pos).getSupplier(), incomeModel.get(pos).getDate(),prod_code);
+            serialGetAllIncome(incomeModel.get(pos).getSupplier(), incomeModel.get(pos).getDate(),prod_code);
             for (int j = 0; j<serials.size();j++){
                 LayoutInflater layoutInflaterSN = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 final View addViewSN = layoutInflaterSN.inflate(R.layout.income_popup_row_sn, null);
@@ -316,9 +316,107 @@ public class income extends AppCompatActivity implements income_RVInterface {
         dialog.show();
     }
 
+    private void serialGetAllIncome(String supplier, String date, int prod_code) {
+        serials = new ArrayList<>();
+        serials.clear();
+        String ip = helper.getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(income.this);
+        String url = "http://" + ip + "/storekeeper/incomes/serialGetAllIncome.php";
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+
+                    String status = response.getString("status");
+                    JSONArray message = response.getJSONArray("message");
+                    if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
+                        JSONObject productObject = message.getJSONObject(i);
+                        serials.add(productObject.getString("serial_number"));
+                    }
+                } catch (JSONException e) {
+                    Log.e(getClass().toString(), e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("date", formatDateForSQL(date));
+                paramV.put("supplier", supplier);
+                paramV.put("prod_code", String.valueOf(prod_code));
+                return paramV;
+            }
+        };
+        queue.add(request);
+    }
+
+    public void productsGetAllNamesIncome(String supplier, String date){
+        Log.e("supplier", supplier);
+        Log.e("date", formatDateForSQL(date));
+        products = new ArrayList<>();
+        String ip = helper.getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(income.this);
+        String url = "http://" + ip + "/storekeeper/incomes/productsGetAllNamesIncome.php";
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+
+                    String status = response.getString("status");
+                    JSONArray message = response.getJSONArray("message");
+                    if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
+                        JSONObject productObject = message.getJSONObject(i);
+                        int code = productObject.getInt("code");
+                        String name = productObject.getString("name");
+                        productModel newProduct = new productModel(code, name);
+                        products.add(newProduct);
+                    }
+                } catch (JSONException e) {
+                    Log.e(getClass().toString(), e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("date", formatDateForSQL(date));
+                paramV.put("supplier", supplier);
+                return paramV;
+            }
+        };
+        queue.add(request);
+    }
+
     public static String formatDateForSQL(String inDate) {
         SimpleDateFormat inSDF = new SimpleDateFormat("dd/mm/yyyy");
         SimpleDateFormat outSDF = new SimpleDateFormat("yyyy-mm-dd");
+        String outDate = "";
+        if (inDate != null) {
+            try {
+                Date date = inSDF.parse(inDate);
+                outDate = outSDF.format(date);
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return outDate;
+    }
+
+    public static String formatDateForAndroid(String inDate) {
+        SimpleDateFormat inSDF = new SimpleDateFormat("yyyy-mm-dd");
+        SimpleDateFormat outSDF = new SimpleDateFormat("dd/mm/yyyy");
         String outDate = "";
         if (inDate != null) {
             try {

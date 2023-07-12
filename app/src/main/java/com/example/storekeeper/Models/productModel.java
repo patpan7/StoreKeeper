@@ -42,6 +42,11 @@ public class productModel {
         this.name = productName;
     }
 
+    public productModel(int code, String name) {
+        this.code = code;
+        this.name = name;
+    }
+
     public productModel(int productId, String productName, String productBarcode, int productWarranty) {
         this.code = productId;
         this.name = productName;
