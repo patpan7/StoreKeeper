@@ -24,7 +24,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -287,7 +286,6 @@ public class income extends AppCompatActivity implements income_RVInterface {
         income_popup_date.setText(incomeModel.get(pos).getDate());
 
         productsGetAllNamesIncome(incomeModel.get(pos).getSupplier(), incomeModel.get(pos).getDate());
-
         for (int i = 0; i < products.size(); i++) {
             LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             final View addView = layoutInflater.inflate(R.layout.income_popup_row, null);
@@ -318,7 +316,6 @@ public class income extends AppCompatActivity implements income_RVInterface {
 
     private void serialGetAllIncome(String supplier, String date, int prod_code) {
         serials = new ArrayList<>();
-        serials.clear();
         String ip = helper.getSettingsIP();
         RequestQueue queue = Volley.newRequestQueue(income.this);
         String url = "http://" + ip + "/storekeeper/incomes/serialGetAllIncome.php";
@@ -326,17 +323,23 @@ public class income extends AppCompatActivity implements income_RVInterface {
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                try {
-
-                    String status = response.getString("status");
-                    JSONArray message = response.getJSONArray("message");
-                    if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
-                        JSONObject productObject = message.getJSONObject(i);
-                        serials.add(productObject.getString("serial_number"));
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Εδώ προσθέστε τα δεδομένα στο ArrayList
+                        try {
+                            String status = response.getString("status");
+                            JSONArray message = response.getJSONArray("message");
+                            if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
+                                JSONObject productObject = message.getJSONObject(i);
+                                serials.add(productObject.getString("serial_number"));
+                            }
+                        } catch (JSONException e) {
+                            Log.e(getClass().toString(), e.toString());
+                        }
                     }
-                } catch (JSONException e) {
-                    Log.e(getClass().toString(), e.toString());
-                }
+                });
+
             }
         }, new Response.ErrorListener() {
             @Override
@@ -365,19 +368,28 @@ public class income extends AppCompatActivity implements income_RVInterface {
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                try {
-                    JSONObject resp = new JSONObject(response);
-                    String status = resp.getString("status");
-                    JSONArray message = resp.getJSONArray("message");
-                    if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
-                        JSONObject productObject = message.getJSONObject(i);
-                        int code = productObject.getInt("code");
-                        String name = productObject.getString("name");
-                        productModel newProduct = new productModel(code, name);
-                        products.add(newProduct);
+                // Ενημέρωση του ArrayList στο UI thread
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Εδώ προσθέστε τα δεδομένα στο ArrayList
+                        try {
+                            JSONObject resp = new JSONObject(response);
+                            String status = resp.getString("status");
+                            JSONArray message = resp.getJSONArray("message");
+                            if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
+                                JSONObject productObject = message.getJSONObject(i);
+                                int code = productObject.getInt("code");
+                                String name = productObject.getString("name");
+                                productModel newProduct = new productModel(code, name);
+                                products.add(newProduct);
+                            }
+                            Log.e("products",products.size()+"");
+                        } catch (JSONException ignored) {
+                        }
                     }
-                } catch (JSONException e) {
-                }
+                });
+
             }
         }, new Response.ErrorListener() {
             @Override
