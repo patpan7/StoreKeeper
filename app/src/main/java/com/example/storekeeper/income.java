@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -197,9 +198,6 @@ public class income extends AppCompatActivity implements income_RVInterface {
 //        incomeModel.addAll(dbIncomes);
 //        adapter = new income_RVAdapter(this, dbIncomes, this);
 //        recyclerView.setAdapter(adapter);
-        Log.e("LOG",formatDateForSQL(start));
-        Log.e("LOG",formatDateForSQL(end));
-
         incomeModelsFiltered.clear();
         dbIncomes.clear();
         String ip = helper.getSettingsIP();
@@ -289,6 +287,7 @@ public class income extends AppCompatActivity implements income_RVInterface {
         income_popup_date.setText(incomeModel.get(pos).getDate());
 
         productsGetAllNamesIncome(incomeModel.get(pos).getSupplier(), incomeModel.get(pos).getDate());
+
         for (int i = 0; i < products.size(); i++) {
             LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             final View addView = layoutInflater.inflate(R.layout.income_popup_row, null);
@@ -296,8 +295,9 @@ public class income extends AppCompatActivity implements income_RVInterface {
             LinearLayout containerSN = addView.findViewById(R.id.containerSerials);
             productName.setText(products.get(i).getName());
             int prod_code = products.get(i).getCode();
-            //helper.serialGetAllIncome(incomeModel.get(pos).getSupplier(), incomeModel.get(pos).getDate(),prod_code);
+
             serialGetAllIncome(incomeModel.get(pos).getSupplier(), incomeModel.get(pos).getDate(),prod_code);
+
             for (int j = 0; j<serials.size();j++){
                 LayoutInflater layoutInflaterSN = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 final View addViewSN = layoutInflaterSN.inflate(R.layout.income_popup_row_sn, null);
@@ -357,20 +357,18 @@ public class income extends AppCompatActivity implements income_RVInterface {
     }
 
     public void productsGetAllNamesIncome(String supplier, String date){
-        Log.e("supplier", supplier);
-        Log.e("date", formatDateForSQL(date));
         products = new ArrayList<>();
         String ip = helper.getSettingsIP();
         RequestQueue queue = Volley.newRequestQueue(income.this);
         String url = "http://" + ip + "/storekeeper/incomes/productsGetAllNamesIncome.php";
 
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, null, new Response.Listener<JSONObject>() {
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
             @Override
-            public void onResponse(JSONObject response) {
+            public void onResponse(String response) {
                 try {
-
-                    String status = response.getString("status");
-                    JSONArray message = response.getJSONArray("message");
+                    JSONObject resp = new JSONObject(response);
+                    String status = resp.getString("status");
+                    JSONArray message = resp.getJSONArray("message");
                     if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
                         JSONObject productObject = message.getJSONObject(i);
                         int code = productObject.getInt("code");
@@ -379,16 +377,13 @@ public class income extends AppCompatActivity implements income_RVInterface {
                         products.add(newProduct);
                     }
                 } catch (JSONException e) {
-                    Log.e(getClass().toString(), e.toString());
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
             }
-        }){
-            @Override
+        }) {
             protected Map<String, String> getParams() {
                 Map<String, String> paramV = new HashMap<>();
                 paramV.put("date", formatDateForSQL(date));
@@ -396,7 +391,7 @@ public class income extends AppCompatActivity implements income_RVInterface {
                 return paramV;
             }
         };
-        queue.add(request);
+        queue.add(stringRequest);
     }
 
     public static String formatDateForSQL(String inDate) {
