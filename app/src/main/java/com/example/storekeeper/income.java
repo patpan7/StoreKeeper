@@ -54,6 +54,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import kotlinx.coroutines.CoroutineScope;
+
 public class income extends AppCompatActivity implements income_RVInterface {
 
     RecyclerView recyclerView;
@@ -66,10 +68,11 @@ public class income extends AppCompatActivity implements income_RVInterface {
     ArrayList<incomeModel> incomeModelsFiltered = new ArrayList<>();
     ArrayList<incomeModel> incomeModel = new ArrayList<>();
     ArrayList<incomeModel> dbIncomes = new ArrayList<>();
-    ArrayList<productModel> products;
-    ArrayList<String> serials;
+    ArrayList<productModel> products = new ArrayList<>();
+    ArrayList<String> serials = new ArrayList<>();
     DBHelper helper = new DBHelper(income.this);
     ProgressDialog progress;
+    private CoroutineScope coroutineScope;
     @SuppressLint({"MissingInflatedId", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -315,7 +318,7 @@ public class income extends AppCompatActivity implements income_RVInterface {
     }
 
     private void serialGetAllIncome(String supplier, String date, int prod_code) {
-        serials = new ArrayList<>();
+        serials.clear();
         String ip = helper.getSettingsIP();
         RequestQueue queue = Volley.newRequestQueue(income.this);
         String url = "http://" + ip + "/storekeeper/incomes/serialGetAllIncome.php";
@@ -323,23 +326,16 @@ public class income extends AppCompatActivity implements income_RVInterface {
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        // Εδώ προσθέστε τα δεδομένα στο ArrayList
-                        try {
-                            String status = response.getString("status");
-                            JSONArray message = response.getJSONArray("message");
-                            if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
-                                JSONObject productObject = message.getJSONObject(i);
-                                serials.add(productObject.getString("serial_number"));
-                            }
-                        } catch (JSONException e) {
-                            Log.e(getClass().toString(), e.toString());
-                        }
+                try {
+                    String status = response.getString("status");
+                    JSONArray message = response.getJSONArray("message");
+                    if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
+                        JSONObject productObject = message.getJSONObject(i);
+                        serials.add(productObject.getString("serial_number"));
                     }
-                });
-
+                } catch (JSONException e) {
+                    Log.e(getClass().toString(), e.toString());
+                }
             }
         }, new Response.ErrorListener() {
             @Override
@@ -360,7 +356,7 @@ public class income extends AppCompatActivity implements income_RVInterface {
     }
 
     public void productsGetAllNamesIncome(String supplier, String date){
-        products = new ArrayList<>();
+        products.clear();
         String ip = helper.getSettingsIP();
         RequestQueue queue = Volley.newRequestQueue(income.this);
         String url = "http://" + ip + "/storekeeper/incomes/productsGetAllNamesIncome.php";
@@ -368,34 +364,29 @@ public class income extends AppCompatActivity implements income_RVInterface {
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                // Ενημέρωση του ArrayList στο UI thread
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        // Εδώ προσθέστε τα δεδομένα στο ArrayList
-                        try {
-                            JSONObject resp = new JSONObject(response);
-                            String status = resp.getString("status");
-                            JSONArray message = resp.getJSONArray("message");
-                            if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
-                                JSONObject productObject = message.getJSONObject(i);
-                                int code = productObject.getInt("code");
-                                String name = productObject.getString("name");
-                                productModel newProduct = new productModel(code, name);
-                                products.add(newProduct);
-                            }
-                            Log.e("products",products.size()+"");
-                        } catch (JSONException ignored) {
-                        }
+                try {
+                    JSONObject resp = new JSONObject(response);
+                    String status = resp.getString("status");
+                    JSONArray message = resp.getJSONArray("message");
+                    if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
+                        JSONObject productObject = message.getJSONObject(i);
+                        int code = productObject.getInt("code");
+                        String name = productObject.getString("name");
+                        productModel newProduct = new productModel(code, name);
+                        products.add(newProduct);
                     }
-                });
-
+                    Log.e("products",products.size()+"");
+                } catch (JSONException e) {
+                    Log.e(getClass().toString(), e.toString());
+                }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
             }
-        }) {
+        })
+
+        {
             protected Map<String, String> getParams() {
                 Map<String, String> paramV = new HashMap<>();
                 paramV.put("date", formatDateForSQL(date));

@@ -31,10 +31,12 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.storekeeper.Adapters.suppliers_RVAdapter;
 import com.example.storekeeper.DBClasses.DBHelper;
 import com.example.storekeeper.Interfaces.suppliers_RVInterface;
+import com.example.storekeeper.Models.productModel;
 import com.example.storekeeper.Models.supplierModel;
 import com.example.storekeeper.newInserts.supplier_CreateNew;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -45,6 +47,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class suppliers extends AppCompatActivity implements suppliers_RVInterface {
 
@@ -63,6 +67,7 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
     ArrayList<supplierModel> supplierModelsFiltered = new ArrayList<>();
     ArrayList<supplierModel> supplierModels = new ArrayList<>();
     ArrayList<supplierModel> dbSuppliers = new ArrayList<>();
+    ArrayList<productModel> products = new ArrayList<>();
     alertDialogs dialogAlert;
     DBHelper helper = new DBHelper(suppliers.this);
     ProgressDialog progress;
@@ -254,15 +259,15 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
                     incomeClicked[0] = true;
                     income_plus.setImageResource(R.drawable.up);
                     container.removeAllViews();
-                    ArrayList<String> products = helper.productsGetAllNamesIncome(supplierModels.get(pos).getCode());
-
+                    //ArrayList<String> products = helper.productsGetAllNamesIncome(supplierModels.get(pos).getCode());
+                    productsGetAllNamesIncome(supplierModels.get(pos).getCode());
                     for (int i = 0; i < products.size(); i++) {
                         LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                         final View addView = layoutInflater.inflate(R.layout.income_popup_row, null);
                         TextView productName = addView.findViewById(R.id.income_popup_row_product);
                         LinearLayout containerSN = addView.findViewById(R.id.containerSerials);
-                        productName.setText(products.get(i).toString());
-                        int prod_code = helper.productGetCode(products.get(i));
+                        productName.setText(products.get(i).getName());
+                        int prod_code = products.get(i).getCode();
                         ArrayList<String> serials = helper.serialGetAllIncome(prod_code, supplierModels.get(pos).getCode());
                         for (int j = 0; j < serials.size(); j++) {
                             LayoutInflater layoutInflaterSN = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -338,6 +343,48 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
                 supplier_popup_afm.setEnabled(true);
             }
         });
+    }
+
+    private void productsGetAllNamesIncome(int code) {
+        products.clear();
+        String ip = helper.getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(suppliers.this);
+        String url = "http://" + ip + "/storekeeper/suppliers/productsGetAllNamesIncome.php";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject resp = new JSONObject(response);
+                    String status = resp.getString("status");
+                    JSONArray message = resp.getJSONArray("message");
+                    if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
+                        JSONObject productObject = message.getJSONObject(i);
+                        int code = productObject.getInt("code");
+                        String name = productObject.getString("name");
+                        productModel newProduct = new productModel(code, name);
+                        products.add(newProduct);
+                    }
+                    Log.e("products",products.size()+"");
+                } catch (JSONException e) {
+                    Log.e(getClass().toString(), e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+            }
+        })
+
+        {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("supplier", String.valueOf(code));
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
+
     }
 
     int checkFields() {
