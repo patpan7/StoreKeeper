@@ -54,8 +54,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import kotlinx.coroutines.CoroutineScope;
-
 public class income extends AppCompatActivity implements income_RVInterface {
 
     RecyclerView recyclerView;
@@ -68,11 +66,10 @@ public class income extends AppCompatActivity implements income_RVInterface {
     ArrayList<incomeModel> incomeModelsFiltered = new ArrayList<>();
     ArrayList<incomeModel> incomeModel = new ArrayList<>();
     ArrayList<incomeModel> dbIncomes = new ArrayList<>();
-    ArrayList<productModel> products = new ArrayList<>();
-    ArrayList<String> serials = new ArrayList<>();
+    ArrayList<productModel> products;
+    ArrayList<String> serials;
     DBHelper helper = new DBHelper(income.this);
     ProgressDialog progress;
-    private CoroutineScope coroutineScope;
     @SuppressLint({"MissingInflatedId", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -318,7 +315,7 @@ public class income extends AppCompatActivity implements income_RVInterface {
     }
 
     private void serialGetAllIncome(String supplier, String date, int prod_code) {
-        serials.clear();
+        serials = new ArrayList<>();
         String ip = helper.getSettingsIP();
         RequestQueue queue = Volley.newRequestQueue(income.this);
         String url = "http://" + ip + "/storekeeper/incomes/serialGetAllIncome.php";
@@ -356,7 +353,7 @@ public class income extends AppCompatActivity implements income_RVInterface {
     }
 
     public void productsGetAllNamesIncome(String supplier, String date){
-        products.clear();
+        products = new ArrayList<>();
         String ip = helper.getSettingsIP();
         RequestQueue queue = Volley.newRequestQueue(income.this);
         String url = "http://" + ip + "/storekeeper/incomes/productsGetAllNamesIncome.php";
@@ -376,17 +373,14 @@ public class income extends AppCompatActivity implements income_RVInterface {
                         products.add(newProduct);
                     }
                     Log.e("products",products.size()+"");
-                } catch (JSONException e) {
-                    Log.e(getClass().toString(), e.toString());
+                } catch (JSONException ignored) {
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
             }
-        })
-
-        {
+        }) {
             protected Map<String, String> getParams() {
                 Map<String, String> paramV = new HashMap<>();
                 paramV.put("date", formatDateForSQL(date));
