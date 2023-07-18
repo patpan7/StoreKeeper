@@ -50,8 +50,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class income_CreateNew extends AppCompatActivity {
 
@@ -71,7 +69,6 @@ public class income_CreateNew extends AppCompatActivity {
     int prod_code;
     int supp_code;
     int warranty;
-    int successes = 0;
 
 
     @RequiresApi(api = Build.VERSION_CODES.O)

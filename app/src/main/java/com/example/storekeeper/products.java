@@ -31,6 +31,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.storekeeper.Adapters.products_RVAdapter;
 import com.example.storekeeper.DBClasses.DBHelper;
@@ -45,6 +46,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class products extends AppCompatActivity implements products_RVInterface {
 
@@ -63,6 +66,8 @@ public class products extends AppCompatActivity implements products_RVInterface 
     ArrayList<productModel> productModels = new ArrayList<>();
     ArrayList<productModel> productModelsFiltered = new ArrayList<>();
     ArrayList<productModel> dbProducts = new ArrayList<>();
+    ArrayList<String> productSerials = new ArrayList<>();
+    ArrayList<String> employees = new ArrayList<>();
     alertDialogs dialogAlert;
     DBHelper helper = new DBHelper(products.this);
     ProgressDialog progress;
@@ -253,15 +258,9 @@ public class products extends AppCompatActivity implements products_RVInterface 
                     charged_plus.setImageResource(R.drawable.down);
                     container.removeAllViews();
 
-                    ArrayList<String> productSerials = helper.productGetAllAvailableSN(productModels.get(pos).getCode());
+                    productGetAllAvailableSN(productModels.get(pos).getCode());
 
-                    for (int i = 0; i < productSerials.size(); i++) {
-                        LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                        final View addView = layoutInflater.inflate(R.layout.serial_number_row, null);
-                        TextView textOut = addView.findViewById(R.id.textout);
-                        textOut.append(productSerials.get(i));
-                        container.addView(addView);
-                    }
+
                 }
             }
         });
@@ -281,7 +280,7 @@ public class products extends AppCompatActivity implements products_RVInterface 
                     available_plus.setImageResource(R.drawable.down);
                     charged_plus.setImageResource(R.drawable.up);
                     container.removeAllViews();
-                    ArrayList<String> employees = helper.employeesGetAllNamesWithSN(productModels.get(pos).getCode());
+                    employees = helper.employeesGetAllNamesWithSN(productModels.get(pos).getCode());
 
                     for (int i = 0; i < employees.size(); i++) {
                         LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -356,6 +355,53 @@ public class products extends AppCompatActivity implements products_RVInterface 
             product_popup_barcode.setEnabled(true);
             product_popup_warranty.setEnabled(true);
         });
+
+    }
+
+    void productGetAllAvailableSN(int code){
+        productSerials.clear();
+        String ip = helper.getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(products.this);
+        String url = "http://" + ip + "/storekeeper/products/productGetAllAvailableSN.php";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject resp = new JSONObject(response);
+                    String status = resp.getString("status");
+                    JSONArray message = resp.getJSONArray("message");
+                    if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
+                        JSONObject productObject = message.getJSONObject(i);
+                        String serial = productObject.getString("serial_number");
+                        productSerials.add(serial);
+                    }
+                    for (int i = 0; i < productSerials.size(); i++) {
+                        LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                        final View addView = layoutInflater.inflate(R.layout.serial_number_row, null);
+                        TextView textOut = addView.findViewById(R.id.textout);
+                        textOut.append(productSerials.get(i));
+                        container.addView(addView);
+                    }
+
+                } catch (JSONException e) {
+                    Log.e(getClass().toString(), e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+            }
+        })
+
+        {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("prod_code", String.valueOf(code));
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
 
     }
 

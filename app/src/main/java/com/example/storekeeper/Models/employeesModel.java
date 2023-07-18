@@ -19,6 +19,11 @@ public class employeesModel {
         this.id = id;
     }
 
+    public employeesModel(int code, String name) {
+        this.code = code;
+        this.name = name;
+    }
+
     public int getCode() {
         return code;
     }

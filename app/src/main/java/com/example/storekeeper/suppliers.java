@@ -68,6 +68,7 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
     ArrayList<supplierModel> supplierModels = new ArrayList<>();
     ArrayList<supplierModel> dbSuppliers = new ArrayList<>();
     ArrayList<productModel> products = new ArrayList<>();
+    ArrayList<String> serials = new ArrayList<>();
     alertDialogs dialogAlert;
     DBHelper helper = new DBHelper(suppliers.this);
     ProgressDialog progress;
@@ -260,24 +261,8 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
                     income_plus.setImageResource(R.drawable.up);
                     container.removeAllViews();
                     //ArrayList<String> products = helper.productsGetAllNamesIncome(supplierModels.get(pos).getCode());
-                    productsGetAllNamesIncome(supplierModels.get(pos).getCode());
-                    for (int i = 0; i < products.size(); i++) {
-                        LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                        final View addView = layoutInflater.inflate(R.layout.income_popup_row, null);
-                        TextView productName = addView.findViewById(R.id.income_popup_row_product);
-                        LinearLayout containerSN = addView.findViewById(R.id.containerSerials);
-                        productName.setText(products.get(i).getName());
-                        int prod_code = products.get(i).getCode();
-                        ArrayList<String> serials = helper.serialGetAllIncome(prod_code, supplierModels.get(pos).getCode());
-                        for (int j = 0; j < serials.size(); j++) {
-                            LayoutInflater layoutInflaterSN = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                            final View addViewSN = layoutInflaterSN.inflate(R.layout.income_popup_row_sn, null);
-                            TextView serialnumber = addViewSN.findViewById(R.id.income_popup_row_sn_serial);
-                            serialnumber.setText(serials.get(j));
-                            containerSN.addView(addViewSN);
-                        }
-                        container.addView(addView);
-                    }
+                    productsGetAllNamesIncome(supplierModels.get(pos).getCode(),pos);
+
                 }
             }
         });
@@ -345,7 +330,7 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
         });
     }
 
-    private void productsGetAllNamesIncome(int code) {
+    private void productsGetAllNamesIncome(int code, int pos) {
         products.clear();
         String ip = helper.getSettingsIP();
         RequestQueue queue = Volley.newRequestQueue(suppliers.this);
@@ -365,6 +350,15 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
                         productModel newProduct = new productModel(code, name);
                         products.add(newProduct);
                     }
+                    for (int i = 0; i < products.size(); i++) {
+                        LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                        final View addView = layoutInflater.inflate(R.layout.income_popup_row, null);
+                        TextView productName = addView.findViewById(R.id.income_popup_row_product);
+                        LinearLayout containerSN = addView.findViewById(R.id.containerSerials);
+                        productName.setText(products.get(i).getName());
+                        int prod_code = products.get(i).getCode();
+                        serialGetAllIncome(prod_code, supplierModels.get(pos).getCode(),container,containerSN,addView);
+                    }
                     Log.e("products",products.size()+"");
                 } catch (JSONException e) {
                     Log.e(getClass().toString(), e.toString());
@@ -380,6 +374,56 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
             protected Map<String, String> getParams() {
                 Map<String, String> paramV = new HashMap<>();
                 paramV.put("supplier", String.valueOf(code));
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
+
+    }
+
+    void serialGetAllIncome(int prod_code, int code, LinearLayout container, LinearLayout containerSN, View addView){
+        String ip = helper.getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(suppliers.this);
+        String url = "http://" + ip + "/storekeeper/suppliers/serialGetAllIncome.php";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    serials.clear();
+                    JSONObject resp = new JSONObject(response);
+                    String status = resp.getString("status");
+                    JSONArray message = resp.getJSONArray("message");
+                    if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
+                        JSONObject productObject = message.getJSONObject(i);
+                        serials.add(productObject.getString("serial_number"));
+                    }
+                    for (int j = 0; j < serials.size(); j++) {
+                        LayoutInflater layoutInflaterSN = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                        final View addViewSN = layoutInflaterSN.inflate(R.layout.income_popup_row_sn, null);
+                        TextView serialnumber = addViewSN.findViewById(R.id.income_popup_row_sn_serial);
+                        serialnumber.setText(serials.get(j));
+                        containerSN.addView(addViewSN);
+                    }
+                    container.addView(addView);
+                    //containerSN.removeAllViews();
+                    Log.e("Serials size",serials.size()+"");
+
+                } catch (JSONException e) {
+                    Log.e(getClass().toString(), e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("supplier", String.valueOf(code));
+                paramV.put("prod_code", String.valueOf(prod_code));
                 return paramV;
             }
         };

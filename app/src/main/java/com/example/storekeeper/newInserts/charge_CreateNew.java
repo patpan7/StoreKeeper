@@ -5,6 +5,7 @@ import android.app.DatePickerDialog;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -20,13 +21,25 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.storekeeper.DBClasses.DBHelper;
+import com.example.storekeeper.Models.employeesModel;
+import com.example.storekeeper.Models.serialModel;
 import com.example.storekeeper.R;
 import com.example.storekeeper.alertDialogs;
 import com.example.storekeeper.captureAct;
 import com.google.android.material.textfield.TextInputEditText;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -42,6 +55,8 @@ public class charge_CreateNew extends AppCompatActivity {
     CardView savebtn;
     DBHelper helper = new DBHelper(charge_CreateNew.this);
     ArrayList<String> serial_numbers;
+    ArrayList<employeesModel> employeeList;
+    ArrayList<serialModel> serialsList;
     alertDialogs dialog;
 
 
@@ -55,7 +70,8 @@ public class charge_CreateNew extends AppCompatActivity {
 
         serial_numbers = new ArrayList<>();
         charge_employee = findViewById(R.id.charge_insert_employee1);
-        ArrayList<String> employeeList = helper.employeesGetAllNames();
+        //ArrayList<String> employeeList = helper.employeesGetAllNames();
+        employeesGetAllNames();
         charge_employee.setAdapter(new ArrayAdapter<>(charge_CreateNew.this, R.layout.dropdown_row, employeeList));
         charge_employee.setThreshold(1);
 
@@ -72,7 +88,7 @@ public class charge_CreateNew extends AppCompatActivity {
                 datePicker(charge_date);
             }
         });
-
+        serialsGetAll();
         charge_serialnumber = findViewById(R.id.charge_insert_sn1);
         serial_btn = findViewById(R.id.charge_insert_snsearch_btn);
         serial_btn.setOnClickListener(new View.OnClickListener() {
@@ -117,6 +133,78 @@ public class charge_CreateNew extends AppCompatActivity {
 
 
         });
+    }
+
+    private void employeesGetAllNames() {
+        employeeList = new ArrayList<>();
+        String ip = helper.getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(charge_CreateNew.this);
+        String url = "http://" + ip + "/storekeeper/employees/employeesGetAll.php";
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(charge_CreateNew.this,
+                            R.layout.dropdown_row);
+                    String status = response.getString("status");
+                    JSONArray message = response.getJSONArray("message");
+                    if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
+                        JSONObject productObject = message.getJSONObject(i);
+                        int code = productObject.getInt("code");
+                        String name = productObject.getString("name");
+                        employeesModel employee = new employeesModel(code, name);
+                        employeeList.add(employee);
+                        adapter.add(name);
+                    }
+
+
+                    // Σύνδεση του ArrayAdapter με το AutoCompleteTextView
+                    charge_employee.setAdapter(adapter);
+                } catch (JSONException e) {
+                    Log.e(getClass().toString(), e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        });
+        queue.add(request);
+    }
+
+    private void serialsGetAll() {
+        serialsList = new ArrayList<>();
+        String ip = helper.getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(charge_CreateNew.this);
+        String url = "http://" + ip + "/storekeeper/incomes/serialsGetAll.php";
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    String status = response.getString("status");
+                    JSONArray message = response.getJSONArray("message");
+                    if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
+                        JSONObject productObject = message.getJSONObject(i);
+                        String serialnumber = productObject.getString("serialnumber");
+                        int prod_code = productObject.getInt("prod_code");
+                        int available = productObject.getInt("available");
+                        serialModel serial = new serialModel(serialnumber, prod_code, available);
+                        serialsList.add(serial);
+                    }
+                } catch (JSONException e) {
+                    Log.e(getClass().toString(), e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        });
+        queue.add(request);
     }
 
     private int checkFields() {
