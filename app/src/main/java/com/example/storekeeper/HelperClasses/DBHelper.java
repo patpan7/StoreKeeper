@@ -1,4 +1,4 @@
-package com.example.storekeeper.DBClasses;
+package com.example.storekeeper.HelperClasses;
 
 
 import android.content.ContentValues;
@@ -1203,16 +1203,54 @@ public class DBHelper extends SQLiteOpenHelper {
         return update != -1;
     }
 
-    public void chargeAdd(String emp, String date, String serial) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        ContentValues cv = new ContentValues();
-        cv.put("employee_name", emp);
-        cv.put("charge_date", formatDateForSQL(date));
-        cv.put("serial_number", serial);
-        cv.put("sync_status", STATUS_UNSYNC);
-        String createTable = "create table if not exists " + CHARGE + "(code INTEGER PRIMARY KEY AUTOINCREMENT, employee_name TEXT, charge_date DATE, serial_number TEXT)";
-        db.execSQL(createTable);
-        long insert = db.insert(CHARGE, null, cv);
+    public void chargeAdd(ArrayList<String> serial_numbers, String date, int emp_code, Context context, MyCallback callback) throws ParseException {
+//        SQLiteDatabase db = this.getReadableDatabase();
+//        ContentValues cv = new ContentValues();
+//        cv.put("employee_name", emp);
+//        cv.put("charge_date", formatDateForSQL(date));
+//        cv.put("serial_number", serial);
+//        cv.put("sync_status", STATUS_UNSYNC);
+//        String createTable = "create table if not exists " + CHARGE + "(code INTEGER PRIMARY KEY AUTOINCREMENT, employee_name TEXT, charge_date DATE, serial_number TEXT)";
+//        db.execSQL(createTable);
+//        long insert = db.insert(CHARGE, null, cv);
+        String income_date_format = formatDateForSQL(date);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar c = Calendar.getInstance();
+        c.setTime(sdf.parse(income_date_format));
+        String ip = getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String url = "http://" + ip + "/storekeeper/charges/chargeAddNew.php";
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    String status = jsonObject.getString("status");
+                    String message = jsonObject.getString("message");
+                    if (status.equals("success")) {
+                        callback.onSuccess(message);
+                    } else callback.onError(message);
+                } catch (JSONException e) {
+                    callback.onError(e.toString());
+                    Log.e("log",e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                callback.onError("error");
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("emp_code", String.valueOf(emp_code));
+                paramV.put("date", formatDateForSQL(date));
+                String data = new Gson().toJson(serial_numbers);
+                paramV.put("serials", data);
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
     }
 
     public ArrayList<String> productsGetAllNamesCharge(String employeeName, String date) {

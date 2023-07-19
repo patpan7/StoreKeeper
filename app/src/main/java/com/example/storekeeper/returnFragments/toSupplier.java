@@ -24,7 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.storekeeper.Adapters.return_toSupAdapter;
-import com.example.storekeeper.DBClasses.DBHelper;
+import com.example.storekeeper.HelperClasses.DBHelper;
 import com.example.storekeeper.Interfaces.return_toSupInterface;
 import com.example.storekeeper.Models.toSupReturnModel;
 import com.example.storekeeper.R;

@@ -8,7 +8,7 @@ import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
-import com.example.storekeeper.DBClasses.DBHelper;
+import com.example.storekeeper.HelperClasses.DBHelper;
 import com.example.storekeeper.Models.employeesModel;
 import com.example.storekeeper.R;
 import com.example.storekeeper.alertDialogs;

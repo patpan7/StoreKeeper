@@ -25,7 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.storekeeper.Adapters.return_fromEmpAdapter;
-import com.example.storekeeper.DBClasses.DBHelper;
+import com.example.storekeeper.HelperClasses.DBHelper;
 import com.example.storekeeper.Interfaces.return_fromEmpInterface;
 import com.example.storekeeper.Models.fromEmpReturnModel;
 import com.example.storekeeper.R;

@@ -2,16 +2,19 @@ package com.example.storekeeper;
 
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -21,19 +24,34 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.storekeeper.Adapters.charge_RVAdapter;
-import com.example.storekeeper.DBClasses.DBHelper;
+import com.example.storekeeper.HelperClasses.DBHelper;
 import com.example.storekeeper.Interfaces.charge_RVInterface;
 import com.example.storekeeper.Models.chargeModel;
+import com.example.storekeeper.Models.productModel;
 import com.example.storekeeper.newInserts.charge_CreateNew;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public class charge extends AppCompatActivity implements charge_RVInterface {
 
@@ -45,8 +63,12 @@ public class charge extends AppCompatActivity implements charge_RVInterface {
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
     ArrayList<chargeModel> chargeModel = new ArrayList<>();
+    ArrayList<chargeModel> chargeModelFiltered = new ArrayList<>();
+    ArrayList<chargeModel> dbCharges = new ArrayList<>();
+    ArrayList<productModel> products = new ArrayList<>();
+    ArrayList<String> serials = new ArrayList<>();
     DBHelper helper = new DBHelper(charge.this);
-
+    ProgressDialog progress;
 
     @SuppressLint({"MissingInflatedId", "SetTextI18n"})
     @Override
@@ -88,6 +110,7 @@ public class charge extends AppCompatActivity implements charge_RVInterface {
             }
         });
         try {
+            showLoading();
             setUpCharges(date_start.getText().toString(), date_end.getText().toString());
         } catch (ParseException e) {
             e.printStackTrace();
@@ -98,6 +121,7 @@ public class charge extends AppCompatActivity implements charge_RVInterface {
             public void onRefresh() {
                 refreshLayout.setRefreshing(false);
                 try {
+                    showLoading();
                     setUpCharges(date_start.getText().toString(), date_end.getText().toString());
                 } catch (ParseException e) {
                     e.printStackTrace();
@@ -128,18 +152,99 @@ public class charge extends AppCompatActivity implements charge_RVInterface {
             @Override
             public boolean onQueryTextChange(String s) {
                 adapter.getFilter().filter(s);
+                filterList(s);
                 return true;
             }
         });
 
     }
 
+    private void filterList(String s) {
+        ArrayList<chargeModel> filteredList = new ArrayList<>();
+        chargeModelFiltered.clear();
+        for (chargeModel charge : chargeModel) {
+            if (charge.getName().toUpperCase().contains(s.toUpperCase())) {
+                filteredList.add(charge);
+                chargeModelFiltered.add(charge);
+            }
+        }
+
+        if (filteredList.isEmpty()) {
+            Toast.makeText(this, "No data", Toast.LENGTH_LONG).show();
+        } else {
+            adapter.setFilteredList(filteredList);
+        }
+    }
+    private void showLoading() {
+        progress = new ProgressDialog(this);
+        progress.setTitle("Loading");
+        progress.setCancelable(true); // disable dismiss by tapping outside of the dialog
+        progress.setCanceledOnTouchOutside(false);
+        progress.setOnCancelListener(dialogInterface -> {
+            onBackPressed();
+        });
+        progress.show();
+    }
+
+    private void dismissLoading() {
+        progress.dismiss();
+    }
+
     private void setUpCharges(String start, String end) throws ParseException {
-        ArrayList<chargeModel> dbCharges = helper.chargeGetAll(start, end);
+//        ArrayList<chargeModel> dbCharges = helper.chargeGetAll(start, end);
+//        chargeModel.clear();
+//        chargeModel.addAll(dbCharges);
+//        adapter = new charge_RVAdapter(this, dbCharges, this);
+//        recyclerView.setAdapter(adapter);
+        chargeModelFiltered.clear();
+        dbCharges.clear();
+        String ip = helper.getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(charge.this);
+        String url = "http://" + ip + "/storekeeper/charges/chargeGetAll.php";
+
+        StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    String status = jsonObject.getString("status");
+                    JSONArray message = jsonObject.getJSONArray("message");
+                    if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
+                        JSONObject productObject = message.getJSONObject(i);
+                        String employee = productObject.getString("name");
+                        String date = formatDateForAndroid(productObject.getString("charge_date"));
+                        chargeModel newCharge = new chargeModel(date, employee);
+                        dbCharges.add(newCharge);
+                    }
+                } catch (JSONException e) {
+                    Log.e(getClass().toString(), e.toString());
+                }
+                setuprecyclerview(dbCharges);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("start", formatDateForSQL(start));
+                paramV.put("end", formatDateForSQL(end));
+                return paramV;
+            }
+        };
+        queue.add(request);
+    }
+
+    private void setuprecyclerview(ArrayList<chargeModel> dbCharges) {
         chargeModel.clear();
         chargeModel.addAll(dbCharges);
         adapter = new charge_RVAdapter(this, dbCharges, this);
+        recyclerView.removeAllViews();
         recyclerView.setAdapter(adapter);
+        dismissLoading();
     }
 
 
@@ -159,7 +264,14 @@ public class charge extends AppCompatActivity implements charge_RVInterface {
 
     @Override
     public void onItemClick(int position) {
-        chargeDialog(position);
+        if (chargeModelFiltered.isEmpty())
+            chargeDialog(position);
+        else {
+            String name1 = chargeModelFiltered.get(position).getName();
+            for (int i = 0; i < chargeModel.size(); i++)
+                if (chargeModel.get(i).getName().equals(name1))
+                    chargeDialog(i);
+        }
 
     }
 
@@ -172,31 +284,145 @@ public class charge extends AppCompatActivity implements charge_RVInterface {
         charge_popup_employee.setText(chargeModel.get(pos).getName());
         charge_popup_date.setText(chargeModel.get(pos).getDate());
 
-        ArrayList<String> products = helper.productsGetAllNamesCharge(chargeModel.get(pos).getName(), chargeModel.get(pos).getDate());
+        productsGetAllNamesCharge(chargeModel.get(pos).getName(), chargeModel.get(pos).getDate(), container,pos,chargePopupView);
 
-        for (int i = 0; i < products.size(); i++) {
-            LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            final View addView = layoutInflater.inflate(R.layout.income_popup_row, null);
-            TextView productName = addView.findViewById(R.id.income_popup_row_product);
-            LinearLayout containerSN = addView.findViewById(R.id.containerSerials);
-            productName.setText(products.get(i).toString());
-            int prod_code = helper.productGetCode(products.get(i));
-            ArrayList<String> serials = helper.serialGetAllCharge(chargeModel.get(pos).getName(), chargeModel.get(pos).getDate(),prod_code);
-            for (int j = 0; j<serials.size();j++){
-                LayoutInflater layoutInflaterSN = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                final View addViewSN = layoutInflaterSN.inflate(R.layout.income_popup_row_sn, null);
-                TextView serialnumber = addViewSN.findViewById(R.id.income_popup_row_sn_serial);
-                serialnumber.setText(serials.get(j));
-                containerSN.addView(addViewSN);
+    }
+
+    private void productsGetAllNamesCharge(String name, String date, LinearLayout container, int pos, View chargePopupView) {
+        products.clear();
+        String ip = helper.getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(charge.this);
+        String url = "http://" + ip + "/storekeeper/charges/productsGetAllNamesCharge.php";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject resp = new JSONObject(response);
+                    String status = resp.getString("status");
+                    JSONArray message = resp.getJSONArray("message");
+                    if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
+                        JSONObject productObject = message.getJSONObject(i);
+                        int code = productObject.getInt("code");
+                        String name = productObject.getString("name");
+                        productModel newProduct = new productModel(code, name);
+                        products.add(newProduct);
+                    }
+
+
+                    for (int i = 0; i < products.size(); i++) {
+                        LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                        final View addView = layoutInflater.inflate(R.layout.income_popup_row, null);
+                        TextView productName = addView.findViewById(R.id.income_popup_row_product);
+                        LinearLayout containerSN = addView.findViewById(R.id.containerSerials);
+                        productName.setText(products.get(i).getName());
+                        int prod_code = products.get(i).getCode();
+
+                        serialGetAllcharge(chargeModel.get(pos).getName(), chargeModel.get(pos).getDate(),prod_code,containerSN,container,addView);
+                    }
+
+
+                    dialogBuilder.setView(chargePopupView);
+                    dialog = dialogBuilder.create();
+                    dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                    dialog.getWindow().setWindowAnimations(R.style.DialogAnimation);
+                    dialog.show();
+
+                } catch (JSONException ignored) {
+                }
             }
-            container.addView(addView);
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("date", formatDateForSQL(date));
+                paramV.put("employee", name);
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
+    }
+
+    private void serialGetAllcharge(String name, String date, int prod_code, LinearLayout containerSN, LinearLayout container, View addView) {
+
+        String ip = helper.getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(charge.this);
+        String url = "http://" + ip + "/storekeeper/charges/serialGetAllCharges.php";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    serials.clear();
+                    JSONObject resp = new JSONObject(response);
+                    String status = resp.getString("status");
+                    JSONArray message = resp.getJSONArray("message");
+                    if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
+                        JSONObject productObject = message.getJSONObject(i);
+                        serials.add(productObject.getString("serial_number"));
+                    }
+                    //containerSN.removeAllViews();
+                    Log.e("Serials size",serials.size()+"");
+                    for (int j = 0; j<serials.size();j++){
+                        LayoutInflater layoutInflaterSN = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                        final View addViewSN = layoutInflaterSN.inflate(R.layout.income_popup_row_sn, null);
+                        TextView serialnumber = addViewSN.findViewById(R.id.income_popup_row_sn_serial);
+                        serialnumber.setText(serials.get(j));
+                        containerSN.addView(addViewSN);
+                    }
+                    container.addView(addView);
+                } catch (JSONException e) {
+                    Log.e(getClass().toString(), e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("date", formatDateForSQL(date));
+                paramV.put("employee", name);
+                paramV.put("prod_code", String.valueOf(prod_code));
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
+    }
+
+    public static String formatDateForSQL(String inDate) {
+        SimpleDateFormat inSDF = new SimpleDateFormat("dd/mm/yyyy");
+        SimpleDateFormat outSDF = new SimpleDateFormat("yyyy-mm-dd");
+        String outDate = "";
+        if (inDate != null) {
+            try {
+                Date date = inSDF.parse(inDate);
+                outDate = outSDF.format(date);
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+            }
         }
+        return outDate;
+    }
 
-
-        dialogBuilder.setView(chargePopupView);
-        dialog = dialogBuilder.create();
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.getWindow().setWindowAnimations(R.style.DialogAnimation);
-        dialog.show();
+    public static String formatDateForAndroid(String inDate) {
+        SimpleDateFormat inSDF = new SimpleDateFormat("yyyy-mm-dd");
+        SimpleDateFormat outSDF = new SimpleDateFormat("dd/mm/yyyy");
+        String outDate = "";
+        if (inDate != null) {
+            try {
+                Date date = inSDF.parse(inDate);
+                outDate = outSDF.format(date);
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return outDate;
     }
 }

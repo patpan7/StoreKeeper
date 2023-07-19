@@ -10,7 +10,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
-import com.example.storekeeper.DBClasses.DBHelper;
+import com.example.storekeeper.HelperClasses.DBHelper;
 import com.example.storekeeper.Models.productModel;
 import com.example.storekeeper.R;
 import com.example.storekeeper.alertDialogs;

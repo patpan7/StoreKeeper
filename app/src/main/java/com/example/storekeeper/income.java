@@ -31,7 +31,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.storekeeper.Adapters.income_RVAdapter;
-import com.example.storekeeper.DBClasses.DBHelper;
+import com.example.storekeeper.HelperClasses.DBHelper;
 import com.example.storekeeper.Interfaces.income_RVInterface;
 import com.example.storekeeper.Models.incomeModel;
 import com.example.storekeeper.Models.productModel;
