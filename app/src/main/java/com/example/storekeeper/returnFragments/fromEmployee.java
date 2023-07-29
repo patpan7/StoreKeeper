@@ -3,20 +3,25 @@ package com.example.storekeeper.returnFragments;
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
@@ -24,6 +29,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.storekeeper.Adapters.return_fromEmpAdapter;
 import com.example.storekeeper.HelperClasses.DBHelper;
 import com.example.storekeeper.Interfaces.return_fromEmpInterface;
@@ -34,10 +45,16 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public class fromEmployee extends Fragment implements return_fromEmpInterface {
     RecyclerView recyclerView;
@@ -45,9 +62,13 @@ public class fromEmployee extends Fragment implements return_fromEmpInterface {
     FloatingActionButton floatingActionButton;
     TextInputEditText date_start, date_end;
     return_fromEmpAdapter adapter;
-    private AlertDialog.Builder dialogBuilder;
-    private Dialog dialog;
+    AlertDialog.Builder dialogBuilder;
+    Dialog dialog;
+        DBHelper helper = new DBHelper(returs.getApplicationContext());
     ArrayList<fromEmpReturnModel> fromEmpReturnModels = new ArrayList<>();
+    ArrayList<fromEmpReturnModel> fromEmpReturnModelsFiltered = new ArrayList<>();
+    ArrayList <fromEmpReturnModel> dbFromEmp = new ArrayList<>();
+    ProgressDialog progress;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -92,6 +113,7 @@ public class fromEmployee extends Fragment implements return_fromEmpInterface {
             }
         });
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(fromEmployee.this.getContext(), fromEmpReturn_CreateNew.class);
@@ -99,6 +121,7 @@ public class fromEmployee extends Fragment implements return_fromEmpInterface {
             }
         });
         try {
+            showLoading();
             setUpReturnFromEmp(date_start.getText().toString(), date_end.getText().toString());
         } catch (ParseException e) {
             e.printStackTrace();
@@ -109,6 +132,7 @@ public class fromEmployee extends Fragment implements return_fromEmpInterface {
             public void onRefresh() {
                 refreshLayout.setRefreshing(false);
                 try {
+                    showLoading();
                     setUpReturnFromEmp(date_start.getText().toString(), date_end.getText().toString());
                 } catch (ParseException e) {
                     e.printStackTrace();
@@ -139,19 +163,105 @@ public class fromEmployee extends Fragment implements return_fromEmpInterface {
             @Override
             public boolean onQueryTextChange(String s) {
                 adapter.getFilter().filter(s);
+                filterList(s);
                 return true;
             }
         });
     }
 
-    private void setUpReturnFromEmp(String start, String end) throws ParseException {
-        DBHelper helper = new DBHelper(getActivity());
-        ArrayList<fromEmpReturnModel> dbFromEmpReturns = helper.returnsFromEmpGetAll(start, end);
-        fromEmpReturnModels.clear();
-        fromEmpReturnModels.addAll(dbFromEmpReturns);
-        adapter = new return_fromEmpAdapter(this.getContext(), dbFromEmpReturns, this);
-        recyclerView.setAdapter(adapter);
+    private void filterList(String s) {
+        ArrayList<fromEmpReturnModel> filteredList = new ArrayList<>();
+        fromEmpReturnModelsFiltered.clear();
+        for (fromEmpReturnModel fromEmp : fromEmpReturnModels) {
+            if (fromEmp.getName().toUpperCase().contains(s.toUpperCase())) {
+                filteredList.add(fromEmp);
+                fromEmpReturnModelsFiltered.add(fromEmp);
+            }
+        }
+
+        if (filteredList.isEmpty()) {
+            Toast.makeText(getContext(), "No data", Toast.LENGTH_LONG).show();
+        } else {
+            adapter.setFilteredList(filteredList);
+        }
     }
+
+    private void showLoading() {
+        progress = new ProgressDialog(getContext());
+        progress.setTitle("Loading");
+        progress.setCancelable(true); // disable dismiss by tapping outside of the dialog
+        progress.setCanceledOnTouchOutside(false);
+        progress.setOnCancelListener(dialogInterface -> {
+            //onBackPressed();
+        });
+        progress.show();
+    }
+
+    private void dismissLoading() {
+        progress.dismiss();
+    }
+
+
+    private void setUpReturnFromEmp(String start, String end) throws ParseException {
+//        DBHelper helper = new DBHelper(getActivity());
+//        ArrayList<fromEmpReturnModel> dbFromEmpReturns = helper.returnsFromEmpGetAll(start, end);
+//        fromEmpReturnModels.clear();
+//        fromEmpReturnModels.addAll(dbFromEmpReturns);
+//        adapter = new return_fromEmpAdapter(this.getContext(), dbFromEmpReturns, this);
+//        recyclerView.setAdapter(adapter);
+        fromEmpReturnModelsFiltered.clear();
+        dbFromEmp.clear();
+        String ip = helper.getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        String url = "http://" + ip + "/storekeeper/returns/returnFromEmpGetAll.php";
+
+        StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    String status = jsonObject.getString("status");
+                    JSONArray message = jsonObject.getJSONArray("message");
+                    if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
+                        JSONObject productObject = message.getJSONObject(i);
+                        String employee = productObject.getString("name");
+                        String date = DBHelper.formatDateForAndroid(productObject.getString("return_date"));
+                        fromEmpReturnModel newFromEmp = new fromEmpReturnModel(date,employee);
+                        dbFromEmp.add(newFromEmp);
+                    }
+                } catch (JSONException e) {
+                    Log.e(getClass().toString(), e.toString());
+                }
+                setuprecyclerview(dbFromEmp);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("start", DBHelper.formatDateForSQL(start));
+                paramV.put("end", DBHelper.formatDateForSQL(end));
+                return paramV;
+            }
+        };
+        queue.add(request);
+
+    }
+
+    private void setuprecyclerview(ArrayList<fromEmpReturnModel> dbIncomes) {
+        fromEmpReturnModels.clear();
+        fromEmpReturnModels.addAll(dbIncomes);
+        adapter = new return_fromEmpAdapter(this.getContext(), dbFromEmp, this);
+        //adapter = new income_RVAdapter(this, dbIncomes, this);
+        recyclerView.removeAllViews();
+        recyclerView.setAdapter(adapter);
+        dismissLoading();
+    }
+
 
     void datePicker(TextInputEditText field) {
         Calendar calendar = Calendar.getInstance(Locale.ROOT);

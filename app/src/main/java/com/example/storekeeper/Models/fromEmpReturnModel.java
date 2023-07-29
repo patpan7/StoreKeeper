@@ -23,6 +23,11 @@ public class fromEmpReturnModel {
         this.serial = serial;
     }
 
+    public fromEmpReturnModel(String date, String name) {
+        this.date = date;
+        this.name = name;
+    }
+
     public String getName() {
         return name;
     }

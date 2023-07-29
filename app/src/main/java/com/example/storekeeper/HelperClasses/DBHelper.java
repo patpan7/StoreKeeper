@@ -1385,17 +1385,56 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
 
-    public void returnFromEmpAdd(String emp_name, String date, String sn, String msg) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        ContentValues cv = new ContentValues();
-        cv.put("employee_name", emp_name);
-        cv.put("return_date", formatDateForSQL(date));
-        cv.put("serial_number", sn);
-        cv.put("msg", msg);
-        cv.put("sync_status", STATUS_UNSYNC);
-        String createTable = "create table if not exists " + EMPRETURNS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, employee_name TEXT, return_date DATE, serial_number TEXT, msg TEXT)";
-        db.execSQL(createTable);
-        long insert = db.insert(EMPRETURNS, null, cv);
+    public void returnFromEmpAdd(int emp_code, String date, ArrayList<String> serial_numbers, String msg, Context context, MyCallback callback) throws ParseException {
+//        SQLiteDatabase db = this.getReadableDatabase();
+//        ContentValues cv = new ContentValues();
+//        cv.put("employee_name", emp_name);
+//        cv.put("return_date", formatDateForSQL(date));
+//        cv.put("serial_number", sn);
+//        cv.put("msg", msg);
+//        cv.put("sync_status", STATUS_UNSYNC);
+//        String createTable = "create table if not exists " + EMPRETURNS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, employee_name TEXT, return_date DATE, serial_number TEXT, msg TEXT)";
+//        db.execSQL(createTable);
+//        long insert = db.insert(EMPRETURNS, null, cv);
+        String income_date_format = formatDateForSQL(date);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar c = Calendar.getInstance();
+        c.setTime(sdf.parse(income_date_format));
+        String ip = getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String url = "http://" + ip + "/storekeeper/returns/returnFromEmpAdd.php";
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    String status = jsonObject.getString("status");
+                    String message = jsonObject.getString("message");
+                    if (status.equals("success")) {
+                        callback.onSuccess(message);
+                    } else callback.onError(message);
+                } catch (JSONException e) {
+                    callback.onError(e.toString());
+                    Log.e("log",e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                callback.onError("error");
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("emp_code", String.valueOf(emp_code));
+                paramV.put("date", formatDateForSQL(date));
+                String data = new Gson().toJson(serial_numbers);
+                paramV.put("serials", data);
+                paramV.put("msg", msg);
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
     }
 
     public boolean checkSerialNumberisCharged(String sn) {
