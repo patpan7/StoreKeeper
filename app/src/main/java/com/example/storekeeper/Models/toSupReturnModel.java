@@ -13,6 +13,12 @@ public class toSupReturnModel {
         this.serial = serial;
     }
 
+    public toSupReturnModel(String name, String date, String msg) {
+        this.name = name;
+        this.date = date;
+        this.msg = msg;
+    }
+
     public String getName() {
         return name;
     }

@@ -45,10 +45,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -212,7 +210,7 @@ public class charge extends AppCompatActivity implements charge_RVInterface {
                     if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
                         JSONObject productObject = message.getJSONObject(i);
                         String employee = productObject.getString("name");
-                        String date = formatDateForAndroid(productObject.getString("charge_date"));
+                        String date = DBHelper.formatDateForAndroid(productObject.getString("charge_date"));
                         chargeModel newCharge = new chargeModel(date, employee);
                         dbCharges.add(newCharge);
                     }
@@ -230,8 +228,8 @@ public class charge extends AppCompatActivity implements charge_RVInterface {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> paramV = new HashMap<>();
-                paramV.put("start", formatDateForSQL(start));
-                paramV.put("end", formatDateForSQL(end));
+                paramV.put("start", DBHelper.formatDateForSQL(start));
+                paramV.put("end", DBHelper.formatDateForSQL(end));
                 return paramV;
             }
         };
@@ -338,7 +336,7 @@ public class charge extends AppCompatActivity implements charge_RVInterface {
         }) {
             protected Map<String, String> getParams() {
                 Map<String, String> paramV = new HashMap<>();
-                paramV.put("date", formatDateForSQL(date));
+                paramV.put("date", DBHelper.formatDateForSQL(date));
                 paramV.put("employee", name);
                 return paramV;
             }
@@ -387,42 +385,12 @@ public class charge extends AppCompatActivity implements charge_RVInterface {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> paramV = new HashMap<>();
-                paramV.put("date", formatDateForSQL(date));
+                paramV.put("date", DBHelper.formatDateForSQL(date));
                 paramV.put("employee", name);
                 paramV.put("prod_code", String.valueOf(prod_code));
                 return paramV;
             }
         };
         queue.add(stringRequest);
-    }
-
-    public static String formatDateForSQL(String inDate) {
-        SimpleDateFormat inSDF = new SimpleDateFormat("dd/mm/yyyy");
-        SimpleDateFormat outSDF = new SimpleDateFormat("yyyy-mm-dd");
-        String outDate = "";
-        if (inDate != null) {
-            try {
-                Date date = inSDF.parse(inDate);
-                outDate = outSDF.format(date);
-            } catch (ParseException ex) {
-                ex.printStackTrace();
-            }
-        }
-        return outDate;
-    }
-
-    public static String formatDateForAndroid(String inDate) {
-        SimpleDateFormat inSDF = new SimpleDateFormat("yyyy-mm-dd");
-        SimpleDateFormat outSDF = new SimpleDateFormat("dd/mm/yyyy");
-        String outDate = "";
-        if (inDate != null) {
-            try {
-                Date date = inSDF.parse(inDate);
-                outDate = outSDF.format(date);
-            } catch (ParseException ex) {
-                ex.printStackTrace();
-            }
-        }
-        return outDate;
     }
 }

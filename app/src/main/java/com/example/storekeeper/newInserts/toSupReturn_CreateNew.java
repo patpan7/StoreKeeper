@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -24,7 +25,15 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.storekeeper.HelperClasses.DBHelper;
+import com.example.storekeeper.Models.supplierModel;
 import com.example.storekeeper.R;
 import com.example.storekeeper.alertDialogs;
 import com.example.storekeeper.captureAct;
@@ -33,9 +42,15 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public class toSupReturn_CreateNew extends AppCompatActivity {
     TextInputEditText return_date, return_serialnumber, return_msg;
@@ -46,9 +61,11 @@ public class toSupReturn_CreateNew extends AppCompatActivity {
     CardView savebtn;
     DBHelper helper = new DBHelper(toSupReturn_CreateNew.this);
     ArrayList<String> serial_numbers;
+    ArrayList<supplierModel> supplierList;
     alertDialogs dialog;
     String[] allserials;
     boolean[] checkedItems;
+    int sup_code = 0;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @SuppressLint({"SetTextI18n", "MissingInflatedId"})
@@ -60,8 +77,9 @@ public class toSupReturn_CreateNew extends AppCompatActivity {
         serial_numbers = new ArrayList<>();
         return_supplier = findViewById(R.id.return_toSup_insert_supplier1);
         return_supplier1 = findViewById(R.id.return_toSup_insert_supplier);
-        ArrayList<String> employeeList = helper.suppliersGetAllNames();
-        return_supplier.setAdapter(new ArrayAdapter<>(toSupReturn_CreateNew.this, R.layout.dropdown_row, employeeList));
+
+        suppliersGetAllNames();
+        return_supplier.setAdapter(new ArrayAdapter<>(toSupReturn_CreateNew.this, R.layout.dropdown_row, supplierList));
         return_supplier.setThreshold(1);
         return_supplier.addTextChangedListener(new TextWatcher() {
             @Override
@@ -76,9 +94,11 @@ public class toSupReturn_CreateNew extends AppCompatActivity {
                     return_supplier1.setEnabled(false);
                     serial_btn.setEnabled(true);
                     lock.setImageResource(R.drawable.lock2);
-                    int sup_code = helper.supplierGetCode(return_supplier.getText().toString());
-                    allserials = helper.serialGetAllFromSup(sup_code).toArray(new String[0]);
-                    checkedItems = new boolean[allserials.length];
+
+                    for (supplierModel e : supplierList)
+                        if (e.getName().contentEquals(return_supplier.getText()))
+                            sup_code = e.getCode();
+                    serialsGetAllToSup(sup_code);
                 } else {
                     return_supplier.setEnabled(true);
                 }
@@ -126,7 +146,7 @@ public class toSupReturn_CreateNew extends AppCompatActivity {
             public void onClick(View view) {
                 if (return_serialnumber.getText().toString().equals("")) scanSerial();
                 else {
-                    dinamicSerials(return_serialnumber.getText().toString(), return_supplier.getText().toString());
+                    dinamicSerials(return_serialnumber.getText().toString(), sup_code);
                     return_serialnumber.setText("");
                 }
             }
@@ -158,7 +178,7 @@ public class toSupReturn_CreateNew extends AppCompatActivity {
                         for (int j = 0; j < checkedItems.length; j++) {
                             if (checkedItems[j])
                                 if (!serial_numbers.contains(allserials[j]))
-                                    dinamicSerials(allserials[j], return_supplier.getText().toString());
+                                    dinamicSerials(allserials[j], sup_code);
                         }
                     }
                 });
@@ -188,20 +208,33 @@ public class toSupReturn_CreateNew extends AppCompatActivity {
             try {
                 int isError = checkFields();
                 if (isError == 0) {
-                    boolean success2 = false;
-                    boolean success3 = false;
-                    int successes = 0;
-                    for (int i = 0; i <= serial_numbers.size() - 1; i++) {
-                        //Toast.makeText(getApplicationContext()," ok ",Toast.LENGTH_LONG).show();
-                        //success2 =helper.serialUpdateAvailable(serial_numbers.get(i),-1);
-                        success3 = helper.returnToSupAdd(return_supplier.getText().toString(), return_date.getText().toString(), serial_numbers.get(i), return_msg.getText().toString());
-                        if (success2 && success3)
-                            successes += 1;
-                    }
-                    if (successes == serial_numbers.size()) {
-                        dialog.launchSuccess(this, "");
-                        clear();
-                    } else dialog.launchFail(this, "");
+//                    boolean success2 = false;
+//                    boolean success3 = false;
+//                    int successes = 0;
+//                    for (int i = 0; i <= serial_numbers.size() - 1; i++) {
+//                        //Toast.makeText(getApplicationContext()," ok ",Toast.LENGTH_LONG).show();
+//                        //success2 =helper.serialUpdateAvailable(serial_numbers.get(i),-1);
+//                        success3 = helper.returnToSupAdd(return_supplier.getText().toString(), return_date.getText().toString(), serial_numbers.get(i), return_msg.getText().toString());
+//                        if (success2 && success3)
+//                            successes += 1;
+//                    }
+//                    if (successes == serial_numbers.size()) {
+//                        dialog.launchSuccess(this, "");
+//                        clear();
+//                    } else dialog.launchFail(this, "");
+
+                    helper.returnToSupAdd(sup_code,return_date.getText().toString(),serial_numbers,return_msg.getText().toString(),this,new DBHelper.MyCallback() {
+                        @Override
+                        public void onSuccess(String response) {
+                            dialog.launchSuccess(toSupReturn_CreateNew.this, response);
+                            clear();
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            dialog.launchFail(toSupReturn_CreateNew.this, error);
+                        }
+                    });
                 } else {
                     dialog.launchFail(this, "Τα απαιτούμενα πεδία δεν είναι συμπληρωμένα");
                 }
@@ -211,6 +244,86 @@ public class toSupReturn_CreateNew extends AppCompatActivity {
 
 
         });
+    }
+
+    private void serialsGetAllToSup(int supCode) {
+        String ip = helper.getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(toSupReturn_CreateNew.this);
+        String url = "http://" + ip + "/storekeeper/returns/serialsGetAllToSup.php";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+
+                    JSONObject resp = new JSONObject(response);
+                    String status = resp.getString("status");
+                    JSONArray message = resp.getJSONArray("message");
+                    allserials = new String[message.length()];
+                    if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
+                        JSONObject productObject = message.getJSONObject(i);
+                        //allserials.add(productObject.getString("serial_number"));
+                        allserials[i]=productObject.getString("serial_number");
+                    }
+                    checkedItems = new boolean[allserials.length];
+                } catch (JSONException e) {
+                    Log.e(getClass().toString(), e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("supplier", String.valueOf(supCode));
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
+
+    }
+
+    private void suppliersGetAllNames() {
+        supplierList = new ArrayList<>();
+        String ip = helper.getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(toSupReturn_CreateNew.this);
+        String url = "http://" + ip + "/storekeeper/suppliers/suppliersGetAll.php";
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(toSupReturn_CreateNew.this,
+                            R.layout.dropdown_row);
+                    String status = response.getString("status");
+                    JSONArray message = response.getJSONArray("message");
+                    if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
+                        JSONObject productObject = message.getJSONObject(i);
+                        int code = productObject.getInt("code");
+                        String name = productObject.getString("name");
+                        supplierModel supplier = new supplierModel(code, name);
+                        supplierList.add(supplier);
+                        adapter.add(name);
+                    }
+
+
+                    // Σύνδεση του ArrayAdapter με το AutoCompleteTextView
+                    return_supplier.setAdapter(adapter);
+                } catch (JSONException e) {
+                    Log.e(getClass().toString(), e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        });
+        queue.add(request);
     }
 
     private int checkFields() {
@@ -237,6 +350,16 @@ public class toSupReturn_CreateNew extends AppCompatActivity {
     private void clear() {
         return_supplier.setText("");
         return_supplier.clearFocus();
+        return_supplier.setEnabled(true);
+        return_supplier1.setEnabled(true);
+        serial_btn.setEnabled(false);
+        lock.setImageResource(R.drawable.unlock);
+        Calendar calendar = Calendar.getInstance(Locale.ROOT);
+        int mDay = calendar.get(Calendar.DATE);
+        int mMonth = calendar.get(Calendar.MONTH);
+        int mYear = calendar.get(Calendar.YEAR);
+        return_date.setText(mDay + "/" + (mMonth + 1) + "/" + mYear);
+        return_date.setShowSoftInputOnFocus(false);
         return_date.setText("");
         return_msg.setText("");
         return_msg.clearFocus();
@@ -244,6 +367,7 @@ public class toSupReturn_CreateNew extends AppCompatActivity {
         return_serialnumber.clearFocus();
         container.removeAllViews();
         serial_numbers.clear();
+        allserials = new String[0];
     }
 
     private void scanSerial() {
@@ -257,57 +381,97 @@ public class toSupReturn_CreateNew extends AppCompatActivity {
 
     ActivityResultLauncher<ScanOptions> barLauncher2 = registerForActivityResult(new ScanContract(), result -> {
         if (result.getContents() != null)
-            dinamicSerials(result.getContents(), return_supplier.getText().toString());
+            dinamicSerials(result.getContents(), sup_code);
     });
 
-    void dinamicSerials(String sn, String supplier_name) {
+    void dinamicSerials(String sn, int sup_code) {
+        boolean isOk = false;
+        for (String allserial : allserials) {
+            if (allserial.equals(sn)) {
+                isOk = true;
+                break;
+            }
+        }
+        if (isOk){
+            LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            final View addView = layoutInflater.inflate(R.layout.income_insert_row,null);
+            TextView textOut = addView.findViewById(R.id.textout);
+            textOut.setText(sn);
+            serial_numbers.add(sn);
+            int pos = -1;
+            for (int i = 0; i <= allserials.length; i++) {
+                if (allserials[i].equals(sn)) {
+                    pos = i;
+                    break;
+                }
+            }
+            checkedItems[pos] = true;
+            ImageButton buttonRemove = addView.findViewById(R.id.remove);
+            buttonRemove.setOnClickListener(new View.OnClickListener() {
 
-        boolean isOld = helper.checkSerialNumber(sn);
-        boolean isAvailable = helper.checkSerialNumberAvailable(sn);
-        int sup_code = helper.supplierGetCode(supplier_name);
-        Boolean isFromSup = helper.checkSerialNumberisfromSup(sup_code,sn);
-        if (isOld || serial_numbers.contains(sn)) {
-            if (isAvailable) {
-                if (isFromSup) {
-                    LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-                    final View addView = layoutInflater.inflate(R.layout.income_insert_row, null);
-                    TextView textOut = addView.findViewById(R.id.textout);
-                    textOut.setText(sn);
-                    serial_numbers.add(sn);
+                @Override
+                public void onClick(View v) {
+                    serial_numbers.remove(textOut.getText());
                     int pos = -1;
                     for (int i = 0; i < allserials.length; i++) {
-                        if (allserials[i].equals(sn)) {
+                        if (allserials[i].equals(textOut.getText().toString())) {
                             pos = i;
                             break;
                         }
-                    }
-                    checkedItems[pos] = true;
-                    ImageButton buttonRemove = addView.findViewById(R.id.remove);
-                    buttonRemove.setOnClickListener(new View.OnClickListener() {
-
-                        @Override
-                        public void onClick(View v) {
-                            serial_numbers.remove(textOut.getText());
-                            int pos = -1;
-                            for (int i = 0; i < allserials.length; i++) {
-                                if (allserials[i].equals(textOut.getText().toString())) {
-                                    pos = i;
-                                    break;
-                                }
-                            };
-                            checkedItems[pos] = false;
-                            ((LinearLayout) addView.getParent()).removeView(addView);
-                        }
-                    });
-                    container.addView(addView);
-                } else
-                    Toast.makeText(getApplicationContext(), "Το serial number: " + sn + " είναι από άλλο προμηθευτή!!!", Toast.LENGTH_LONG).show();
-            } else
-                Toast.makeText(getApplicationContext(), "Το serial number: " + sn + " είναι χρεωμένο σε υπάλληλο!!!", Toast.LENGTH_LONG).show();
-        } else {
-            Toast.makeText(getApplicationContext(), "Το serial number: " + sn + " δεν υπάρχει!!!", Toast.LENGTH_LONG).show();
-        }
+                    };
+                    checkedItems[pos] = false;
+                    ((LinearLayout) addView.getParent()).removeView(addView);
+                }
+            });
+            container.addView(addView);
+        } else
+            Toast.makeText(getApplicationContext(), "Το serial number: " + sn + " δεν είναι χρεωμένο!!!", Toast.LENGTH_LONG).show();
+//        boolean isOld = helper.checkSerialNumber(sn);
+//        boolean isAvailable = helper.checkSerialNumberAvailable(sn);
+//        int sup_code = helper.supplierGetCode(supplier_name);
+//        Boolean isFromSup = helper.checkSerialNumberisfromSup(sup_code,sn);
+//        if (isOld || serial_numbers.contains(sn)) {
+//            if (isAvailable) {
+//                if (isFromSup) {
+//                    LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//
+//                    final View addView = layoutInflater.inflate(R.layout.income_insert_row, null);
+//                    TextView textOut = addView.findViewById(R.id.textout);
+//                    textOut.setText(sn);
+//                    serial_numbers.add(sn);
+//                    int pos = -1;
+//                    for (int i = 0; i < allserials.length; i++) {
+//                        if (allserials[i].equals(sn)) {
+//                            pos = i;
+//                            break;
+//                        }
+//                    }
+//                    checkedItems[pos] = true;
+//                    ImageButton buttonRemove = addView.findViewById(R.id.remove);
+//                    buttonRemove.setOnClickListener(new View.OnClickListener() {
+//
+//                        @Override
+//                        public void onClick(View v) {
+//                            serial_numbers.remove(textOut.getText());
+//                            int pos = -1;
+//                            for (int i = 0; i < allserials.length; i++) {
+//                                if (allserials[i].equals(textOut.getText().toString())) {
+//                                    pos = i;
+//                                    break;
+//                                }
+//                            };
+//                            checkedItems[pos] = false;
+//                            ((LinearLayout) addView.getParent()).removeView(addView);
+//                        }
+//                    });
+//                    container.addView(addView);
+//                } else
+//                    Toast.makeText(getApplicationContext(), "Το serial number: " + sn + " είναι από άλλο προμηθευτή!!!", Toast.LENGTH_LONG).show();
+//            } else
+//                Toast.makeText(getApplicationContext(), "Το serial number: " + sn + " είναι χρεωμένο σε υπάλληλο!!!", Toast.LENGTH_LONG).show();
+//        } else {
+//            Toast.makeText(getApplicationContext(), "Το serial number: " + sn + " δεν υπάρχει!!!", Toast.LENGTH_LONG).show();
+//        }
     }
 
     void datePicker(TextInputEditText field) {

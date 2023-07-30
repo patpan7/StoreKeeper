@@ -2,17 +2,20 @@ package com.example.storekeeper.returnFragments;
 
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,9 +26,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.storekeeper.Adapters.return_toSupAdapter;
 import com.example.storekeeper.HelperClasses.DBHelper;
 import com.example.storekeeper.Interfaces.return_toSupInterface;
+import com.example.storekeeper.Models.productModel;
 import com.example.storekeeper.Models.toSupReturnModel;
 import com.example.storekeeper.R;
 import com.example.storekeeper.newInserts.toSupReturn_CreateNew;
@@ -33,10 +43,16 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public class toSupplier extends Fragment implements return_toSupInterface {
     RecyclerView recyclerView;
@@ -44,13 +60,20 @@ public class toSupplier extends Fragment implements return_toSupInterface {
     FloatingActionButton floatingActionButton;
     TextInputEditText date_start, date_end;
     return_toSupAdapter adapter;
-    private AlertDialog.Builder dialogBuilder;
-    private AlertDialog dialog;
+    AlertDialog.Builder dialogBuilder;
+    AlertDialog dialog;
     ArrayList<toSupReturnModel> toSupReturnModels = new ArrayList<>();
+    ArrayList<toSupReturnModel> toSupReturnModelsFiltered = new ArrayList<>();
+    ArrayList<toSupReturnModel> dbToSup = new ArrayList<>();
+    ArrayList<productModel> products = new ArrayList<>();
+    ArrayList<String> serials = new ArrayList<>();
+    ProgressDialog progress;
+    DBHelper helper;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        helper = new DBHelper(getActivity().getApplicationContext());
     }
 
     @Override
@@ -98,6 +121,7 @@ public class toSupplier extends Fragment implements return_toSupInterface {
             }
         });
         try {
+            showLoading();
             setUpReturnToSup(date_start.getText().toString(), date_end.getText().toString());
         } catch (ParseException e) {
             e.printStackTrace();
@@ -108,6 +132,7 @@ public class toSupplier extends Fragment implements return_toSupInterface {
             public void onRefresh() {
                 refreshLayout.setRefreshing(false);
                 try {
+                    showLoading();
                     setUpReturnToSup(date_start.getText().toString(), date_end.getText().toString());
                 } catch (ParseException e) {
                     e.printStackTrace();
@@ -138,18 +163,105 @@ public class toSupplier extends Fragment implements return_toSupInterface {
             @Override
             public boolean onQueryTextChange(String s) {
                 adapter.getFilter().filter(s);
+                filterList(s);
                 return true;
             }
         });
     }
 
+    private void filterList(String s) {
+        ArrayList<toSupReturnModel> filteredList = new ArrayList<>();
+        toSupReturnModelsFiltered.clear();
+        for (toSupReturnModel toSup : toSupReturnModels) {
+            if (toSup.getName().toUpperCase().contains(s.toUpperCase())) {
+                filteredList.add(toSup);
+                toSupReturnModelsFiltered.add(toSup);
+            }
+        }
+
+        if (filteredList.isEmpty()) {
+            Toast.makeText(getContext(), "No data", Toast.LENGTH_LONG).show();
+        } else {
+            adapter.setFilteredList(filteredList);
+        }
+    }
+
+    private void showLoading() {
+        progress = new ProgressDialog(getContext());
+        progress.setTitle("Loading");
+        progress.setCancelable(true); // disable dismiss by tapping outside of the dialog
+        progress.setCanceledOnTouchOutside(false);
+        progress.setOnCancelListener(dialogInterface -> {
+            //onBackPressed();
+        });
+        progress.show();
+    }
+
+    private void dismissLoading() {
+        progress.dismiss();
+    }
+
+
+
     private void setUpReturnToSup(String start, String end) throws ParseException {
-        DBHelper helper = new DBHelper(getActivity());
-        ArrayList<toSupReturnModel> dbToSupReturns = helper.returnsToSupGetAll(start, end);
+//        DBHelper helper = new DBHelper(getActivity());
+//        ArrayList<toSupReturnModel> dbToSupReturns = helper.returnsToSupGetAll(start, end);
+//        toSupReturnModels.clear();
+//        toSupReturnModels.addAll(dbToSupReturns);
+//        adapter = new return_toSupAdapter(this.getContext(), dbToSupReturns, this);
+//        recyclerView.setAdapter(adapter);
+        toSupReturnModelsFiltered.clear();
+        dbToSup.clear();
+        String ip = helper.getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        String url = "http://" + ip + "/storekeeper/returns/returnToSupGetAll.php";
+
+        StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    String status = jsonObject.getString("status");
+                    JSONArray message = jsonObject.getJSONArray("message");
+                    if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
+                        JSONObject productObject = message.getJSONObject(i);
+                        String supplier = productObject.getString("name");
+                        String date = DBHelper.formatDateForAndroid(productObject.getString("return_date"));
+                        String msg = productObject.getString("msg");
+                        toSupReturnModel newToSup = new toSupReturnModel(supplier, date, msg);
+                        dbToSup.add(newToSup);
+                    }
+                } catch (JSONException e) {
+                    Log.e(getClass().toString(), e.toString());
+                }
+                setuprecyclerview(dbToSup);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("start", DBHelper.formatDateForSQL(start));
+                paramV.put("end", DBHelper.formatDateForSQL(end));
+                return paramV;
+            }
+        };
+        queue.add(request);
+
+    }
+
+    private void setuprecyclerview(ArrayList<toSupReturnModel> dbToSup) {
         toSupReturnModels.clear();
-        toSupReturnModels.addAll(dbToSupReturns);
-        adapter = new return_toSupAdapter(this.getContext(), dbToSupReturns, this);
+        toSupReturnModels.addAll(dbToSup);
+        adapter = new return_toSupAdapter(this.getContext(), dbToSup, this);
+        //adapter = new income_RVAdapter(this, dbIncomes, this);
+        recyclerView.removeAllViews();
         recyclerView.setAdapter(adapter);
+        dismissLoading();
     }
 
     void datePicker(TextInputEditText field) {
@@ -168,12 +280,19 @@ public class toSupplier extends Fragment implements return_toSupInterface {
 
     @Override
     public void onItemClick(int position) {
-        returnDialog(position);
+
+        if (toSupReturnModelsFiltered.isEmpty())
+            returnDialog(position);
+        else {
+            String name1 = toSupReturnModelsFiltered.get(position).getName();
+            for (int i = 0; i < toSupReturnModels.size(); i++)
+                if (toSupReturnModels.get(i).getName().equals(name1))
+                    returnDialog(i);
+        }
     }
 
     @SuppressLint("MissingInflatedId")
     private void returnDialog(int pos) {
-        DBHelper helper = new DBHelper(this.getContext());
         dialogBuilder = new MaterialAlertDialogBuilder(this.getContext());
         final View supReturnPopupView = getLayoutInflater().inflate(R.layout.return_to_sup_popup, null);
         TextInputEditText returnToSup_popup_employee = supReturnPopupView.findViewById(R.id.returnToSup_popup_employee1);
@@ -186,29 +305,108 @@ public class toSupplier extends Fragment implements return_toSupInterface {
 
 
         //int employeeCode = helper.employeeGetCode(fromEmpReturnModels.get(pos).getName());
-        ArrayList<String> products = helper.productsGetAllNamesRerunSup(toSupReturnModels.get(pos).getName(), toSupReturnModels.get(pos).getDate());
+       productsGetAllNamesRerunSup(toSupReturnModels.get(pos).getName(), toSupReturnModels.get(pos).getDate(),container, pos, supReturnPopupView);
+    }
 
-        for (int i = 0; i < products.size(); i++) {
-            LayoutInflater layoutInflater = (LayoutInflater) this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            final View addView = layoutInflater.inflate(R.layout.income_popup_row, null);
-            TextView productName = addView.findViewById(R.id.income_popup_row_product);
-            LinearLayout containerSN = addView.findViewById(R.id.containerSerials);
-            productName.setText(products.get(i).toString());
-            int prod_code = helper.productGetCode(products.get(i));
-            ArrayList<String> serials = helper.serialGetAllReturnSup(toSupReturnModels.get(pos).getName(), toSupReturnModels.get(pos).getDate(),prod_code);
-            for (int j = 0; j < serials.size(); j++) {
-                LayoutInflater layoutInflaterSN = (LayoutInflater) this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                final View addViewSN = layoutInflaterSN.inflate(R.layout.income_popup_row_sn, null);
-                TextView serialnumber = addViewSN.findViewById(R.id.income_popup_row_sn_serial);
-                serialnumber.setText(serials.get(j));
-                containerSN.addView(addViewSN);
+    private void productsGetAllNamesRerunSup(String name, String date, LinearLayout container, int pos, View supReturnPopupView) {
+        products.clear();
+        String ip = helper.getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        String url = "http://" + ip + "/storekeeper/returns/productsGetAllNamesRerunSup.php";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject resp = new JSONObject(response);
+                    String status = resp.getString("status");
+                    JSONArray message = resp.getJSONArray("message");
+                    if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
+                        JSONObject productObject = message.getJSONObject(i);
+                        int code = productObject.getInt("code");
+                        String name = productObject.getString("name");
+                        productModel newProduct = new productModel(code, name);
+                        products.add(newProduct);
+                    }
+                    for (int i = 0; i < products.size(); i++) {
+                        LayoutInflater layoutInflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                        final View addView = layoutInflater.inflate(R.layout.income_popup_row, null);
+                        TextView productName = addView.findViewById(R.id.income_popup_row_product);
+                        LinearLayout containerSN = addView.findViewById(R.id.containerSerials);
+                        productName.setText(products.get(i).getName());
+                        int prod_code = products.get(i).getCode();
+                        serialGetAllReturnSup(toSupReturnModels.get(pos).getName(), toSupReturnModels.get(pos).getDate(), prod_code, containerSN, container, addView);
+                    }
+                    dialogBuilder.setView(supReturnPopupView);
+                    dialog = dialogBuilder.create();
+                    dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                    dialog.getWindow().setWindowAnimations(R.style.DialogAnimation);
+                    dialog.show();
+                } catch (JSONException ignored) {
+                }
             }
-            container.addView(addView);
-        }
-        dialogBuilder.setView(supReturnPopupView);
-        dialog = dialogBuilder.create();
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.getWindow().setWindowAnimations(R.style.DialogAnimation);
-        dialog.show();
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("date", DBHelper.formatDateForSQL(date));
+                paramV.put("supplier", name);
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
+    }
+
+    private void serialGetAllReturnSup(String name, String date, int prodCode, LinearLayout containerSN, LinearLayout container, View addView) {
+        String ip = helper.getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        String url = "http://" + ip + "/storekeeper/returns/serialGetAllReturnSup.php";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    serials.clear();
+                    JSONObject resp = new JSONObject(response);
+                    String status = resp.getString("status");
+                    JSONArray message = resp.getJSONArray("message");
+                    if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
+                        JSONObject productObject = message.getJSONObject(i);
+                        serials.add(productObject.getString("serial_number"));
+                    }
+                    //containerSN.removeAllViews();
+                    Log.e("Serials size",serials.size()+"");
+                    for (int j = 0; j < serials.size(); j++) {
+                        LayoutInflater layoutInflaterSN = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                        final View addViewSN = layoutInflaterSN.inflate(R.layout.income_popup_row_sn, null);
+                        TextView serialnumber = addViewSN.findViewById(R.id.income_popup_row_sn_serial);
+                        serialnumber.setText(serials.get(j));
+                        containerSN.addView(addViewSN);
+                    }
+                    container.addView(addView);
+                } catch (JSONException e) {
+                    Log.e(getClass().toString(), e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("date", DBHelper.formatDateForSQL(date));
+                paramV.put("supplier", name);
+                paramV.put("prod_code", String.valueOf(prodCode));
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
+
     }
 }

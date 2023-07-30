@@ -1467,18 +1467,58 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
 
-    public boolean returnToSupAdd(String sup_name, String date, String sn, String msg) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        ContentValues cv = new ContentValues();
-        cv.put("supplier_name", sup_name);
-        cv.put("return_date", formatDateForSQL(date));
-        cv.put("serial_number", sn);
-        cv.put("msg", msg);
-        cv.put("sync_status", STATUS_UNSYNC);
-        String createTable = "create table if not exists " + SUPRETURNS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, supplier_name TEXT, return_date DATE, serial_number TEXT, msg TEXT)";
-        db.execSQL(createTable);
-        long insert = db.insert(SUPRETURNS, null, cv);
-        return insert != -1;
+    public void returnToSupAdd(int sup_code, String date, ArrayList<String> serial_numbers, String msg, Context context, MyCallback callback) throws ParseException {
+//        SQLiteDatabase db = this.getReadableDatabase();
+//        ContentValues cv = new ContentValues();
+//        cv.put("supplier_name", sup_name);
+//        cv.put("return_date", formatDateForSQL(date));
+//        cv.put("serial_number", sn);
+//        cv.put("msg", msg);
+//        cv.put("sync_status", STATUS_UNSYNC);
+//        String createTable = "create table if not exists " + SUPRETURNS + "(code INTEGER PRIMARY KEY AUTOINCREMENT, supplier_name TEXT, return_date DATE, serial_number TEXT, msg TEXT)";
+//        db.execSQL(createTable);
+//        long insert = db.insert(SUPRETURNS, null, cv);
+//        return insert != -1;
+        String income_date_format = formatDateForSQL(date);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar c = Calendar.getInstance();
+        c.setTime(sdf.parse(income_date_format));
+        String ip = getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String url = "http://" + ip + "/storekeeper/returns/returnToSupAdd.php";
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    String status = jsonObject.getString("status");
+                    String message = jsonObject.getString("message");
+                    if (status.equals("success")) {
+                        callback.onSuccess(message);
+                    } else callback.onError(message);
+                } catch (JSONException e) {
+                    callback.onError(e.toString());
+                    Log.e("log",e.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                callback.onError("error");
+            }
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("sup_code", String.valueOf(sup_code));
+                paramV.put("date", formatDateForSQL(date));
+                String data = new Gson().toJson(serial_numbers);
+                paramV.put("serials", data);
+                paramV.put("msg", msg);
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
+
     }
 
     public String serialUpdateAvailable(String sn, int available, Context context) throws ExecutionException, InterruptedException {
