@@ -30,10 +30,6 @@ public class productModel {
         return warranty;
     }
 
-    public void setWarranty(int warranty) {
-        this.warranty = warranty;
-    }
-
     public String getName() {
         return name;
     }

@@ -75,10 +75,10 @@ public class suppliers_RVAdapter extends RecyclerView.Adapter<suppliers_RVAdapte
                 filteredSupplierList.addAll(supplierModelsFull);
 
             }else {
-                String filterPatern = charSequence.toString().toUpperCase().trim();
+                String filterPattern = charSequence.toString().toUpperCase().trim();
 
                 for (supplierModel supplier : supplierModelsFull){
-                    if(supplier.getName().toUpperCase().contains(filterPatern))
+                    if(supplier.getName().toUpperCase().contains(filterPattern))
                         filteredSupplierList.add(supplier);
                 }
             }
@@ -107,15 +107,12 @@ public class suppliers_RVAdapter extends RecyclerView.Adapter<suppliers_RVAdapte
 
             tvName = itemView.findViewById(R.id.suppliers_name);
             cardView = itemView.findViewById(R.id.suppliers_card);
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (supplier_rvInterface != null){
-                        int pos = getAdapterPosition();
+            itemView.setOnClickListener(view -> {
+                if (supplier_rvInterface != null){
+                    int pos = getAdapterPosition();
 
-                        if (pos != RecyclerView.NO_POSITION){
-                            supplier_rvInterface.onItemClick(pos);
-                        }
+                    if (pos != RecyclerView.NO_POSITION){
+                        supplier_rvInterface.onItemClick(pos);
                     }
                 }
             });

@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,7 +26,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.storekeeper.Adapters.charge_RVAdapter;
@@ -50,6 +48,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 public class charge extends AppCompatActivity implements charge_RVInterface {
 
@@ -86,44 +85,28 @@ public class charge extends AppCompatActivity implements charge_RVInterface {
 
         date_start.setText(1 + "/" + (mmMonth + 1) + "/" + mYear);
         date_start.setShowSoftInputOnFocus(false);
-        date_start.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                datePicker(date_start);
-            }
-        });
+        date_start.setOnClickListener(view -> datePicker(date_start));
         date_end.setText(mDay + "/" + (mmMonth + 1) + "/" + mYear);
         date_end.setShowSoftInputOnFocus(false);
-        date_end.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                datePicker(date_end);
-            }
-        });
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(charge.this, charge_CreateNew.class);
-                startActivity(intent);
-            }
+        date_end.setOnClickListener(view -> datePicker(date_end));
+        floatingActionButton.setOnClickListener(view -> {
+            Intent intent = new Intent(charge.this, charge_CreateNew.class);
+            startActivity(intent);
         });
         try {
             showLoading();
-            setUpCharges(date_start.getText().toString(), date_end.getText().toString());
+            setUpCharges(Objects.requireNonNull(date_start.getText()).toString(), Objects.requireNonNull(date_end.getText()).toString());
         } catch (ParseException e) {
             e.printStackTrace();
         }
 
-        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                refreshLayout.setRefreshing(false);
-                try {
-                    showLoading();
-                    setUpCharges(date_start.getText().toString(), date_end.getText().toString());
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
+        refreshLayout.setOnRefreshListener(() -> {
+            refreshLayout.setRefreshing(false);
+            try {
+                showLoading();
+                setUpCharges(date_start.getText().toString(), Objects.requireNonNull(date_end.getText()).toString());
+            } catch (ParseException e) {
+                e.printStackTrace();
             }
         });
 
@@ -178,9 +161,7 @@ public class charge extends AppCompatActivity implements charge_RVInterface {
         progress.setTitle("Loading");
         progress.setCancelable(true); // disable dismiss by tapping outside of the dialog
         progress.setCanceledOnTouchOutside(false);
-        progress.setOnCancelListener(dialogInterface -> {
-            onBackPressed();
-        });
+        progress.setOnCancelListener(dialogInterface -> onBackPressed());
         progress.show();
     }
 
@@ -189,11 +170,6 @@ public class charge extends AppCompatActivity implements charge_RVInterface {
     }
 
     private void setUpCharges(String start, String end) throws ParseException {
-//        ArrayList<chargeModel> dbCharges = helper.chargeGetAll(start, end);
-//        chargeModel.clear();
-//        chargeModel.addAll(dbCharges);
-//        adapter = new charge_RVAdapter(this, dbCharges, this);
-//        recyclerView.setAdapter(adapter);
         chargeModelFiltered.clear();
         dbCharges.clear();
         String ip = helper.getSettingsIP();
@@ -219,12 +195,7 @@ public class charge extends AppCompatActivity implements charge_RVInterface {
                 }
                 setuprecyclerview(dbCharges);
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-            }
-        }){
+        }, Throwable::printStackTrace){
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> paramV = new HashMap<>();
@@ -246,17 +217,13 @@ public class charge extends AppCompatActivity implements charge_RVInterface {
     }
 
 
+    @SuppressLint("SetTextI18n")
     void datePicker(TextInputEditText field) {
         Calendar calendar = Calendar.getInstance(Locale.ROOT);
         int mDay = calendar.get(Calendar.DATE);
         int mmMonth = calendar.get(Calendar.MONTH);
         int mYear = calendar.get(Calendar.YEAR);
-        DatePickerDialog datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker datePicker, int year, int month, int date) {
-                field.setText(date + "/" + (month + 1) + "/" + year);
-            }
-        }, mYear, mmMonth, mDay);
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this, (datePicker, year, month, date) -> field.setText(date + "/" + (month + 1) + "/" + year), mYear, mmMonth, mDay);
         datePickerDialog.show();
     }
 
@@ -273,6 +240,7 @@ public class charge extends AppCompatActivity implements charge_RVInterface {
 
     }
 
+    @SuppressLint({"SetTextI18n", "InflateParams"})
     public void chargeDialog(int pos) {
         dialogBuilder = new MaterialAlertDialogBuilder(this);
         final View chargePopupView = getLayoutInflater().inflate(R.layout.charge_popup, null);
@@ -286,53 +254,48 @@ public class charge extends AppCompatActivity implements charge_RVInterface {
 
     }
 
+    @SuppressLint("InflateParams")
     private void productsGetAllNamesCharge(String name, String date, LinearLayout container, int pos, View chargePopupView) {
         products.clear();
         String ip = helper.getSettingsIP();
         RequestQueue queue = Volley.newRequestQueue(charge.this);
         String url = "http://" + ip + "/storekeeper/charges/productsGetAllNamesCharge.php";
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                try {
-                    JSONObject resp = new JSONObject(response);
-                    String status = resp.getString("status");
-                    JSONArray message = resp.getJSONArray("message");
-                    if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
-                        JSONObject productObject = message.getJSONObject(i);
-                        int code = productObject.getInt("code");
-                        String name = productObject.getString("name");
-                        productModel newProduct = new productModel(code, name);
-                        products.add(newProduct);
-                    }
-
-
-                    for (int i = 0; i < products.size(); i++) {
-                        LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                        final View addView = layoutInflater.inflate(R.layout.income_popup_row, null);
-                        TextView productName = addView.findViewById(R.id.income_popup_row_product);
-                        LinearLayout containerSN = addView.findViewById(R.id.containerSerials);
-                        productName.setText(products.get(i).getName());
-                        int prod_code = products.get(i).getCode();
-
-                        serialGetAllcharge(chargeModel.get(pos).getName(), chargeModel.get(pos).getDate(),prod_code,containerSN,container,addView);
-                    }
-
-
-                    dialogBuilder.setView(chargePopupView);
-                    dialog = dialogBuilder.create();
-                    dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                    dialog.getWindow().setWindowAnimations(R.style.DialogAnimation);
-                    dialog.show();
-
-                } catch (JSONException ignored) {
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, response -> {
+            try {
+                JSONObject resp = new JSONObject(response);
+                String status = resp.getString("status");
+                JSONArray message = resp.getJSONArray("message");
+                if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
+                    JSONObject productObject = message.getJSONObject(i);
+                    int code = productObject.getInt("code");
+                    String name1 = productObject.getString("name");
+                    productModel newProduct = new productModel(code, name1);
+                    products.add(newProduct);
                 }
+
+
+                for (int i = 0; i < products.size(); i++) {
+                    LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    final View addView = layoutInflater.inflate(R.layout.income_popup_row, null);
+                    TextView productName = addView.findViewById(R.id.income_popup_row_product);
+                    LinearLayout containerSN = addView.findViewById(R.id.containerSerials);
+                    productName.setText(products.get(i).getName());
+                    int prod_code = products.get(i).getCode();
+
+                    serialGetAllcharge(chargeModel.get(pos).getName(), chargeModel.get(pos).getDate(),prod_code,containerSN,container,addView);
+                }
+
+
+                dialogBuilder.setView(chargePopupView);
+                dialog = dialogBuilder.create();
+                Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                dialog.getWindow().setWindowAnimations(R.style.DialogAnimation);
+                dialog.show();
+
+            } catch (JSONException ignored) {
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-            }
+        }, error -> {
         }) {
             protected Map<String, String> getParams() {
                 Map<String, String> paramV = new HashMap<>();
@@ -344,6 +307,7 @@ public class charge extends AppCompatActivity implements charge_RVInterface {
         queue.add(stringRequest);
     }
 
+    @SuppressLint("InflateParams")
     private void serialGetAllcharge(String name, String date, int prod_code, LinearLayout containerSN, LinearLayout container, View addView) {
 
         String ip = helper.getSettingsIP();
@@ -376,12 +340,7 @@ public class charge extends AppCompatActivity implements charge_RVInterface {
                     Log.e(getClass().toString(), e.toString());
                 }
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-            }
-        }){
+        }, Throwable::printStackTrace){
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> paramV = new HashMap<>();

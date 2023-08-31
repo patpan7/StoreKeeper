@@ -16,14 +16,10 @@ public class return_PagerAdapter extends FragmentStateAdapter {
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        switch (position){
-            case 0:
-                return new fromEmployee();
-            case 1:
-                return new toSupplier();
-            default:
-                return new fromEmployee();
+        if (position == 1) {
+            return new toSupplier();
         }
+        return new fromEmployee();
     }
 
     @Override

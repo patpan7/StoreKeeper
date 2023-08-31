@@ -15,8 +15,6 @@ import androidx.cardview.widget.CardView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.storekeeper.HelperClasses.DBHelper;
@@ -36,21 +34,14 @@ public class login extends AppCompatActivity {
     String usernameData, passwordData;
 
     SharedPreferences sharedPreferences;
-
+    DBHelper helper = new DBHelper(login.this);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
         sharedPreferences = getSharedPreferences("MyAppName", MODE_PRIVATE);
-        if (sharedPreferences.getString("logged", "false").equals("true")) {
-
-            Intent intent = new Intent(login.this, MainActivity.class);
-            startActivity(intent);
-            finish();
-        }
-
-        DBHelper helper = new DBHelper(login.this);
+        getApiKey(sharedPreferences.getString("username", "false"));
 
         username = findViewById(R.id.login_username1);
         password = findViewById(R.id.login_password1);
@@ -64,42 +55,36 @@ public class login extends AppCompatActivity {
             passwordData = String.valueOf(password.getText());
             RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
             String url = "http://" + ip + "/storekeeper/login.php";
-            StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    progressBar.setVisibility(View.GONE);
-                    try {
-                        JSONObject jsonObject = new JSONObject(response);
-                        String status = jsonObject.getString("status");
-                        String message = jsonObject.getString("message");
-                        if (status.equals("success")) {
-                            usernameAPI = jsonObject.getString("username");
-                            apiKey = jsonObject.getString("apiKey");
-                            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
-                            SharedPreferences.Editor editor = sharedPreferences.edit();
-                            editor.putString("logged", "true");
-                            editor.putString("username", usernameAPI);
-                            editor.putString("apiKey", apiKey);
-                            editor.apply();
-                            Intent intent = new Intent(login.this, MainActivity.class);
-                            startActivity(intent);
-                            finish();
-                        } else {
-                            username.setError("Error!!!");
-                            password.setError("Error!!!");
-                            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
-                        }
-                    } catch (JSONException e) {
-                        Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
-                        //throw new RuntimeException(e);
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, url, response -> {
+                progressBar.setVisibility(View.GONE);
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    String status = jsonObject.getString("status");
+                    String message = jsonObject.getString("message");
+                    if (status.equals("success")) {
+                        usernameAPI = jsonObject.getString("username");
+                        apiKey = jsonObject.getString("apiKey");
+                        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("logged", "true");
+                        editor.putString("username", usernameAPI);
+                        editor.putString("apiKey", apiKey);
+                        editor.apply();
+                        Intent intent = new Intent(login.this, MainActivity.class);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        username.setError("Error!!!");
+                        password.setError("Error!!!");
+                        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
                     }
+                } catch (JSONException e) {
+                    Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
+                    //throw new RuntimeException(e);
                 }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    progressBar.setVisibility(View.GONE);
-                    Toast.makeText(getApplicationContext(), error.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-                }
+            }, error -> {
+                progressBar.setVisibility(View.GONE);
+                Toast.makeText(getApplicationContext(), error.getLocalizedMessage(), Toast.LENGTH_LONG).show();
             }) {
                 protected Map<String, String> getParams() {
                     Map<String, String> paramV = new HashMap<>();
@@ -117,5 +102,51 @@ public class login extends AppCompatActivity {
             Intent intent = new Intent(login.this, settings.class);
             startActivity(intent);
         });
+
+    }
+
+    private void getApiKey(String username) {
+        String ip = helper.getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+        String url = "http://" + ip + "/storekeeper/getApiKey.php";
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, response -> {
+            progressBar.setVisibility(View.GONE);
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String status = jsonObject.getString("status");
+                String message = jsonObject.getString("message");
+                if (status.equals("success")) {
+                    apiKey = jsonObject.getString("message");
+                    //Toast.makeText(getApplicationContext(), "message", Toast.LENGTH_LONG).show();
+                    if (sharedPreferences.getString("logged", "false").equals("true") && apiKey.equals(sharedPreferences.getString("apiKey","false"))) {
+                        Intent intent = new Intent(login.this, MainActivity.class);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("logged", "false");
+                        editor.putString("username", usernameAPI);
+                        editor.putString("apiKey", "null");
+                        editor.apply();
+                    }
+
+                } else {
+                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                }
+            } catch (JSONException e) {
+                Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
+                //throw new RuntimeException(e);
+            }
+        }, error -> {
+            progressBar.setVisibility(View.GONE);
+            //Toast.makeText(getApplicationContext(), error.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("username", username);
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
     }
 }

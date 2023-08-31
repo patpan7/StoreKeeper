@@ -74,10 +74,10 @@ public class charge_RVAdapter extends RecyclerView.Adapter<charge_RVAdapter.MyVi
                 filteredIncomesList.addAll(chargeModelsFull);
 
             } else {
-                String filterPatern = charSequence.toString().toUpperCase().trim();
+                String filterPattern = charSequence.toString().toUpperCase().trim();
 
                 for (chargeModel charge : chargeModelsFull) {
-                    if (charge.getDate().toUpperCase().contains(filterPatern) || charge.getName().toUpperCase().contains(filterPatern))
+                    if (charge.getDate().toUpperCase().contains(filterPattern) || charge.getName().toUpperCase().contains(filterPattern))
                         filteredIncomesList.add(charge);
                 }
             }
@@ -108,15 +108,12 @@ public class charge_RVAdapter extends RecyclerView.Adapter<charge_RVAdapter.MyVi
             tvDate = itemView.findViewById(R.id.charge_date);
             tvEmployeeName = itemView.findViewById(R.id.charge_employee_name);
             cardView = itemView.findViewById(R.id.charge_card);
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (charge_rvInterface != null) {
-                        int pos = getAdapterPosition();
+            itemView.setOnClickListener(view -> {
+                if (charge_rvInterface != null) {
+                    int pos = getAdapterPosition();
 
-                        if (pos != RecyclerView.NO_POSITION) {
-                            charge_rvInterface.onItemClick(pos);
-                        }
+                    if (pos != RecyclerView.NO_POSITION) {
+                        charge_rvInterface.onItemClick(pos);
                     }
                 }
             });

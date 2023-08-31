@@ -73,10 +73,10 @@ public class return_fromEmpAdapter extends RecyclerView.Adapter<return_fromEmpAd
                 filteredIncomesList.addAll(fromEmpReturnModelsFull);
 
             } else {
-                String filterPatern = charSequence.toString().toUpperCase().trim();
+                String filterPattern = charSequence.toString().toUpperCase().trim();
 
                 for (fromEmpReturnModel fromEmpReturn : fromEmpReturnModelsFull) {
-                    if (fromEmpReturn.getDate().toUpperCase().contains(filterPatern) || fromEmpReturn.getName().toUpperCase().contains(filterPatern))
+                    if (fromEmpReturn.getDate().toUpperCase().contains(filterPattern) || fromEmpReturn.getName().toUpperCase().contains(filterPattern))
                         filteredIncomesList.add(fromEmpReturn);
                 }
             }
@@ -107,15 +107,12 @@ public class return_fromEmpAdapter extends RecyclerView.Adapter<return_fromEmpAd
             tvDate = itemView.findViewById(R.id.return_employee_date);
             tvSupplier = itemView.findViewById(R.id.return_employee_name);
             cardView = itemView.findViewById(R.id.return_employee_card);
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (return_fromEmpInterface != null) {
-                        int pos = getAdapterPosition();
+            itemView.setOnClickListener(view -> {
+                if (return_fromEmpInterface != null) {
+                    int pos = getAdapterPosition();
 
-                        if (pos != RecyclerView.NO_POSITION) {
-                            return_fromEmpInterface.onItemClick(pos);
-                        }
+                    if (pos != RecyclerView.NO_POSITION) {
+                        return_fromEmpInterface.onItemClick(pos);
                     }
                 }
             });

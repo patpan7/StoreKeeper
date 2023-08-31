@@ -73,10 +73,10 @@ public class return_toSupAdapter extends RecyclerView.Adapter<return_toSupAdapte
                 filteredIncomesList.addAll(toSupReturnModelsFull);
 
             } else {
-                String filterPatern = charSequence.toString().toUpperCase().trim();
+                String filterPattern = charSequence.toString().toUpperCase().trim();
 
                 for (toSupReturnModel toSupReturn : toSupReturnModelsFull) {
-                    if (toSupReturn.getDate().toUpperCase().contains(filterPatern) || toSupReturn.getName().toUpperCase().contains(filterPatern))
+                    if (toSupReturn.getDate().toUpperCase().contains(filterPattern) || toSupReturn.getName().toUpperCase().contains(filterPattern))
                         filteredIncomesList.add(toSupReturn);
                 }
             }
@@ -107,15 +107,12 @@ public class return_toSupAdapter extends RecyclerView.Adapter<return_toSupAdapte
             tvDate = itemView.findViewById(R.id.return_supplier_date);
             tvSupplier = itemView.findViewById(R.id.return_supplier_name);
             cardView = itemView.findViewById(R.id.return_supplier_card);
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (return_toSupInterface != null) {
-                        int pos = getAdapterPosition();
+            itemView.setOnClickListener(view -> {
+                if (return_toSupInterface != null) {
+                    int pos = getAdapterPosition();
 
-                        if (pos != RecyclerView.NO_POSITION) {
-                            return_toSupInterface.onItemClick(pos);
-                        }
+                    if (pos != RecyclerView.NO_POSITION) {
+                        return_toSupInterface.onItemClick(pos);
                     }
                 }
             });

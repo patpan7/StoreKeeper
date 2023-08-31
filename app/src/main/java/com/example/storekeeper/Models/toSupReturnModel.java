@@ -6,13 +6,6 @@ public class toSupReturnModel {
     String msg;
     String serial;
 
-    public toSupReturnModel(String name, String date, String msg, String serial) {
-        this.name = name;
-        this.date = date;
-        this.msg = msg;
-        this.serial = serial;
-    }
-
     public toSupReturnModel(String name, String date, String msg) {
         this.name = name;
         this.date = date;
@@ -37,10 +30,6 @@ public class toSupReturnModel {
 
     public String getMsg() {
         return msg;
-    }
-
-    public void setMsg(String msg) {
-        this.msg = msg;
     }
 
     public String getSerial() {

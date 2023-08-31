@@ -29,7 +29,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -49,6 +48,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class suppliers extends AppCompatActivity implements suppliers_RVInterface {
 
@@ -57,9 +57,13 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
     SwipeRefreshLayout refreshLayout;
     FloatingActionButton floatingActionButton;
     suppliers_RVAdapter adapter;
-    private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
-    private EditText supplier_popup_code, supplier_popup_name, supplier_popup_phone, supplier_popup_mobile, supplier_popup_mail, supplier_popup_afm, supplier_popup_incomeProd;
+    private EditText supplier_popup_code;
+    private EditText supplier_popup_name;
+    private EditText supplier_popup_phone;
+    private EditText supplier_popup_mobile;
+    private EditText supplier_popup_mail;
+    private EditText supplier_popup_afm;
     CardView supplier_popup_savebtn;
     ImageView supplier_popup_editbtn;
     ImageButton income_plus;
@@ -82,23 +86,17 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
         refreshLayout = findViewById(R.id.suppliers_refresh);
         searchView = findViewById(R.id.suppliers_searchView);
         floatingActionButton = findViewById(R.id.suppliers_fab);
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(suppliers.this, supplier_CreateNew.class);
-                startActivity(intent);
-            }
+        floatingActionButton.setOnClickListener(view -> {
+            Intent intent = new Intent(suppliers.this, supplier_CreateNew.class);
+            startActivity(intent);
         });
         showLoading();
         setUpSuppliersModels();
 
-        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                refreshLayout.setRefreshing(false);
-                showLoading();
-                setUpSuppliersModels();
-            }
+        refreshLayout.setOnRefreshListener(() -> {
+            refreshLayout.setRefreshing(false);
+            showLoading();
+            setUpSuppliersModels();
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -150,9 +148,7 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
         progress.setTitle("Loading");
         progress.setCancelable(true); // disable dismiss by tapping outside of the dialog
         progress.setCanceledOnTouchOutside(false);
-        progress.setOnCancelListener(dialogInterface -> {
-            onBackPressed();
-        });
+        progress.setOnCancelListener(dialogInterface -> onBackPressed());
         progress.show();
     }
 
@@ -160,11 +156,6 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
         progress.dismiss();
     }
     private void setUpSuppliersModels() {
-//        ArrayList<supplierModel> dbSuppliers = helper.suppliersGetAll(suppliers.this);
-//        supplierModels.clear();
-//        supplierModels.addAll(dbSuppliers);
-//        adapter = new suppliers_RVAdapter(this, dbSuppliers, this);
-//        recyclerView.setAdapter(adapter);
         supplierModelsFiltered.clear();
         dbSuppliers.clear();
         String ip = helper.getSettingsIP();
@@ -194,12 +185,7 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
                 }
                 setuprecyclerview(dbSuppliers);
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-            }
-        });
+        }, Throwable::printStackTrace);
         queue.add(request);
 
     }
@@ -227,7 +213,7 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
 
     @SuppressLint("SetTextI18n")
     public void supplierDialog(int pos) {
-        dialogBuilder = new MaterialAlertDialogBuilder(this);
+        AlertDialog.Builder dialogBuilder = new MaterialAlertDialogBuilder(this);
         final View supplierPopupView = getLayoutInflater().inflate(R.layout.suppliers_popup, null);
         supplier_popup_code = supplierPopupView.findViewById(R.id.suppliers_popup_code1);
         supplier_popup_name = supplierPopupView.findViewById(R.id.suppliers_popup_name1);
@@ -235,7 +221,7 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
         supplier_popup_mobile = supplierPopupView.findViewById(R.id.suppliers_popup_mobile1);
         supplier_popup_mail = supplierPopupView.findViewById(R.id.suppliers_popup_mail1);
         supplier_popup_afm = supplierPopupView.findViewById(R.id.suppliers_popup_afm1);
-        supplier_popup_incomeProd = supplierPopupView.findViewById(R.id.suppliers_popup_incomeProd1);
+        EditText supplier_popup_incomeProd = supplierPopupView.findViewById(R.id.suppliers_popup_incomeProd1);
         income_plus = supplierPopupView.findViewById(R.id.income_plus);
         container = supplierPopupView.findViewById(R.id.container);
 
@@ -246,30 +232,27 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
         supplier_popup_mail.setText(supplierModels.get(pos).getMail());
         supplier_popup_afm.setText(supplierModels.get(pos).getAfm());
         //supplier_popup_incomeProd.setText(helper.supplierGetAllIncomeProd(supplierModels.get(pos).getCode()) + "");
-        helper.supplierGetAllIncomeProd(suppliers.this,supplierModels.get(pos).getCode(),supplier_popup_incomeProd);
+        helper.supplierGetAllIncomeProd(suppliers.this,supplierModels.get(pos).getCode(), supplier_popup_incomeProd);
         final boolean[] incomeClicked = {false};
-        income_plus.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (incomeClicked[0]) {
-                    incomeClicked[0] = false;
-                    income_plus.setImageResource(R.drawable.down);
-                    container.removeAllViews();
+        income_plus.setOnClickListener(view -> {
+            if (incomeClicked[0]) {
+                incomeClicked[0] = false;
+                income_plus.setImageResource(R.drawable.down);
+                container.removeAllViews();
 
-                } else {
-                    incomeClicked[0] = true;
-                    income_plus.setImageResource(R.drawable.up);
-                    container.removeAllViews();
-                    //ArrayList<String> products = helper.productsGetAllNamesIncome(supplierModels.get(pos).getCode());
-                    productsGetAllNamesIncome(supplierModels.get(pos).getCode(),pos);
+            } else {
+                incomeClicked[0] = true;
+                income_plus.setImageResource(R.drawable.up);
+                container.removeAllViews();
+                //ArrayList<String> products = helper.productsGetAllNamesIncome(supplierModels.get(pos).getCode());
+                productsGetAllNamesIncome(supplierModels.get(pos).getCode(),pos);
 
-                }
             }
         });
 
         dialogBuilder.setView(supplierPopupView);
         dialog = dialogBuilder.create();
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.getWindow().setWindowAnimations(R.style.DialogAnimation);
         dialog.show();
 
@@ -318,18 +301,16 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
         });
 
         supplier_popup_editbtn = supplierPopupView.findViewById(R.id.suppliers_popup_editbtn);
-        supplier_popup_editbtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                supplier_popup_name.setEnabled(true);
-                supplier_popup_phone.setEnabled(true);
-                supplier_popup_mobile.setEnabled(true);
-                supplier_popup_mail.setEnabled(true);
-                supplier_popup_afm.setEnabled(true);
-            }
+        supplier_popup_editbtn.setOnClickListener(view -> {
+            supplier_popup_name.setEnabled(true);
+            supplier_popup_phone.setEnabled(true);
+            supplier_popup_mobile.setEnabled(true);
+            supplier_popup_mail.setEnabled(true);
+            supplier_popup_afm.setEnabled(true);
         });
     }
 
+    @SuppressLint("InflateParams")
     private void productsGetAllNamesIncome(int code, int pos) {
         products.clear();
         String ip = helper.getSettingsIP();
@@ -364,10 +345,7 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
                     Log.e(getClass().toString(), e.toString());
                 }
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-            }
+        }, error -> {
         })
 
         {
@@ -381,6 +359,7 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
 
     }
 
+    @SuppressLint("InflateParams")
     void serialGetAllIncome(int prod_code, int code, LinearLayout container, LinearLayout containerSN, View addView){
         String ip = helper.getSettingsIP();
         RequestQueue queue = Volley.newRequestQueue(suppliers.this);
@@ -413,12 +392,7 @@ public class suppliers extends AppCompatActivity implements suppliers_RVInterfac
                     Log.e(getClass().toString(), e.toString());
                 }
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-            }
-        }){
+        }, Throwable::printStackTrace){
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> paramV = new HashMap<>();

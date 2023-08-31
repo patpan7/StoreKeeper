@@ -11,8 +11,6 @@ import androidx.cardview.widget.CardView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.storekeeper.HelperClasses.DBHelper;
@@ -99,9 +97,7 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
-        cardLogout.setOnClickListener(view -> {
-            logout();
-        });
+        cardLogout.setOnClickListener(view -> logout());
 
     }
 
@@ -110,26 +106,18 @@ public class MainActivity extends AppCompatActivity {
         String ip = helper.getSettingsIP();
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
         String url = "http://" + ip + "/storekeeper/logout.php";
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                if (response.equals("success")) {
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString("logged", "");
-                    editor.putString("username", "");
-                    editor.putString("apiKey", "");
-                    editor.apply();
-                    Intent intent = new Intent(MainActivity.this, login.class);
-                    startActivity(intent);
-                    finish();
-                } else Toast.makeText(getApplicationContext(), response, Toast.LENGTH_LONG).show();
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-            }
-        }) {
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, response -> {
+            if (response.equals("success")) {
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("logged", "");
+                editor.putString("username", "");
+                editor.putString("apiKey", "");
+                editor.apply();
+                Intent intent = new Intent(MainActivity.this, login.class);
+                startActivity(intent);
+                finish();
+            } else Toast.makeText(getApplicationContext(), response, Toast.LENGTH_LONG).show();
+        }, Throwable::printStackTrace) {
             protected Map<String, String> getParams() {
                 Map<String, String> paramV = new HashMap<>();
                 paramV.put("username", sharedPreferences.getString("username", ""));

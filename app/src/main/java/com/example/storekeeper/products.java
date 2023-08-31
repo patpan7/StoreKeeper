@@ -29,7 +29,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -48,6 +47,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class products extends AppCompatActivity implements products_RVInterface {
 
@@ -56,9 +56,11 @@ public class products extends AppCompatActivity implements products_RVInterface 
     SwipeRefreshLayout refreshLayout;
     FloatingActionButton floatingActionButton;
     products_RVAdapter adapter;
-    private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
-    private EditText product_popup_code, product_popup_name, product_popup_barcode, product_popup_warranty, product_popup_incomeSum, product_popup_available, product_popup_charged;
+    private EditText product_popup_code;
+    private EditText product_popup_name;
+    private EditText product_popup_barcode;
+    private EditText product_popup_warranty;
     CardView product_popup_savebtn;
     ImageView product_popup_editbtn;
     ImageButton available_plus, charged_plus;
@@ -87,13 +89,10 @@ public class products extends AppCompatActivity implements products_RVInterface 
         });
         showLoading();
         setUpProductModels();
-        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                refreshLayout.setRefreshing(false);
-                showLoading();
-                setUpProductModels();
-            }
+        refreshLayout.setOnRefreshListener(() -> {
+            refreshLayout.setRefreshing(false);
+            showLoading();
+            setUpProductModels();
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -146,9 +145,7 @@ public class products extends AppCompatActivity implements products_RVInterface 
         progress.setTitle("Loading");
         progress.setCancelable(true); // disable dismiss by tapping outside of the dialog
         progress.setCanceledOnTouchOutside(false);
-        progress.setOnCancelListener(dialogInterface -> {
-            onBackPressed();
-        });
+        progress.setOnCancelListener(dialogInterface -> onBackPressed());
         progress.show();
     }
 
@@ -184,12 +181,7 @@ public class products extends AppCompatActivity implements products_RVInterface 
                 }
                 setuprecyclerview(dbProducts);
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-            }
-        });
+        }, Throwable::printStackTrace);
         queue.add(request);
 
     }
@@ -217,15 +209,15 @@ public class products extends AppCompatActivity implements products_RVInterface 
 
     @SuppressLint("SetTextI18n")
     public void productDialog(int pos) {
-        dialogBuilder = new MaterialAlertDialogBuilder(this);
+        AlertDialog.Builder dialogBuilder = new MaterialAlertDialogBuilder(this);
         final View productPopupView = getLayoutInflater().inflate(R.layout.product_popup, null);
         product_popup_code = productPopupView.findViewById(R.id.product_popup_code1);
         product_popup_name = productPopupView.findViewById(R.id.product_popup_name1);
         product_popup_barcode = productPopupView.findViewById(R.id.product_popup_barcode1);
         product_popup_warranty = productPopupView.findViewById(R.id.product_popup_warranty1);
-        product_popup_incomeSum = productPopupView.findViewById(R.id.product_popup_incomesum1);
-        product_popup_available = productPopupView.findViewById(R.id.product_popup_available1);
-        product_popup_charged = productPopupView.findViewById(R.id.product_popup_charged1);
+        EditText product_popup_incomeSum = productPopupView.findViewById(R.id.product_popup_incomesum1);
+        EditText product_popup_available = productPopupView.findViewById(R.id.product_popup_available1);
+        EditText product_popup_charged = productPopupView.findViewById(R.id.product_popup_charged1);
         available_plus = productPopupView.findViewById(R.id.available_plus);
         charged_plus = productPopupView.findViewById(R.id.charged_plus);
         container = productPopupView.findViewById(R.id.container);
@@ -243,55 +235,49 @@ public class products extends AppCompatActivity implements products_RVInterface 
         final boolean[] availableClicked = {false};
         final boolean[] chargedClicked = {false};
 
-        available_plus.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (availableClicked[0]) {
-                    availableClicked[0] = false;
-                    available_plus.setImageResource(R.drawable.down);
-                    charged_plus.setImageResource(R.drawable.down);
-                    container.removeAllViews();
+        available_plus.setOnClickListener(view -> {
+            if (availableClicked[0]) {
+                availableClicked[0] = false;
+                available_plus.setImageResource(R.drawable.down);
+                charged_plus.setImageResource(R.drawable.down);
+                container.removeAllViews();
 
-                } else {
-                    availableClicked[0] = true;
-                    chargedClicked[0] = false;
-                    available_plus.setImageResource(R.drawable.up);
-                    charged_plus.setImageResource(R.drawable.down);
-                    container.removeAllViews();
+            } else {
+                availableClicked[0] = true;
+                chargedClicked[0] = false;
+                available_plus.setImageResource(R.drawable.up);
+                charged_plus.setImageResource(R.drawable.down);
+                container.removeAllViews();
 
-                    productGetAllAvailableSN(productModels.get(pos).getCode());
+                productGetAllAvailableSN(productModels.get(pos).getCode());
 
 
-                }
             }
         });
 
-        charged_plus.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (chargedClicked[0]) {
-                    chargedClicked[0] = false;
-                    available_plus.setImageResource(R.drawable.down);
-                    charged_plus.setImageResource(R.drawable.down);
-                    container.removeAllViews();
+        charged_plus.setOnClickListener(view -> {
+            if (chargedClicked[0]) {
+                chargedClicked[0] = false;
+                available_plus.setImageResource(R.drawable.down);
+                charged_plus.setImageResource(R.drawable.down);
+                container.removeAllViews();
 
-                } else {
-                    chargedClicked[0] = true;
-                    availableClicked[0] = false;
-                    available_plus.setImageResource(R.drawable.down);
-                    charged_plus.setImageResource(R.drawable.up);
-                    container.removeAllViews();
-                    employeesGetAllNamesWithSN(productModels.get(pos).getCode(),pos);
+            } else {
+                chargedClicked[0] = true;
+                availableClicked[0] = false;
+                available_plus.setImageResource(R.drawable.down);
+                charged_plus.setImageResource(R.drawable.up);
+                container.removeAllViews();
+                employeesGetAllNamesWithSN(productModels.get(pos).getCode(),pos);
 
 
-                }
             }
         });
 
 
         dialogBuilder.setView(productPopupView);
         dialog = dialogBuilder.create();
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.getWindow().setWindowAnimations(R.style.DialogAnimation);
         dialog.show();
 
@@ -343,6 +329,7 @@ public class products extends AppCompatActivity implements products_RVInterface 
 
     }
 
+    @SuppressLint("InflateParams")
     private void employeesGetAllNamesWithSN(int code, int pos) {
         employees.clear();
         String ip = helper.getSettingsIP();
@@ -367,8 +354,6 @@ public class products extends AppCompatActivity implements products_RVInterface 
                         TextView employeeName = addView.findViewById(R.id.income_popup_row_product);
                         LinearLayout containerSN = addView.findViewById(R.id.containerSerials);
                         employeeName.setText(employees.get(i));
-                        //int emp_code = helper.employeeGetCode(employees.get(i));
-                        //ArrayList<String> serials = helper.serialsGetFromEmpProd(productModels.get(pos).getCode(), emp_code);
                         serialsGetFromEmpProd(productModels.get(pos).getCode(), employees.get(i),containerSN,addView);
                     }
 
@@ -376,10 +361,7 @@ public class products extends AppCompatActivity implements products_RVInterface 
                     Log.e(getClass().toString(), e.toString());
                 }
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-            }
+        }, error -> {
         })
 
         {
@@ -392,6 +374,7 @@ public class products extends AppCompatActivity implements products_RVInterface 
         queue.add(stringRequest);
     }
 
+    @SuppressLint("InflateParams")
     private void serialsGetFromEmpProd(int code, String name, LinearLayout containerSN, View addView) {
 
         String ip = helper.getSettingsIP();
@@ -411,7 +394,7 @@ public class products extends AppCompatActivity implements products_RVInterface 
                         String serial = productObject.getString("serialnumber");
                         serials.add(serial);
                     }
-                        for (int j = 0; j < serials.size(); j++) {
+                    for (int j = 0; j < serials.size(); j++) {
                             LayoutInflater layoutInflaterSN = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                             final View addViewSN = layoutInflaterSN.inflate(R.layout.income_popup_row_sn, null);
                             TextView serialnumber = addViewSN.findViewById(R.id.income_popup_row_sn_serial);
@@ -424,10 +407,7 @@ public class products extends AppCompatActivity implements products_RVInterface 
                     Log.e(getClass().toString(), e.toString());
                 }
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-            }
+        }, error -> {
         })
 
         {
@@ -441,6 +421,7 @@ public class products extends AppCompatActivity implements products_RVInterface 
         queue.add(stringRequest);
     }
 
+    @SuppressLint("InflateParams")
     void productGetAllAvailableSN(int code){
         productSerials.clear();
         String ip = helper.getSettingsIP();
@@ -471,10 +452,7 @@ public class products extends AppCompatActivity implements products_RVInterface 
                     Log.e(getClass().toString(), e.toString());
                 }
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-            }
+        }, error -> {
         })
 
         {

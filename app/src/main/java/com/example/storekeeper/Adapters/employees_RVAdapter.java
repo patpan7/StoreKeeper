@@ -75,10 +75,10 @@ public class employees_RVAdapter extends RecyclerView.Adapter<employees_RVAdapte
                 filteredEmployeesList.addAll(employeesModelsFull);
 
             } else {
-                String filterPatern = charSequence.toString().toUpperCase().trim();
+                String filterPattern = charSequence.toString().toUpperCase().trim();
 
                 for (employeesModel employee : employeesModelsFull) {
-                    if (employee.getName().toUpperCase().contains(filterPatern))
+                    if (employee.getName().toUpperCase().contains(filterPattern))
                         filteredEmployeesList.add(employee);
                 }
             }
@@ -108,15 +108,12 @@ public class employees_RVAdapter extends RecyclerView.Adapter<employees_RVAdapte
 
             tvName = itemView.findViewById(R.id.employees_name);
             cardView = itemView.findViewById(R.id.employees_card);
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (employees_rvInterface != null) {
-                        int pos = getAdapterPosition();
+            itemView.setOnClickListener(view -> {
+                if (employees_rvInterface != null) {
+                    int pos = getAdapterPosition();
 
-                        if (pos != RecyclerView.NO_POSITION) {
-                            employees_rvInterface.onItemClick(pos);
-                        }
+                    if (pos != RecyclerView.NO_POSITION) {
+                        employees_rvInterface.onItemClick(pos);
                     }
                 }
             });

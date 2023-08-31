@@ -52,10 +52,6 @@ public class employeesModel {
         return mobile;
     }
 
-    public void setMobile(String mobile) {
-        this.mobile = mobile;
-    }
-
     public String getMail() {
         return mail;
     }
@@ -66,10 +62,6 @@ public class employeesModel {
 
     public String getWork() {
         return work;
-    }
-
-    public void setWork(String work) {
-        this.work = work;
     }
 
     public String getId() {

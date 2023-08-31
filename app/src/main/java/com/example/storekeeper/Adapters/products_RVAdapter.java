@@ -77,10 +77,10 @@ public class products_RVAdapter extends RecyclerView.Adapter<products_RVAdapter.
                 filteredProductList.addAll(productModelsFull);
 
             } else {
-                String filterPatern = charSequence.toString().toUpperCase().trim();
+                String filterPattern = charSequence.toString().toUpperCase().trim();
 
                 for (productModel product : productModelsFull) {
-                    if (product.getName().toUpperCase().contains(filterPatern) || String.valueOf(product.getCode()).contains(filterPatern) || String.valueOf(product.getBarcode()).contains(filterPatern))
+                    if (product.getName().toUpperCase().contains(filterPattern) || String.valueOf(product.getCode()).contains(filterPattern) || String.valueOf(product.getBarcode()).contains(filterPattern))
                         filteredProductList.add(product);
                 }
             }
@@ -112,15 +112,12 @@ public class products_RVAdapter extends RecyclerView.Adapter<products_RVAdapter.
             tvCode = itemView.findViewById(R.id.product_code);
             tvbarcode = itemView.findViewById(R.id.product_barcode);
             cardView = itemView.findViewById(R.id.product_card);
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (products_rvInterface != null) {
-                        int pos = getAdapterPosition();
+            itemView.setOnClickListener(view -> {
+                if (products_rvInterface != null) {
+                    int pos = getAdapterPosition();
 
-                        if (pos != RecyclerView.NO_POSITION) {
-                            products_rvInterface.onItemClick(pos);
-                        }
+                    if (pos != RecyclerView.NO_POSITION) {
+                        products_rvInterface.onItemClick(pos);
                     }
                 }
             });

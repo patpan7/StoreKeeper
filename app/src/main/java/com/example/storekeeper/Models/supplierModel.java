@@ -17,10 +17,6 @@ public class supplierModel {
         this.afm = afm;
     }
 
-    public supplierModel(String name) {
-        this.name = name;
-    }
-
     public supplierModel(int code, String name) {
         this.code = code;
         this.name = name;
@@ -55,10 +51,6 @@ public class supplierModel {
         return mobile;
     }
 
-    public void setMobile(String mobile) {
-        this.mobile = mobile;
-    }
-
     public String getMail() {
         return mail;
     }
@@ -71,7 +63,4 @@ public class supplierModel {
         return afm;
     }
 
-    public void setAfm(String afm) {
-        this.afm = afm;
-    }
 }

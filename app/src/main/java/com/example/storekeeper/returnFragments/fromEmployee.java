@@ -14,7 +14,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,7 +31,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.storekeeper.Adapters.return_fromEmpAdapter;
@@ -56,6 +54,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 public class fromEmployee extends Fragment implements return_fromEmpInterface {
     RecyclerView recyclerView;
@@ -76,7 +75,7 @@ public class fromEmployee extends Fragment implements return_fromEmpInterface {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        helper = new DBHelper(getActivity().getApplicationContext());
+        helper = new DBHelper(requireActivity().getApplicationContext());
     }
 
     @Override
@@ -86,6 +85,8 @@ public class fromEmployee extends Fragment implements return_fromEmpInterface {
         return inflater.inflate(R.layout.fragment_from_employee, container, false);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @SuppressLint({"SetTextI18n","InflateParams", "MissingInflatedId"})
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -102,45 +103,28 @@ public class fromEmployee extends Fragment implements return_fromEmpInterface {
 
         date_start.setText(1 + "/" + (mmMonth + 1) + "/" + mYear);
         date_start.setShowSoftInputOnFocus(false);
-        date_start.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                datePicker(date_start);
-            }
-        });
+        date_start.setOnClickListener(view1 -> datePicker(date_start));
         date_end.setText(mDay + "/" + (mmMonth + 1) + "/" + mYear);
         date_end.setShowSoftInputOnFocus(false);
-        date_end.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                datePicker(date_end);
-            }
-        });
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.M)
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(fromEmployee.this.getContext(), fromEmpReturn_CreateNew.class);
-                startActivity(intent);
-            }
+        date_end.setOnClickListener(view12 -> datePicker(date_end));
+        floatingActionButton.setOnClickListener(view13 -> {
+            Intent intent = new Intent(fromEmployee.this.getContext(), fromEmpReturn_CreateNew.class);
+            startActivity(intent);
         });
         try {
             showLoading();
-            setUpReturnFromEmp(date_start.getText().toString(), date_end.getText().toString());
+            setUpReturnFromEmp(Objects.requireNonNull(date_start.getText()).toString(), Objects.requireNonNull(date_end.getText()).toString());
         } catch (ParseException e) {
             e.printStackTrace();
         }
 
-        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                refreshLayout.setRefreshing(false);
-                try {
-                    showLoading();
-                    setUpReturnFromEmp(date_start.getText().toString(), date_end.getText().toString());
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
+        refreshLayout.setOnRefreshListener(() -> {
+            refreshLayout.setRefreshing(false);
+            try {
+                showLoading();
+                setUpReturnFromEmp(date_start.getText().toString(), Objects.requireNonNull(date_end.getText()).toString());
+            } catch (ParseException e) {
+                e.printStackTrace();
             }
         });
 
@@ -207,16 +191,10 @@ public class fromEmployee extends Fragment implements return_fromEmpInterface {
 
 
     private void setUpReturnFromEmp(String start, String end) throws ParseException {
-//        DBHelper helper = new DBHelper(getActivity());
-//        ArrayList<fromEmpReturnModel> dbFromEmpReturns = helper.returnsFromEmpGetAll(start, end);
-//        fromEmpReturnModels.clear();
-//        fromEmpReturnModels.addAll(dbFromEmpReturns);
-//        adapter = new return_fromEmpAdapter(this.getContext(), dbFromEmpReturns, this);
-//        recyclerView.setAdapter(adapter);
         fromEmpReturnModelsFiltered.clear();
         dbFromEmp.clear();
         String ip = helper.getSettingsIP();
-        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        RequestQueue queue = Volley.newRequestQueue(requireActivity());
         String url = "http://" + ip + "/storekeeper/returns/returnFromEmpGetAll.php";
 
         StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
@@ -239,12 +217,7 @@ public class fromEmployee extends Fragment implements return_fromEmpInterface {
                 }
                 setuprecyclerview(dbFromEmp);
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-            }
-        }) {
+        }, Throwable::printStackTrace) {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> paramV = new HashMap<>();
@@ -267,18 +240,13 @@ public class fromEmployee extends Fragment implements return_fromEmpInterface {
         dismissLoading();
     }
 
-
+    @SuppressLint("SetTextI18n")
     void datePicker(TextInputEditText field) {
         Calendar calendar = Calendar.getInstance(Locale.ROOT);
         int mDay = calendar.get(Calendar.DATE);
         int mmMonth = calendar.get(Calendar.MONTH);
         int mYear = calendar.get(Calendar.YEAR);
-        DatePickerDialog datePickerDialog = new DatePickerDialog(this.getContext(), new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker datePicker, int year, int month, int date) {
-                field.setText(date + "/" + (month + 1) + "/" + year);
-            }
-        }, mYear, mmMonth, mDay);
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this.requireContext(), (datePicker, year, month, date) -> field.setText(date + "/" + (month + 1) + "/" + year), mYear, mmMonth, mDay);
         datePickerDialog.show();
     }
 
@@ -294,9 +262,10 @@ public class fromEmployee extends Fragment implements return_fromEmpInterface {
         }
     }
 
-    @SuppressLint("MissingInflatedId")
+
+    @SuppressLint("InflateParams")
     public void returnDialog(int pos) {
-        dialogBuilder = new MaterialAlertDialogBuilder(this.getContext());
+        dialogBuilder = new MaterialAlertDialogBuilder(this.requireContext());
         final View empReturnPopupView = getLayoutInflater().inflate(R.layout.return_from_emp_popup, null);
         TextInputEditText returnFromEmp_popup_employee = empReturnPopupView.findViewById(R.id.returnFromEmp_popup_employee1);
         TextInputEditText returnFromEmp_popup_date = empReturnPopupView.findViewById(R.id.returnFromEmp_popup_date1);
@@ -312,47 +281,43 @@ public class fromEmployee extends Fragment implements return_fromEmpInterface {
 
     }
 
+    @SuppressLint("InflateParams")
     private void productsGetAllNamesRerunEmp(String name, String date, LinearLayout container, int pos, View empReturnPopupView) {
         products.clear();
         String ip = helper.getSettingsIP();
-        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        RequestQueue queue = Volley.newRequestQueue(requireActivity());
         String url = "http://" + ip + "/storekeeper/returns/productsGetAllNamesRerunEmp.php";
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                try {
-                    JSONObject resp = new JSONObject(response);
-                    String status = resp.getString("status");
-                    JSONArray message = resp.getJSONArray("message");
-                    if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
-                        JSONObject productObject = message.getJSONObject(i);
-                        int code = productObject.getInt("code");
-                        String name = productObject.getString("name");
-                        productModel newProduct = new productModel(code, name);
-                        products.add(newProduct);
-                    }
-                    for (int i = 0; i < products.size(); i++) {
-                        LayoutInflater layoutInflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                        final View addView = layoutInflater.inflate(R.layout.income_popup_row, null);
-                        TextView productName = addView.findViewById(R.id.income_popup_row_product);
-                        LinearLayout containerSN = addView.findViewById(R.id.containerSerials);
-                        productName.setText(products.get(i).getName());
-                        int prod_code = products.get(i).getCode();
-                        serialGetAllReturnEmp(fromEmpReturnModels.get(pos).getName(), fromEmpReturnModels.get(pos).getDate(), prod_code, containerSN, container, addView);
-                    }
-                    dialogBuilder.setView(empReturnPopupView);
-                    dialog = dialogBuilder.create();
-                    dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                    dialog.getWindow().setWindowAnimations(R.style.DialogAnimation);
-                    dialog.show();
-                } catch (JSONException ignored) {
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                response -> {
+            try {
+                JSONObject resp = new JSONObject(response);
+                String status = resp.getString("status");
+                JSONArray message = resp.getJSONArray("message");
+                if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
+                    JSONObject productObject = message.getJSONObject(i);
+                    int code = productObject.getInt("code");
+                    String name1 = productObject.getString("name");
+                    productModel newProduct = new productModel(code, name1);
+                    products.add(newProduct);
                 }
+                for (int i = 0; i < products.size(); i++) {
+                    LayoutInflater layoutInflater = (LayoutInflater) requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    final View addView = layoutInflater.inflate(R.layout.income_popup_row, null);
+                    TextView productName = addView.findViewById(R.id.income_popup_row_product);
+                    LinearLayout containerSN = addView.findViewById(R.id.containerSerials);
+                    productName.setText(products.get(i).getName());
+                    int prod_code = products.get(i).getCode();
+                    serialGetAllReturnEmp(fromEmpReturnModels.get(pos).getName(), fromEmpReturnModels.get(pos).getDate(), prod_code, containerSN, container, addView);
+                }
+                dialogBuilder.setView(empReturnPopupView);
+                dialog = dialogBuilder.create();
+                Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                dialog.getWindow().setWindowAnimations(R.style.DialogAnimation);
+                dialog.show();
+            } catch (JSONException ignored) {
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-            }
+        }, error -> {
         }) {
             protected Map<String, String> getParams() {
                 Map<String, String> paramV = new HashMap<>();
@@ -364,9 +329,11 @@ public class fromEmployee extends Fragment implements return_fromEmpInterface {
         queue.add(stringRequest);
     }
 
+    @SuppressLint("InflateParams")
+
     private void serialGetAllReturnEmp(String name, String date, int prodCode, LinearLayout containerSN, LinearLayout container, View addView) {
         String ip = helper.getSettingsIP();
-        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        RequestQueue queue = Volley.newRequestQueue(requireActivity());
         String url = "http://" + ip + "/storekeeper/returns/serialGetAllReturnEmp.php";
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
@@ -384,7 +351,7 @@ public class fromEmployee extends Fragment implements return_fromEmpInterface {
                     //containerSN.removeAllViews();
                     Log.e("Serials size",serials.size()+"");
                     for (int j = 0; j < serials.size(); j++) {
-                        LayoutInflater layoutInflaterSN = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                        LayoutInflater layoutInflaterSN = (LayoutInflater) requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                         final View addViewSN = layoutInflaterSN.inflate(R.layout.income_popup_row_sn, null);
                         TextView serialnumber = addViewSN.findViewById(R.id.income_popup_row_sn_serial);
                         serialnumber.setText(serials.get(j));
@@ -395,12 +362,7 @@ public class fromEmployee extends Fragment implements return_fromEmpInterface {
                     Log.e(getClass().toString(), e.toString());
                 }
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-            }
-        }){
+        }, Throwable::printStackTrace){
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> paramV = new HashMap<>();

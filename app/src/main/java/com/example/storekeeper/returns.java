@@ -8,6 +8,8 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.storekeeper.Adapters.return_PagerAdapter;
 import com.google.android.material.tabs.TabLayout;
 
+import java.util.Objects;
+
 public class returns extends AppCompatActivity {
     TabLayout tabLayout;
     ViewPager2 viewPager2;
@@ -44,7 +46,7 @@ public class returns extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                tabLayout.getTabAt(position).select();
+                Objects.requireNonNull(tabLayout.getTabAt(position)).select();
             }
         });
     }

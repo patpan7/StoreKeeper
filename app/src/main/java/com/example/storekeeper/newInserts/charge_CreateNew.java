@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.DatePicker;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -24,7 +23,6 @@ import androidx.cardview.widget.CardView;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.storekeeper.HelperClasses.DBHelper;
@@ -43,6 +41,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.Objects;
 
 public class charge_CreateNew extends AppCompatActivity {
 
@@ -80,24 +79,16 @@ public class charge_CreateNew extends AppCompatActivity {
         int mYear = calendar.get(Calendar.YEAR);
         charge_date.setText(mDay + "/" + (mMonth + 1) + "/" + mYear);
         charge_date.setShowSoftInputOnFocus(false);
-        charge_date.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                datePicker(charge_date);
-            }
-        });
+        charge_date.setOnClickListener(view -> datePicker(charge_date));
         serialsGetAll();
         charge_serialnumber = findViewById(R.id.charge_insert_sn1);
         serial_btn = findViewById(R.id.charge_insert_snsearch_btn);
-        serial_btn.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.M)
-            @Override
-            public void onClick(View view) {
-                if (charge_serialnumber.getText().toString().equals("")) scanSerial();
-                else {
-                    dinamicSerials(charge_serialnumber.getText().toString());
-                    charge_serialnumber.setText("");
-                }
+        serial_btn.setOnClickListener(
+                view -> {
+            if (Objects.requireNonNull(charge_serialnumber.getText()).toString().equals("")) scanSerial();
+            else {
+                dinamicSerials(charge_serialnumber.getText().toString());
+                charge_serialnumber.setText("");
             }
         });
 
@@ -111,21 +102,7 @@ public class charge_CreateNew extends AppCompatActivity {
                     for (employeesModel e : employeeList)
                         if (e.getName().contentEquals(charge_employee.getText()))
                             emp_code = e.getCode();
-//                    boolean success2 = false;
-//                    int successes = 0;
-//                    for (int i = 0; i <= serial_numbers.size()-1; i++) {
-//                        //Toast.makeText(getApplicationContext()," ok ",Toast.LENGTH_LONG).show();
-//                        success2 = helper.serialUpdateEmployee(serial_numbers.get(i), Objects.requireNonNull(charge_date.getText()).toString(), emp_code,0);
-//                        helper.chargeAdd(charge_employee.getText().toString(),charge_date.getText().toString(),serial_numbers.get(i));
-//                        if (success2)
-//                            successes +=1;
-//                    }
-//                    if (successes == serial_numbers.size()) {
-//                        dialog.launchSuccess(this, "");
-//                        //helper.chargeAdd(charge_employee.getText().toString(),charge_date.getText().toString(),serial_numbers.get(i));
-//                        clear();
-//                    } else dialog.launchFail(this, "");
-                    helper.chargeAdd(serial_numbers, charge_date.getText().toString(), emp_code, this, new DBHelper.MyCallback() {
+                    helper.chargeAdd(serial_numbers, Objects.requireNonNull(charge_date.getText()).toString(), emp_code, this, new DBHelper.MyCallback() {
                         @Override
                         public void onSuccess(String response) {
                             dialog.launchSuccess(charge_CreateNew.this, response);
@@ -178,12 +155,7 @@ public class charge_CreateNew extends AppCompatActivity {
                     Log.e(getClass().toString(), e.toString());
                 }
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-            }
-        });
+        }, Throwable::printStackTrace);
         queue.add(request);
     }
 
@@ -208,12 +180,7 @@ public class charge_CreateNew extends AppCompatActivity {
                     Log.e(getClass().toString(), e.toString());
                 }
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-            }
-        });
+        }, Throwable::printStackTrace);
         queue.add(request);
     }
 
@@ -224,7 +191,7 @@ public class charge_CreateNew extends AppCompatActivity {
             error += 1;
         }
 
-        if (charge_date.getText().toString().equals("")) {
+        if (Objects.requireNonNull(charge_date.getText()).toString().equals("")) {
             charge_date.setError("Error!!!");
             error += 1;
         }
@@ -235,6 +202,7 @@ public class charge_CreateNew extends AppCompatActivity {
         return error;
     }
 
+    @SuppressLint("SetTextI18n")
     private void clear() {
         charge_employee.setText("");
         charge_employee.clearFocus();
@@ -267,18 +235,14 @@ public class charge_CreateNew extends AppCompatActivity {
         if (serialsList.contains(sn) && !serial_numbers.contains(sn)){
             LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-            final View addView = layoutInflater.inflate(R.layout.income_insert_row, null);
+            @SuppressLint("InflateParams") final View addView = layoutInflater.inflate(R.layout.income_insert_row, null);
             TextView textOut = addView.findViewById(R.id.textout);
             textOut.setText(sn);
             serial_numbers.add(sn);
             ImageButton buttonRemove = addView.findViewById(R.id.remove);
-            buttonRemove.setOnClickListener(new View.OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
-                    serial_numbers.remove(textOut.getText());
-                    ((LinearLayout) addView.getParent()).removeView(addView);
-                }
+            buttonRemove.setOnClickListener(v -> {
+                serial_numbers.remove(textOut.getText());
+                ((LinearLayout) addView.getParent()).removeView(addView);
             });
             container.addView(addView);
         } else {
@@ -291,12 +255,7 @@ public class charge_CreateNew extends AppCompatActivity {
         int mDay = calendar.get(Calendar.DATE);
         int mmMonth = calendar.get(Calendar.MONTH);
         int mYear = calendar.get(Calendar.YEAR);
-        DatePickerDialog datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker datePicker, int year, int month, int date) {
-                field.setText(date + "/" + (month + 1) + "/" + year);
-            }
-        }, mYear, mmMonth, mDay);
+        @SuppressLint("SetTextI18n") DatePickerDialog datePickerDialog = new DatePickerDialog(this, (datePicker, year, month, date) -> field.setText(date + "/" + (month + 1) + "/" + year), mYear, mmMonth, mDay);
         datePickerDialog.show();
     }
 }

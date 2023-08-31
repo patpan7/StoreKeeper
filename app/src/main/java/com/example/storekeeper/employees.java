@@ -29,7 +29,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -49,6 +48,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class employees extends AppCompatActivity implements employees_RVInterface {
 
@@ -57,9 +57,14 @@ public class employees extends AppCompatActivity implements employees_RVInterfac
     SwipeRefreshLayout refreshLayout;
     FloatingActionButton floatingActionButton;
     employees_RVAdapter adapter;
-    private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
-    private EditText employee_popup_code, employee_popup_name, employee_popup_phone, employee_popup_mobile, employee_popup_mail, employee_popup_work, employee_popup_id, employee_popup_chargedProd;
+    private EditText employee_popup_code;
+    private EditText employee_popup_name;
+    private EditText employee_popup_phone;
+    private EditText employee_popup_mobile;
+    private EditText employee_popup_mail;
+    private EditText employee_popup_work;
+    private EditText employee_popup_id;
     CardView employee_popup_savebtn;
     ImageView employee_popup_editbtn;
     ImageButton charged_plus;
@@ -83,22 +88,16 @@ public class employees extends AppCompatActivity implements employees_RVInterfac
         refreshLayout = findViewById(R.id.employee_refresh);
         searchView = findViewById(R.id.employees_searchView);
         floatingActionButton = findViewById(R.id.employees_fab);
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(employees.this, employee_CreateNew.class);
-                startActivity(intent);
-            }
+        floatingActionButton.setOnClickListener(view -> {
+            Intent intent = new Intent(employees.this, employee_CreateNew.class);
+            startActivity(intent);
         });
         showLoading();
         setUpEmployeesModels();
-        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                refreshLayout.setRefreshing(false);
-                showLoading();
-                setUpEmployeesModels();
-            }
+        refreshLayout.setOnRefreshListener(() -> {
+            refreshLayout.setRefreshing(false);
+            showLoading();
+            setUpEmployeesModels();
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -151,9 +150,7 @@ public class employees extends AppCompatActivity implements employees_RVInterfac
         progress.setTitle("Loading");
         progress.setCancelable(true); // disable dismiss by tapping outside of the dialog
         progress.setCanceledOnTouchOutside(false);
-        progress.setOnCancelListener(dialogInterface -> {
-            onBackPressed();
-        });
+        progress.setOnCancelListener(dialogInterface -> onBackPressed());
         progress.show();
     }
 
@@ -163,11 +160,6 @@ public class employees extends AppCompatActivity implements employees_RVInterfac
 
 
     private void setUpEmployeesModels() {
-//        ArrayList<employeesModel> dbEmployees = helper.employeesGetAll();
-//        employeeModels.clear();
-//        employeeModels.addAll(dbEmployees);
-//        adapter = new employees_RVAdapter(this, dbEmployees, this);
-//        recyclerView.setAdapter(adapter);
         employeeModelsFiltered.clear();
         dbEmployees.clear();
         String ip = helper.getSettingsIP();
@@ -198,12 +190,7 @@ public class employees extends AppCompatActivity implements employees_RVInterfac
                 }
                 setuprecyclerview(dbEmployees);
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-            }
-        });
+        }, Throwable::printStackTrace);
         queue.add(request);
     }
 
@@ -230,7 +217,7 @@ public class employees extends AppCompatActivity implements employees_RVInterfac
 
     @SuppressLint({"MissingInflatedId", "SetTextI18n"})
     public void employeeDialog(int pos) {
-        dialogBuilder = new MaterialAlertDialogBuilder(this);
+        AlertDialog.Builder dialogBuilder = new MaterialAlertDialogBuilder(this);
         final View employeesPopupView = getLayoutInflater().inflate(R.layout.employees_popup, null);
         employee_popup_code = employeesPopupView.findViewById(R.id.employees_popup_code1);
         employee_popup_name = employeesPopupView.findViewById(R.id.employees_popup_name1);
@@ -239,7 +226,7 @@ public class employees extends AppCompatActivity implements employees_RVInterfac
         employee_popup_mail = employeesPopupView.findViewById(R.id.employees_popup_mail1);
         employee_popup_work = employeesPopupView.findViewById(R.id.employees_popup_work1);
         employee_popup_id = employeesPopupView.findViewById(R.id.employees_popup_id1);
-        employee_popup_chargedProd = employeesPopupView.findViewById(R.id.employees_popup_chargedProd1);
+        EditText employee_popup_chargedProd = employeesPopupView.findViewById(R.id.employees_popup_chargedProd1);
         charged_plus = employeesPopupView.findViewById(R.id.charged_plus);
         container = employeesPopupView.findViewById(R.id.container);
 
@@ -251,30 +238,27 @@ public class employees extends AppCompatActivity implements employees_RVInterfac
         employee_popup_work.setText(employeeModels.get(pos).getWork());
         employee_popup_id.setText(employeeModels.get(pos).getId());
         //employee_popup_chargedProd.setText(helper.employeeGetChargedProd(employeeModels.get(pos).getCode()) + "");
-        helper.employeeGetChargedProd(employees.this,employeeModels.get(pos).getCode(),employee_popup_chargedProd);
+        helper.employeeGetChargedProd(employees.this,employeeModels.get(pos).getCode(), employee_popup_chargedProd);
         final boolean[] chargedClicked = {false};
-        charged_plus.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (chargedClicked[0]) {
-                    chargedClicked[0] = false;
-                    charged_plus.setImageResource(R.drawable.down);
-                    container.removeAllViews();
+        charged_plus.setOnClickListener(view -> {
+            if (chargedClicked[0]) {
+                chargedClicked[0] = false;
+                charged_plus.setImageResource(R.drawable.down);
+                container.removeAllViews();
 
-                } else {
-                    chargedClicked[0] = true;
-                    charged_plus.setImageResource(R.drawable.up);
-                    container.removeAllViews();
-                    //ArrayList<String> products = helper.productsGetAllNamesCharge(employeeModels.get(pos).getCode());
-                    productsGetAllNamesCharge(employeeModels.get(pos).getCode(),pos);
+            } else {
+                chargedClicked[0] = true;
+                charged_plus.setImageResource(R.drawable.up);
+                container.removeAllViews();
+                //ArrayList<String> products = helper.productsGetAllNamesCharge(employeeModels.get(pos).getCode());
+                productsGetAllNamesCharge(employeeModels.get(pos).getCode(),pos);
 
-                }
             }
         });
 
         dialogBuilder.setView(employeesPopupView);
         dialog = dialogBuilder.create();
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.getWindow().setWindowAnimations(R.style.DialogAnimation);
         dialog.show();
 
@@ -324,20 +308,18 @@ public class employees extends AppCompatActivity implements employees_RVInterfac
         });
 
         employee_popup_editbtn = employeesPopupView.findViewById(R.id.employees_popup_editbtn);
-        employee_popup_editbtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                employee_popup_name.setEnabled(true);
-                employee_popup_phone.setEnabled(true);
-                employee_popup_mobile.setEnabled(true);
-                employee_popup_mail.setEnabled(true);
-                employee_popup_work.setEnabled(true);
-                employee_popup_id.setEnabled(true);
-            }
+        employee_popup_editbtn.setOnClickListener(view -> {
+            employee_popup_name.setEnabled(true);
+            employee_popup_phone.setEnabled(true);
+            employee_popup_mobile.setEnabled(true);
+            employee_popup_mail.setEnabled(true);
+            employee_popup_work.setEnabled(true);
+            employee_popup_id.setEnabled(true);
         });
 
     }
 
+    @SuppressLint("InflateParams")
     private void productsGetAllNamesCharge(int code, int pos) {
         products.clear();
         String ip = helper.getSettingsIP();
@@ -364,7 +346,7 @@ public class employees extends AppCompatActivity implements employees_RVInterfac
                         TextView productName = addView.findViewById(R.id.income_popup_row_product);
                         LinearLayout containerSN = addView.findViewById(R.id.containerSerials);
                         productName.setText(products.get(i).getName());
-                        int prod_code = products.get(i).getCode();;
+                        int prod_code = products.get(i).getCode();
                         //ArrayList<String> serials = helper.serialGetAllCharge(prod_code, employeeModels.get(pos).getCode());
                         serialGetAllCharge(prod_code, employeeModels.get(pos).getCode(),container,containerSN,addView);
 
@@ -374,10 +356,7 @@ public class employees extends AppCompatActivity implements employees_RVInterfac
                     Log.e(getClass().toString(), e.toString());
                 }
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-            }
+        }, error -> {
         })
 
         {
@@ -390,6 +369,7 @@ public class employees extends AppCompatActivity implements employees_RVInterfac
         queue.add(stringRequest);
     }
 
+    @SuppressLint("InflateParams")
     private void serialGetAllCharge(int prod_code, int code, LinearLayout container, LinearLayout containerSN, View addView) {
         String ip = helper.getSettingsIP();
         RequestQueue queue = Volley.newRequestQueue(employees.this);
@@ -420,12 +400,7 @@ public class employees extends AppCompatActivity implements employees_RVInterfac
                     Log.e(getClass().toString(), e.toString());
                 }
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-            }
-        }){
+        }, Throwable::printStackTrace){
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> paramV = new HashMap<>();

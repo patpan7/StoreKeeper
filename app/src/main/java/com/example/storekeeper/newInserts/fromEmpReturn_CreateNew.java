@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
@@ -14,7 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.DatePicker;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -28,7 +26,6 @@ import androidx.cardview.widget.CardView;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -51,6 +48,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 @RequiresApi(api = Build.VERSION_CODES.M)
 public class fromEmpReturn_CreateNew extends AppCompatActivity {
@@ -100,8 +98,6 @@ public class fromEmpReturn_CreateNew extends AppCompatActivity {
                     for (employeesModel e : employeeList)
                         if (e.getName().contentEquals(return_employee.getText()))
                             emp_code = e.getCode();
-                    //int emp_code = helper.employeeGetCode(return_employee.getText().toString());
-                    //allserials = helper.serialGetAllFromEmp(emp_code).toArray(new String[0]);
                     serialsGetAllFromEmp(emp_code);
 
                 } else {
@@ -116,15 +112,12 @@ public class fromEmpReturn_CreateNew extends AppCompatActivity {
         });
 
         lock = findViewById(R.id.return_fromEmp_insert_lock);
-        lock.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                return_employee.setEnabled(true);
-                return_employee1.setEnabled(true);
-                serial_btn.setEnabled(false);
-                lock.setImageResource(R.drawable.unlock);
-                return true;
-            }
+        lock.setOnLongClickListener(view -> {
+            return_employee.setEnabled(true);
+            return_employee1.setEnabled(true);
+            serial_btn.setEnabled(false);
+            lock.setImageResource(R.drawable.unlock);
+            return true;
         });
 
         return_date = findViewById(R.id.return_fromEmp_insert_date1);
@@ -134,12 +127,7 @@ public class fromEmpReturn_CreateNew extends AppCompatActivity {
         int mYear = calendar.get(Calendar.YEAR);
         return_date.setText(mDay + "/" + (mMonth + 1) + "/" + mYear);
         return_date.setShowSoftInputOnFocus(false);
-        return_date.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                datePicker(return_date);
-            }
-        });
+        return_date.setOnClickListener(view -> datePicker(return_date));
 
         return_msg = findViewById(R.id.return_fromEmp_insert_msg1);
 
@@ -147,65 +135,56 @@ public class fromEmpReturn_CreateNew extends AppCompatActivity {
         return_serialnumber = findViewById(R.id.return_fromEmp_insert_sn1);
         serial_btn = findViewById(R.id.return_fromEmp_insert_snsearch_btn);
         serial_btn.setEnabled(false);
-        serial_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (return_serialnumber.getText().toString().equals("")) scanSerial();
-                else {
-                    dinamicSerials(return_serialnumber.getText().toString(), emp_code);
-                    return_serialnumber.setText("");
-                }
+        serial_btn.setOnClickListener(view -> {
+            if (Objects.requireNonNull(return_serialnumber.getText()).toString().equals("")) scanSerial();
+            else {
+                dinamicSerials(return_serialnumber.getText().toString());
+                return_serialnumber.setText("");
             }
         });
 
-        serial_btn.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
+        serial_btn.setOnLongClickListener(view -> {
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(fromEmpReturn_CreateNew.this);
-                // set the title for the alert dialog
-                builder.setTitle("Επιλογή Serial Number");
-                // set the icon for the alert dialog
-                builder.setIcon(R.drawable.check);
+            AlertDialog.Builder builder = new AlertDialog.Builder(fromEmpReturn_CreateNew.this);
+            // set the title for the alert dialog
+            builder.setTitle("Επιλογή Serial Number");
+            // set the icon for the alert dialog
+            builder.setIcon(R.drawable.check);
 
-                // now this is the function which sets the alert dialog for multiple item selection ready
-                builder.setMultiChoiceItems(allserials,
-                        checkedItems,
-                        (DialogInterface.OnMultiChoiceClickListener) (dialogInterface, pos, isChecked) -> {
-                        });
+            // now this is the function which sets the alert dialog for multiple item selection ready
+            builder.setMultiChoiceItems(allserials,
+                    checkedItems,
+                    (dialogInterface, pos, isChecked) -> {
+                    });
 
-                // alert dialog shouldn't be cancellable
-                builder.setCancelable(false);
+            // alert dialog shouldn't be cancellable
+            builder.setCancelable(false);
 
-                // handle the positive button of the dialog
-                builder.setPositiveButton("Επιλογή", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        for (int j = 0; j < checkedItems.length; j++) {
-                            if (checkedItems[j])
-                                if (!serial_numbers.contains(allserials[j]))
-                                    dinamicSerials(allserials[j], emp_code);
-                        }
-                    }
-                });
-                builder.setNegativeButton("Άκυρο", (dialog, which) -> {
-                });
+            // handle the positive button of the dialog
+            builder.setPositiveButton("Επιλογή", (dialogInterface, i) -> {
+                for (int j = 0; j < checkedItems.length; j++) {
+                    if (checkedItems[j])
+                        if (!serial_numbers.contains(allserials[j]))
+                            dinamicSerials(allserials[j]);
+                }
+            });
+            builder.setNegativeButton("Άκυρο", (dialog, which) -> {
+            });
 
-                // handle the negative button of the alert dialog
+            // handle the negative button of the alert dialog
 
-                // handle the neutral button of the dialog to clear the selected items boolean checkedItem
-                builder.setNeutralButton("Καθαρισμός", (dialog, which) -> {
+            // handle the neutral button of the dialog to clear the selected items boolean checkedItem
+            builder.setNeutralButton("Καθαρισμός", (dialog, which) -> {
 
-                });
+            });
 
-                // create the builder
-                builder.create();
+            // create the builder
+            builder.create();
 
-                // create the alert dialog with the alert dialog builder instance
-                AlertDialog alertDialog = builder.create();
-                alertDialog.show();
-                return true;
-            }
+            // create the alert dialog with the alert dialog builder instance
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+            return true;
         });
 
         savebtn = findViewById(R.id.return_fromEmp_insert_savebtn);
@@ -214,20 +193,7 @@ public class fromEmpReturn_CreateNew extends AppCompatActivity {
             try {
                 int isError = checkFields();
                 if (isError == 0) {
-//                    boolean success2 = false;
-//                    int successes = 0;
-//                    for (int i = 0; i < serial_numbers.size(); i++) {
-//                        //Toast.makeText(getApplicationContext()," ok ",Toast.LENGTH_LONG).show();
-//                        success2 = helper.serialUpdateEmployee(serial_numbers.get(i), "", 0, 1);
-//                        helper.returnFromEmpAdd(return_employee.getText().toString(), return_date.getText().toString(), serial_numbers.get(i), return_msg.getText().toString());
-//                        if (success2)
-//                            successes += 1;
-//                    }
-//                    if (successes == serial_numbers.size()) {
-//                        dialog.launchSuccess(this, "");
-//                        clear();
-//                    } else dialog.launchFail(this, "");
-                    helper.returnFromEmpAdd(emp_code, return_date.getText().toString(), serial_numbers, return_msg.getText().toString(), this, new DBHelper.MyCallback() {
+                    helper.returnFromEmpAdd(emp_code, Objects.requireNonNull(return_date.getText()).toString(), serial_numbers, Objects.requireNonNull(return_msg.getText()).toString(), this, new DBHelper.MyCallback() {
                         @Override
                         public void onSuccess(String response) {
                             dialog.launchSuccess(fromEmpReturn_CreateNew.this, response);
@@ -275,12 +241,7 @@ public class fromEmpReturn_CreateNew extends AppCompatActivity {
                     Log.e(getClass().toString(), e.toString());
                 }
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-            }
-        }){
+        }, Throwable::printStackTrace){
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> paramV = new HashMap<>();
@@ -322,12 +283,7 @@ public class fromEmpReturn_CreateNew extends AppCompatActivity {
                     Log.e(getClass().toString(), e.toString());
                 }
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-            }
-        });
+        }, Throwable::printStackTrace);
         queue.add(request);
     }
 
@@ -337,15 +293,15 @@ public class fromEmpReturn_CreateNew extends AppCompatActivity {
             return_employee.setError("Error!!!");
             error += 1;
         }
-        if (return_date.getText().toString().equals("")) {
+        if (Objects.requireNonNull(return_date.getText()).toString().equals("")) {
             return_date.setError("Error!!!");
             error += 1;
         }
-        if (serial_numbers.size() <= 0) {
+        if (serial_numbers.size() == 0) {
             return_serialnumber.setError("Error!!!");
             error += 1;
         }
-        if (return_msg.getText().toString().equals("")) {
+        if (Objects.requireNonNull(return_msg.getText()).toString().equals("")) {
             return_msg.setError("Error!!!");
             error += 1;
         }
@@ -386,11 +342,11 @@ public class fromEmpReturn_CreateNew extends AppCompatActivity {
 
     ActivityResultLauncher<ScanOptions> barLauncher2 = registerForActivityResult(new ScanContract(), result -> {
         if (result.getContents() != null)
-            dinamicSerials(result.getContents(), emp_code);
+            dinamicSerials(result.getContents());
     });
 
     @RequiresApi(api = Build.VERSION_CODES.M)
-    void dinamicSerials(String sn, int emp_code) {
+    void dinamicSerials(String sn) {
         boolean isOk = false;
         for (String allserial : allserials) {
             if (allserial.equals(sn)) {
@@ -400,7 +356,7 @@ public class fromEmpReturn_CreateNew extends AppCompatActivity {
         }
         if (isOk){
             LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    final View addView = layoutInflater.inflate(R.layout.income_insert_row,null);
+                    @SuppressLint("InflateParams") final View addView = layoutInflater.inflate(R.layout.income_insert_row,null);
                     TextView textOut = addView.findViewById(R.id.textout);
                     textOut.setText(sn);
                     serial_numbers.add(sn);
@@ -413,71 +369,21 @@ public class fromEmpReturn_CreateNew extends AppCompatActivity {
                     }
                     checkedItems[pos] = true;
                     ImageButton buttonRemove = addView.findViewById(R.id.remove);
-                    buttonRemove.setOnClickListener(new View.OnClickListener() {
-
-                        @Override
-                        public void onClick(View v) {
-                            serial_numbers.remove(textOut.getText());
-                            int pos = -1;
-                            for (int i = 0; i < allserials.length; i++) {
-                                if (allserials[i].equals(textOut.getText().toString())) {
-                                    pos = i;
-                                    break;
-                                }
-                            };
-                            checkedItems[pos] = false;
-                            ((LinearLayout) addView.getParent()).removeView(addView);
+                    buttonRemove.setOnClickListener(v -> {
+                        serial_numbers.remove(textOut.getText());
+                        int pos1 = -1;
+                        for (int i = 0; i < allserials.length; i++) {
+                            if (allserials[i].equals(textOut.getText().toString())) {
+                                pos1 = i;
+                                break;
+                            }
                         }
+                        checkedItems[pos1] = false;
+                        ((LinearLayout) addView.getParent()).removeView(addView);
                     });
                     container.addView(addView);
         } else
             Toast.makeText(getApplicationContext(), "Το serial number: " + sn + " δεν είναι χρεωμένο!!!", Toast.LENGTH_LONG).show();
-//        boolean isOld = helper.checkSerialNumber(sn);
-//        boolean isAvailable = helper.checkSerialNumberAvailable(sn);
-//        int emp_code = helper.employeeGetCode(employee_name);
-//        boolean isChargedtoEmp = helper.checkSerialNumberisCharged(sn, emp_code);
-//        if (serial_numbers.contains(sn)) {
-//            if (!isAvailable) {
-//                if (isChargedtoEmp) {
-//                    LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//
-//                    final View addView = layoutInflater.inflate(R.layout.income_insert_row,null);
-//                    TextView textOut = addView.findViewById(R.id.textout);
-//                    textOut.setText(sn);
-//                    serial_numbers.add(sn);
-//                    int pos = -1;
-//                    for (int i = 0; i <= allserials.length; i++) {
-//                        if (allserials[i].equals(sn)) {
-//                            pos = i;
-//                            break;
-//                        }
-//                    }
-//                    checkedItems[pos] = true;
-//                    ImageButton buttonRemove = addView.findViewById(R.id.remove);
-//                    buttonRemove.setOnClickListener(new View.OnClickListener() {
-//
-//                        @Override
-//                        public void onClick(View v) {
-//                            serial_numbers.remove(textOut.getText());
-//                            int pos = -1;
-//                            for (int i = 0; i < allserials.length; i++) {
-//                                if (allserials[i].equals(textOut.getText().toString())) {
-//                                    pos = i;
-//                                    break;
-//                                }
-//                            };
-//                            checkedItems[pos] = false;
-//                            ((LinearLayout) addView.getParent()).removeView(addView);
-//                        }
-//                    });
-//                    container.addView(addView);
-//                } else
-//                    Toast.makeText(getApplicationContext(), "Το serial number: " + sn + " είναι χρεωμένο σε διαφορετιό υπάλληλο!!!", Toast.LENGTH_LONG).show();
-//            } else
-//                Toast.makeText(getApplicationContext(), "Το serial number: " + sn + " δεν είναι χρεωμένο!!!", Toast.LENGTH_LONG).show();
-//        } else {
-//            Toast.makeText(getApplicationContext(), "Το serial number: " + sn + " δεν υπάρχει!!!", Toast.LENGTH_LONG).show();
-//        }
     }
 
     void datePicker(TextInputEditText field) {
@@ -485,12 +391,7 @@ public class fromEmpReturn_CreateNew extends AppCompatActivity {
         int mDay = calendar.get(Calendar.DATE);
         int mmMonth = calendar.get(Calendar.MONTH);
         int mYear = calendar.get(Calendar.YEAR);
-        DatePickerDialog datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker datePicker, int year, int month, int date) {
-                field.setText(date + "/" + (month + 1) + "/" + year);
-            }
-        }, mYear, mmMonth, mDay);
+        @SuppressLint("SetTextI18n") DatePickerDialog datePickerDialog = new DatePickerDialog(this, (datePicker, year, month, date) -> field.setText(date + "/" + (month + 1) + "/" + year), mYear, mmMonth, mDay);
         datePickerDialog.show();
     }
 }

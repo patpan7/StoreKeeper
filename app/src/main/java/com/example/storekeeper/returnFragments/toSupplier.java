@@ -12,7 +12,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,7 +28,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.storekeeper.Adapters.return_toSupAdapter;
@@ -53,6 +51,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 public class toSupplier extends Fragment implements return_toSupInterface {
     RecyclerView recyclerView;
@@ -73,7 +72,7 @@ public class toSupplier extends Fragment implements return_toSupInterface {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        helper = new DBHelper(getActivity().getApplicationContext());
+        helper = new DBHelper(requireActivity().getApplicationContext());
     }
 
     @Override
@@ -83,6 +82,7 @@ public class toSupplier extends Fragment implements return_toSupInterface {
         return inflater.inflate(R.layout.fragment_to_supplier, container, false);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -99,44 +99,28 @@ public class toSupplier extends Fragment implements return_toSupInterface {
 
         date_start.setText(1 + "/" + (mmMonth + 1) + "/" + mYear);
         date_start.setShowSoftInputOnFocus(false);
-        date_start.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                datePicker(date_start);
-            }
-        });
+        date_start.setOnClickListener(view1 -> datePicker(date_start));
         date_end.setText(mDay + "/" + (mmMonth + 1) + "/" + mYear);
         date_end.setShowSoftInputOnFocus(false);
-        date_end.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                datePicker(date_end);
-            }
-        });
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(toSupplier.this.getContext(), toSupReturn_CreateNew.class);
-                startActivity(intent);
-            }
+        date_end.setOnClickListener(view12 -> datePicker(date_end));
+        floatingActionButton.setOnClickListener(view13 -> {
+            Intent intent = new Intent(toSupplier.this.getContext(), toSupReturn_CreateNew.class);
+            startActivity(intent);
         });
         try {
             showLoading();
-            setUpReturnToSup(date_start.getText().toString(), date_end.getText().toString());
+            setUpReturnToSup(Objects.requireNonNull(date_start.getText()).toString(), Objects.requireNonNull(date_end.getText()).toString());
         } catch (ParseException e) {
             e.printStackTrace();
         }
 
-        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                refreshLayout.setRefreshing(false);
-                try {
-                    showLoading();
-                    setUpReturnToSup(date_start.getText().toString(), date_end.getText().toString());
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
+        refreshLayout.setOnRefreshListener(() -> {
+            refreshLayout.setRefreshing(false);
+            try {
+                showLoading();
+                setUpReturnToSup(date_start.getText().toString(), Objects.requireNonNull(date_end.getText()).toString());
+            } catch (ParseException e) {
+                e.printStackTrace();
             }
         });
 
@@ -204,16 +188,10 @@ public class toSupplier extends Fragment implements return_toSupInterface {
 
 
     private void setUpReturnToSup(String start, String end) throws ParseException {
-//        DBHelper helper = new DBHelper(getActivity());
-//        ArrayList<toSupReturnModel> dbToSupReturns = helper.returnsToSupGetAll(start, end);
-//        toSupReturnModels.clear();
-//        toSupReturnModels.addAll(dbToSupReturns);
-//        adapter = new return_toSupAdapter(this.getContext(), dbToSupReturns, this);
-//        recyclerView.setAdapter(adapter);
         toSupReturnModelsFiltered.clear();
         dbToSup.clear();
         String ip = helper.getSettingsIP();
-        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        RequestQueue queue = Volley.newRequestQueue(requireActivity());
         String url = "http://" + ip + "/storekeeper/returns/returnToSupGetAll.php";
 
         StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
@@ -236,12 +214,7 @@ public class toSupplier extends Fragment implements return_toSupInterface {
                 }
                 setuprecyclerview(dbToSup);
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-            }
-        }) {
+        }, Throwable::printStackTrace) {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> paramV = new HashMap<>();
@@ -269,12 +242,7 @@ public class toSupplier extends Fragment implements return_toSupInterface {
         int mDay = calendar.get(Calendar.DATE);
         int mmMonth = calendar.get(Calendar.MONTH);
         int mYear = calendar.get(Calendar.YEAR);
-        DatePickerDialog datePickerDialog = new DatePickerDialog(this.getContext(), new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker datePicker, int year, int month, int date) {
-                field.setText(date + "/" + (month + 1) + "/" + year);
-            }
-        }, mYear, mmMonth, mDay);
+        @SuppressLint("SetTextI18n") DatePickerDialog datePickerDialog = new DatePickerDialog(this.requireContext(), (datePicker, year, month, date) -> field.setText(date + "/" + (month + 1) + "/" + year), mYear, mmMonth, mDay);
         datePickerDialog.show();
     }
 
@@ -293,8 +261,8 @@ public class toSupplier extends Fragment implements return_toSupInterface {
 
     @SuppressLint("MissingInflatedId")
     private void returnDialog(int pos) {
-        dialogBuilder = new MaterialAlertDialogBuilder(this.getContext());
-        final View supReturnPopupView = getLayoutInflater().inflate(R.layout.return_to_sup_popup, null);
+        dialogBuilder = new MaterialAlertDialogBuilder(this.requireContext());
+        @SuppressLint("InflateParams") final View supReturnPopupView = getLayoutInflater().inflate(R.layout.return_to_sup_popup, null);
         TextInputEditText returnToSup_popup_employee = supReturnPopupView.findViewById(R.id.returnToSup_popup_employee1);
         TextInputEditText returnToSup_popup_date = supReturnPopupView.findViewById(R.id.returnToSup_popup_date1);
         TextInputEditText return_msg = supReturnPopupView.findViewById(R.id.returnToSup_popup_msg1);
@@ -311,44 +279,38 @@ public class toSupplier extends Fragment implements return_toSupInterface {
     private void productsGetAllNamesRerunSup(String name, String date, LinearLayout container, int pos, View supReturnPopupView) {
         products.clear();
         String ip = helper.getSettingsIP();
-        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        RequestQueue queue = Volley.newRequestQueue(requireActivity());
         String url = "http://" + ip + "/storekeeper/returns/productsGetAllNamesRerunSup.php";
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                try {
-                    JSONObject resp = new JSONObject(response);
-                    String status = resp.getString("status");
-                    JSONArray message = resp.getJSONArray("message");
-                    if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
-                        JSONObject productObject = message.getJSONObject(i);
-                        int code = productObject.getInt("code");
-                        String name = productObject.getString("name");
-                        productModel newProduct = new productModel(code, name);
-                        products.add(newProduct);
-                    }
-                    for (int i = 0; i < products.size(); i++) {
-                        LayoutInflater layoutInflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                        final View addView = layoutInflater.inflate(R.layout.income_popup_row, null);
-                        TextView productName = addView.findViewById(R.id.income_popup_row_product);
-                        LinearLayout containerSN = addView.findViewById(R.id.containerSerials);
-                        productName.setText(products.get(i).getName());
-                        int prod_code = products.get(i).getCode();
-                        serialGetAllReturnSup(toSupReturnModels.get(pos).getName(), toSupReturnModels.get(pos).getDate(), prod_code, containerSN, container, addView);
-                    }
-                    dialogBuilder.setView(supReturnPopupView);
-                    dialog = dialogBuilder.create();
-                    dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                    dialog.getWindow().setWindowAnimations(R.style.DialogAnimation);
-                    dialog.show();
-                } catch (JSONException ignored) {
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, response -> {
+            try {
+                JSONObject resp = new JSONObject(response);
+                String status = resp.getString("status");
+                JSONArray message = resp.getJSONArray("message");
+                if (status.equals("success")) for (int i = 0; i < message.length(); i++) {
+                    JSONObject productObject = message.getJSONObject(i);
+                    int code = productObject.getInt("code");
+                    String name1 = productObject.getString("name");
+                    productModel newProduct = new productModel(code, name1);
+                    products.add(newProduct);
                 }
+                for (int i = 0; i < products.size(); i++) {
+                    LayoutInflater layoutInflater = (LayoutInflater) requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    @SuppressLint("InflateParams") final View addView = layoutInflater.inflate(R.layout.income_popup_row, null);
+                    TextView productName = addView.findViewById(R.id.income_popup_row_product);
+                    LinearLayout containerSN = addView.findViewById(R.id.containerSerials);
+                    productName.setText(products.get(i).getName());
+                    int prod_code = products.get(i).getCode();
+                    serialGetAllReturnSup(toSupReturnModels.get(pos).getName(), toSupReturnModels.get(pos).getDate(), prod_code, containerSN, container, addView);
+                }
+                dialogBuilder.setView(supReturnPopupView);
+                dialog = dialogBuilder.create();
+                Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                dialog.getWindow().setWindowAnimations(R.style.DialogAnimation);
+                dialog.show();
+            } catch (JSONException ignored) {
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-            }
+        }, error -> {
         }) {
             protected Map<String, String> getParams() {
                 Map<String, String> paramV = new HashMap<>();
@@ -362,7 +324,7 @@ public class toSupplier extends Fragment implements return_toSupInterface {
 
     private void serialGetAllReturnSup(String name, String date, int prodCode, LinearLayout containerSN, LinearLayout container, View addView) {
         String ip = helper.getSettingsIP();
-        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        RequestQueue queue = Volley.newRequestQueue(requireActivity());
         String url = "http://" + ip + "/storekeeper/returns/serialGetAllReturnSup.php";
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
@@ -380,8 +342,8 @@ public class toSupplier extends Fragment implements return_toSupInterface {
                     //containerSN.removeAllViews();
                     Log.e("Serials size",serials.size()+"");
                     for (int j = 0; j < serials.size(); j++) {
-                        LayoutInflater layoutInflaterSN = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                        final View addViewSN = layoutInflaterSN.inflate(R.layout.income_popup_row_sn, null);
+                        LayoutInflater layoutInflaterSN = (LayoutInflater) requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                        @SuppressLint("InflateParams") final View addViewSN = layoutInflaterSN.inflate(R.layout.income_popup_row_sn, null);
                         TextView serialnumber = addViewSN.findViewById(R.id.income_popup_row_sn_serial);
                         serialnumber.setText(serials.get(j));
                         containerSN.addView(addViewSN);
@@ -391,12 +353,7 @@ public class toSupplier extends Fragment implements return_toSupInterface {
                     Log.e(getClass().toString(), e.toString());
                 }
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-            }
-        }){
+        }, Throwable::printStackTrace){
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> paramV = new HashMap<>();

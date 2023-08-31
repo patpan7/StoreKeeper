@@ -16,10 +16,6 @@ public class serialModel {
         return prod_code;
     }
 
-    public void setProd_code(int prod_code) {
-        this.prod_code = prod_code;
-    }
-
     public String getSerialnumber() {
         return serialnumber;
     }
@@ -32,7 +28,4 @@ public class serialModel {
         return available;
     }
 
-    public void setAvailable(int available) {
-        this.available = available;
-    }
 }

@@ -19,7 +19,6 @@ import androidx.cardview.widget.CardView;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.storekeeper.HelperClasses.DBHelper;
@@ -37,6 +36,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class warranty extends AppCompatActivity {
 
@@ -56,12 +56,12 @@ public class warranty extends AppCompatActivity {
         warranty_serial = findViewById(R.id.warranty_sn1);
         serial_btn = findViewById(R.id.warranty_snsearch_btn);
         serial_btn.setOnClickListener(view -> {
-            if (warranty_serial.getText().toString().equals("")) scanSerial();
+            if (Objects.requireNonNull(warranty_serial.getText()).toString().equals("")) scanSerial();
         });
 
         warranty_check = findViewById(R.id.warranty_checkbtn);
         warranty_check.setOnClickListener(view -> {
-            if (warranty_serial.getText().toString().equals(""))
+            if (Objects.requireNonNull(warranty_serial.getText()).toString().equals(""))
                 warranty_serial.setError("Error!!!");
             else
                 try {
@@ -98,13 +98,13 @@ public class warranty extends AppCompatActivity {
         StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                String product = null;
-                String income_date = null;
-                String supplier = null;
-                int warranty_months = 0;
-                String warranty_end_date = null;
-                String employee = null;
-                String charge_date = null;
+                String product;
+                String income_date;
+                String supplier;
+                int warranty_months;
+                String warranty_end_date;
+                String employee;
+                String charge_date;
                 try {
                     JSONObject jsonObject = new JSONObject(response);
                     String status = jsonObject.getString("status");
@@ -139,7 +139,7 @@ public class warranty extends AppCompatActivity {
                             employeeName.append(employee);
                             chargeDate.append(charge_date);
                             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-                            Date enddate = null;
+                            Date enddate;
                             try {
                                 enddate = sdf.parse(warranty_end_date);
                             } catch (ParseException e) {
@@ -147,6 +147,7 @@ public class warranty extends AppCompatActivity {
                             }
                             Calendar today = Calendar.getInstance();
                             Calendar enddateCal = Calendar.getInstance();
+                            assert enddate != null;
                             enddateCal.setTime(enddate);
                             Calendar warning = Calendar.getInstance();
                             warning.setTime(enddate);
@@ -175,12 +176,7 @@ public class warranty extends AppCompatActivity {
 
 
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-            }
-        }){
+        }, Throwable::printStackTrace){
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> paramV = new HashMap<>();
@@ -197,9 +193,7 @@ public class warranty extends AppCompatActivity {
         progress.setTitle("Loading");
         progress.setCancelable(true); // disable dismiss by tapping outside of the dialog
         progress.setCanceledOnTouchOutside(false);
-        progress.setOnCancelListener(dialogInterface -> {
-            onBackPressed();
-        });
+        progress.setOnCancelListener(dialogInterface -> onBackPressed());
         progress.show();
     }
 

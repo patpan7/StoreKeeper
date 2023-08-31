@@ -6,26 +6,10 @@ public class fromEmpReturnModel {
     String msg;
     String serial;
 
-    public fromEmpReturnModel(String name, String date, String msg, String serial) {
-        this.name = name;
-        this.date = date;
-        this.msg = msg;
-        this.serial = serial;
-    }
-
     public fromEmpReturnModel(String name, String date, String msg) {
         this.name = name;
         this.date = date;
         this.msg = msg;
-    }
-
-    public fromEmpReturnModel(String serial) {
-        this.serial = serial;
-    }
-
-    public fromEmpReturnModel(String date, String name) {
-        this.date = date;
-        this.name = name;
     }
 
     public String getName() {
@@ -46,10 +30,6 @@ public class fromEmpReturnModel {
 
     public String getMsg() {
         return msg;
-    }
-
-    public void setMsg(String msg) {
-        this.msg = msg;
     }
 
     public String getSerial() {
