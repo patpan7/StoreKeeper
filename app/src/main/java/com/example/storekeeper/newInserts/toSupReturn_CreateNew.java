@@ -131,6 +131,7 @@ public class toSupReturn_CreateNew extends AppCompatActivity {
 
         return_serialnumber = findViewById(R.id.return_toSup_insert_sn1);
         serial_btn = findViewById(R.id.return_toSup_insert_snsearch_btn);
+        serial_btn.setEnabled(false);
         serial_btn.setOnClickListener(view -> {
             if (Objects.requireNonNull(return_serialnumber.getText()).toString().equals("")) scanSerial();
             else {
@@ -379,8 +380,10 @@ public class toSupReturn_CreateNew extends AppCompatActivity {
                 ((LinearLayout) addView.getParent()).removeView(addView);
             });
             container.addView(addView);
-        } else
-            Toast.makeText(getApplicationContext(), "Το serial number: " + sn + " δεν είναι χρεωμένο!!!", Toast.LENGTH_LONG).show();
+        } else {
+            dialog = new alertDialogs();
+            dialog.launchFail(this, "Το serial number: " + sn + " είναι χρεωμένο!!!");
+        }
     }
 
     @SuppressLint("SetTextI18n")

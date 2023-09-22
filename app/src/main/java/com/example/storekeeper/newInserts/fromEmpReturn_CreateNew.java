@@ -382,8 +382,11 @@ public class fromEmpReturn_CreateNew extends AppCompatActivity {
                         ((LinearLayout) addView.getParent()).removeView(addView);
                     });
                     container.addView(addView);
-        } else
-            Toast.makeText(getApplicationContext(), "Το serial number: " + sn + " δεν είναι χρεωμένο!!!", Toast.LENGTH_LONG).show();
+        } else {
+            dialog = new alertDialogs();
+            dialog.launchFail(this, "Το serial number: " + sn + " δεν είναι χρεωμένο!!!");
+            //Toast.makeText(getApplicationContext(), "Το serial number: " + sn + " δεν είναι χρεωμένο!!!", Toast.LENGTH_LONG).show();
+        }
     }
 
     void datePicker(TextInputEditText field) {

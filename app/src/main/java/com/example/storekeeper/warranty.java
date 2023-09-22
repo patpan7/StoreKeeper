@@ -71,6 +71,10 @@ public class warranty extends AppCompatActivity {
                     e.printStackTrace();
                 }
         });
+        warranty_check.setOnLongClickListener(view -> {
+            container.removeAllViews();
+            return false;
+        });
 
     }
 

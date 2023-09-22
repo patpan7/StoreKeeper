@@ -246,7 +246,9 @@ public class charge_CreateNew extends AppCompatActivity {
             });
             container.addView(addView);
         } else {
-            Toast.makeText(getApplicationContext(), "Το serial number: " + sn + " δεν υπάρχει ή είναι χρεωμένο!!!", Toast.LENGTH_LONG).show();
+            dialog = new alertDialogs();
+            dialog.launchFail(this, "Το serial number: " + sn + " υπάρχει ή ή είναι χρεωμένο!!!");
+            //Toast.makeText(getApplicationContext(), "Το serial number: " + sn + " δεν υπάρχει ή είναι χρεωμένο!!!", Toast.LENGTH_LONG).show();
         }
     }
 

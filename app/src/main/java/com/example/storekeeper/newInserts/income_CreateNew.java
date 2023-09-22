@@ -408,7 +408,9 @@ public class income_CreateNew extends AppCompatActivity {
 
 
         if (isStock || serial_numbers.contains(sn) && !isThisProd) {
-            Toast.makeText(getApplicationContext(), "Το serial number: " + sn + " υπάρχει ή δεν ανήκει σε αυτό το προϊόν!!!", Toast.LENGTH_LONG).show();
+                dialog = new alertDialogs();
+                dialog.launchFail(this, "Το serial number: " + sn + " υπάρχει ή δεν ανήκει σε αυτό το προϊόν!!!");
+            //Toast.makeText(getApplicationContext(), "Το serial number: " + sn + " υπάρχει ή δεν ανήκει σε αυτό το προϊόν!!!", Toast.LENGTH_LONG).show();
         } else {
             LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             @SuppressLint("InflateParams") final View addView = layoutInflater.inflate(R.layout.income_insert_row, null);
