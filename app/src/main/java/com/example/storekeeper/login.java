@@ -97,12 +97,51 @@ public class login extends AppCompatActivity {
             queue.add(stringRequest);
         });
 
+        login.setOnLongClickListener(view -> {
+          register(username.getText().toString(),password.getText().toString());
+            return false;
+        });
+
         cardSettings = findViewById(R.id.cardSettings);
         cardSettings.setOnClickListener(view -> {
             Intent intent = new Intent(login.this, settings.class);
             startActivity(intent);
         });
 
+    }
+
+    private void register(String username, String password) {
+        String ip = helper.getSettingsIP();
+        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+        String url = "http://" + ip + "/storekeeper/register.php";
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, response -> {
+            progressBar.setVisibility(View.VISIBLE);
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String status = jsonObject.getString("status");
+                String message = jsonObject.getString("message");
+                if (status.equals("success")) {
+                    Toast.makeText(getApplicationContext(), "message", Toast.LENGTH_LONG).show();
+
+                } else {
+                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                }
+            } catch (JSONException e) {
+                Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
+                //throw new RuntimeException(e);
+            }
+        }, error -> {
+            progressBar.setVisibility(View.GONE);
+            //Toast.makeText(getApplicationContext(), error.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+        }) {
+            protected Map<String, String> getParams() {
+                Map<String, String> paramV = new HashMap<>();
+                paramV.put("username", username);
+                paramV.put("password",password);
+                return paramV;
+            }
+        };
+        queue.add(stringRequest);
     }
 
     private void getApiKey(String username) {
