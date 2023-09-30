@@ -98,7 +98,7 @@ public class login extends AppCompatActivity {
         });
 
         login.setOnLongClickListener(view -> {
-          register(username.getText().toString(),password.getText().toString());
+            register(username.getText().toString(),password.getText().toString());
             return false;
         });
 
